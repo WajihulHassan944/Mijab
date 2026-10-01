@@ -6,7 +6,6 @@ import { Card, PageHeader, Stat } from "@/components/admin/UI";
 import { byDay, inRange, live, pctChange, sum } from "@/lib/admin-calc";
 import { money } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
-import { products } from "@/lib/products";
 
 const RANGES = [7, 30, 90] as const;
 
@@ -19,8 +18,11 @@ export default function AnalyticsPage() {
     const cur = inRange(ok, today, range);
     const prev = inRange(ok, today, range * 2, range);
     const days = byDay(ok, today, range);
-    const prod: Record<string, { qty: number; revenue: number }> = {};
-    cur.forEach((o) => o.lines.forEach((l) => { const p = (prod[l.id] ??= { qty: 0, revenue: 0 }); p.qty += l.qty; p.revenue += products[l.id].price * l.qty; }));
+    // revenue per product uses each line's own price-at-purchase, not the
+    // current catalog price, so this stays accurate for past orders even
+    // after an admin edits a product's price
+    const prod: Record<string, { name: string; qty: number; revenue: number }> = {};
+    cur.forEach((o) => o.lines.forEach((l) => { const p = (prod[l.id] ??= { name: l.name, qty: 0, revenue: 0 }); p.qty += l.qty; p.revenue += l.price * l.qty; }));
     const pay: Record<string, number> = {};
     const city: Record<string, number> = {};
     cur.forEach((o) => { pay[o.payment] = (pay[o.payment] ?? 0) + 1; const c = o.city.split(",")[0]; city[c] = (city[c] ?? 0) + o.total; });
@@ -58,7 +60,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="cols even" style={{ marginBottom: 20 }}>
-        <Card title="Sales by product"><HBars data={Object.entries(d.prod).map(([id, v]) => ({ label: products[id as keyof typeof products].name, value: v.revenue, sub: `${v.qty} sold` })).sort((a, b) => b.value - a.value)} format={money} /></Card>
+        <Card title="Sales by product"><HBars data={Object.values(d.prod).map((v) => ({ label: v.name, value: v.revenue, sub: `${v.qty} sold` })).sort((a, b) => b.value - a.value)} format={money} /></Card>
         <Card title="Revenue by city"><HBars data={Object.entries(d.city).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value).slice(0, 6)} format={money} /></Card>
       </div>
 

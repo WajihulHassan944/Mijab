@@ -6,11 +6,11 @@ import { Arrow, ChevronLeft, Gift, Lock } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
 import { QtyStepper } from "@/components/Buttons";
 import { SummaryRows } from "@/components/Summary";
-import { formatPrice, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export default function BagPage() {
-  const { cart, count, totals, promo, setQty, remove, applyPromo, ready } = useStore();
+  const { cart, count, totals, promo, setQty, remove, applyPromo, ready, products } = useStore();
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 

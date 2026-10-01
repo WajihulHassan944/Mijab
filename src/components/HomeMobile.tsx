@@ -2,18 +2,18 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { fragrances, formatPrice, products } from "@/lib/products";
+import { formatPrice, Product } from "@/lib/products";
 import { useStore } from "@/lib/store";
 import { QtyStepper } from "./Buttons";
 import { Media } from "./Media";
 
 /** Mobile home hero: For Him / For Her switcher with a featured product. */
-export function MobileHero() {
+export function MobileHero({ fragrances }: { fragrances: Product[] }) {
   const [pick, setPick] = useState<"cafe-noir" | "vanilla-gourmand">("cafe-noir");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { add } = useStore();
-  const p = products[pick];
+  const p = fragrances.find((f) => f.id === pick) ?? fragrances[0];
   return (
     <section className="m-hero only-mobile">
       <div className="eyebrow">Exclusive Fragrances</div>
@@ -49,9 +49,9 @@ export function MobileHero() {
 }
 
 /** Mobile scent notes: follows the For Him / For Her choice made in the hero. */
-export function MobileNotes() {
+export function MobileNotes({ fragrances }: { fragrances: Product[] }) {
   const [pick, setPick] = useState<"cafe-noir" | "vanilla-gourmand">("cafe-noir");
-  const p = products[pick];
+  const p = fragrances.find((f) => f.id === pick) ?? fragrances[0];
   return (
     <div className="note-col only-mobile">
       <div className="seg" role="tablist" aria-label="Scent notes" style={{ borderColor: "#d2bfb3", marginTop: 0, marginBottom: 20 }}>

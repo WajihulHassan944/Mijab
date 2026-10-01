@@ -5,17 +5,17 @@ import { useState } from "react";
 import { AddToBag } from "@/components/Buttons";
 import { Arrow, ChevronDown } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
-import { formatPrice, shopItems } from "@/lib/products";
+import { formatPrice, Product } from "@/lib/products";
 
 const filters = ["All", "For Him", "For Her", "The Duo"] as const;
 type Filter = (typeof filters)[number];
 const sorts = ["Featured", "Price: low to high", "Price: high to low", "Name"] as const;
 
-export function ShopGrid() {
+export function ShopGrid({ initialProducts }: { initialProducts: Product[] }) {
   const [filter, setFilter] = useState<Filter>("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
 
-  let items = shopItems.filter((p) => filter === "All" || (filter === "For Him" && p.id === "cafe-noir") || (filter === "For Her" && p.id === "vanilla-gourmand") || (filter === "The Duo" && p.id === "duo"));
+  let items = initialProducts.filter((p) => filter === "All" || (filter === "For Him" && p.id === "cafe-noir") || (filter === "For Her" && p.id === "vanilla-gourmand") || (filter === "The Duo" && p.id === "duo"));
   if (sort === "Price: low to high") items = [...items].sort((a, b) => a.price - b.price);
   if (sort === "Price: high to low") items = [...items].sort((a, b) => b.price - a.price);
   if (sort === "Name") items = [...items].sort((a, b) => a.name.localeCompare(b.name));
@@ -44,7 +44,7 @@ export function ShopGrid() {
           const href = p.id === "duo" ? null : `/product/${p.slug}`;
           const media = (
             <ProductMedia product={p} sizes="(max-width: 820px) 50vw, 300px">
-              {p.id === "duo" && <span className="badge-save">Save Rs. 500</span>}
+              {p.id === "duo" && p.compareAt && p.compareAt > p.price && <span className="badge-save">Save {formatPrice(p.compareAt - p.price)}</span>}
             </ProductMedia>
           );
           return (

@@ -6,9 +6,6 @@ import { Card, PageHeader, Toggle } from "@/components/admin/UI";
 import { live } from "@/lib/admin-calc";
 import { money } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
-import { ProductId, products as catalog } from "@/lib/products";
-
-const FALLBACK_MEDIA = { image: "/images/duo.jpg", swatch: "#141010", audience: "" };
 
 export default function ProductsPage() {
   const { products, orders, updateProduct, settings } = useAdmin();
@@ -26,11 +23,10 @@ export default function ProductsPage() {
             <thead><tr><th>Product</th><th>SKU</th><th className="num">Price</th><th className="num">Stock</th><th className="num">Sold</th><th>Visible</th><th /></tr></thead>
             <tbody>
               {products.map((p) => {
-                const c = catalog[p.id as ProductId] ?? FALLBACK_MEDIA;
                 const low = p.stock <= settings.lowStockAt;
                 return (
                   <tr key={p.id}>
-                    <td><div className="cell-prod"><span className="thumb-s" style={{ background: c.swatch }}><Image src={c.image} alt={p.name} fill sizes="38px" /></span><div><Link href={`/admin/products/${p.id}`} style={{ fontWeight: 500 }}>{p.name}</Link><span className="sub">{c.audience} · Eau de Parfum 50 ml</span></div></div></td>
+                    <td><div className="cell-prod"><span className="thumb-s" style={{ background: p.swatch }}><Image src={p.image} alt={p.name} fill sizes="38px" /></span><div><Link href={`/admin/products/${p.id}`} style={{ fontWeight: 500 }}>{p.name}</Link><span className="sub">{p.audience} · Eau de Parfum 50 ml</span></div></div></td>
                     <td>{p.sku}</td>
                     <td className="num">{money(p.price)}{p.compareAt ? <span className="sub" style={{ textDecoration: "line-through" }}>{money(p.compareAt)}</span> : null}</td>
                     <td className="num">{p.stock === 0 ? <span className="pill s-cancelled">Out of stock</span> : <span className={low ? "low" : ""}>{p.stock}{low ? " · low" : ""}</span>}</td>

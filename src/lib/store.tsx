@@ -1,17 +1,27 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { DELIVERY_FEE, ProductId, products } from "./products";
-import { api, ApiOrder, tokenStore } from "./api";
+import { DELIVERY_FEE, Product, ProductId, products as staticProducts } from "./products";
+import { Catalog, fetchCatalog } from "./catalog";
+import { api, ApiOrder, PublicSettings, tokenStore } from "./api";
+
+export type { Catalog } from "./catalog";
 
 export type Line = { id: ProductId; qty: number };
+
+// A line within a *placed* order carries the name/price as they were at the
+// moment of purchase (the backend snapshots these), so a receipt always
+// shows what was actually charged even if the catalog price changes later.
+export type OrderLine = { id: ProductId; qty: number; name: string; price: number };
+
+const FALLBACK_SETTINGS: PublicSettings = { storeName: "MIJAB", deliveryFee: DELIVERY_FEE, freeOver: 0, cod: true, card: true, bank: true };
 
 export type Order = {
   id: string;
   placedOn: string;
   createdAt?: string;
   stage: 0 | 1 | 2 | 3; // 0 placed, 1 packed, 2 out for delivery, 3 delivered
-  lines: Line[];
+  lines: OrderLine[];
   subtotal: number;
   discount: number;
   delivery: number;
@@ -34,7 +44,7 @@ export function fromApi(o: ApiOrder): Order {
     placedOn: o.placedOn,
     createdAt: o.createdAt,
     stage: o.stage,
-    lines: o.lines.map((l) => ({ id: l.id as ProductId, qty: l.qty })),
+    lines: o.lines.map((l) => ({ id: l.id as ProductId, qty: l.qty, name: l.name, price: l.price })),
     subtotal: o.subtotal,
     discount: o.discount,
     delivery: o.delivery,
@@ -54,12 +64,14 @@ function toUser(u: { name: string; email: string; address?: string; phone?: stri
 
 type Totals = { subtotal: number; discount: number; delivery: number; total: number };
 
-/** Client-side estimate for the bag/checkout summary. The backend always
- * recomputes authoritative totals from live prices/stock at order time. */
-export function computeTotals(lines: Line[], promoPercent: number): Totals {
-  const subtotal = lines.reduce((sum, l) => sum + products[l.id].price * l.qty, 0);
+/** Client-side estimate for the bag/checkout summary, from live catalog
+ * prices and live delivery settings. The backend always recomputes
+ * authoritative totals from the database at order time regardless. */
+export function computeTotals(lines: Line[], catalog: Catalog, promoPercent: number, settings: PublicSettings): Totals {
+  const subtotal = lines.reduce((sum, l) => sum + (catalog[l.id]?.price ?? 0) * l.qty, 0);
   const discount = Math.round(subtotal * (promoPercent / 100));
-  const delivery = lines.length ? DELIVERY_FEE : 0;
+  let delivery = lines.length ? settings.deliveryFee : 0;
+  if (lines.length && settings.freeOver > 0 && subtotal >= settings.freeOver) delivery = 0;
   return { subtotal, discount, delivery, total: subtotal - discount + delivery };
 }
 
@@ -71,6 +83,10 @@ type Ctx = {
   count: number;
   promo: string | null;
   totals: Totals;
+  products: Catalog;
+  productList: Product[];
+  fragrances: Product[];
+  settings: PublicSettings;
   user: User | null;
   orders: Order[];
   lastOrder: Order | null;
@@ -101,6 +117,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
+  // seeded from the static catalog so there's no empty-state flash while the
+  // live fetch is in flight; replaced with live data (price, stock,
+  // description, ...) as soon as it resolves, so admin edits always win
+  const [products, setProducts] = useState<Catalog>(staticProducts);
+  const [settings, setSettings] = useState<PublicSettings>(FALLBACK_SETTINGS);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +131,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (raw) setCart(JSON.parse(raw));
       } catch {
         /* storage unavailable: cart just starts at the default */
+      }
+
+      const [catalog, settingsResult] = await Promise.allSettled([fetchCatalog(), api.settings.get()]);
+      if (!cancelled) {
+        if (catalog.status === "fulfilled") setProducts(catalog.value);
+        if (settingsResult.status === "fulfilled") setSettings(settingsResult.value);
       }
 
       const token = tokenStore.get();
@@ -190,7 +217,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const res = await api.auth.register({ name, email, password });
       tokenStore.set(res.token);
       setUser(toUser(res.user));
-      setOrders([]);
+      // the backend matches /orders/mine by email too, so any guest order
+      // placed under this address before signing up shows up immediately
+      const mine = await api.orders.mine(res.token).catch(() => []);
+      setOrders(mine.map(fromApi));
       return { ok: true };
     } catch (e) {
       return { ok: false, error: errorMessage(e, "Could not create your account") };
@@ -248,7 +278,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const count = cart.reduce((n, l) => n + l.qty, 0);
-  const totals = useMemo(() => computeTotals(cart, promoPercent), [cart, promoPercent]);
+  const totals = useMemo(() => computeTotals(cart, products, promoPercent, settings), [cart, products, promoPercent, settings]);
+  const productList = useMemo(() => Object.values(products), [products]);
+  const fragrances = useMemo(() => productList.filter((p) => p.id !== "duo"), [productList]);
 
   const value: Ctx = {
     ready,
@@ -256,6 +288,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     count,
     promo,
     totals,
+    products,
+    productList,
+    fragrances,
+    settings,
     user,
     orders,
     lastOrder,

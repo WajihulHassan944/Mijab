@@ -8,13 +8,12 @@ import { IDown } from "@/components/admin/AIcons";
 import { PageHeader, StatusBadge, download } from "@/components/admin/UI";
 import { STATUS_LABEL, Status, longDate, money } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
-import { products } from "@/lib/products";
 
 const TABS: ("all" | Status)[] = ["all", "placed", "packed", "out", "delivered", "cancelled"];
 const PER = 10;
 
 export function OrdersClient() {
-  const { orders, setStatus } = useAdmin();
+  const { orders, products, setStatus } = useAdmin();
   const params = useSearchParams();
   const router = useRouter();
   const [q, setQ] = useState(params.get("q") ?? "");
@@ -24,6 +23,8 @@ export function OrdersClient() {
   const [picked, setPicked] = useState<string[]>([]);
 
   useEffect(() => { setQ(params.get("q") ?? ""); setPage(1); }, [params]);
+
+  const byId = useMemo(() => Object.fromEntries(products.map((p) => [p.id, p])), [products]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: orders.length };
@@ -43,7 +44,7 @@ export function OrdersClient() {
 
   function exportCsv() {
     const head = ["Order", "Date", "Customer", "Email", "Phone", "City", "Items", "Payment", "Status", "Total"];
-    const body = rows.map((o) => [o.id, o.createdAt.slice(0, 10), o.name, o.email, o.phone, o.city, o.lines.map((l) => `${products[l.id].name} x${l.qty}`).join(" + "), o.payment, STATUS_LABEL[o.status], o.total]);
+    const body = rows.map((o) => [o.id, o.createdAt.slice(0, 10), o.name, o.email, o.phone, o.city, o.lines.map((l) => `${l.name} x${l.qty}`).join(" + "), o.payment, STATUS_LABEL[o.status], o.total]);
     download("mijab-orders.csv", [head, ...body].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"));
   }
 
@@ -94,7 +95,7 @@ export function OrdersClient() {
                   <td>{o.name}<span className="sub">{o.city.split(",")[0]}</span></td>
                   <td>
                     <div className="thumb-row">
-                      {o.lines.slice(0, 3).map((l) => (<span className="thumb-s" key={l.id} style={{ background: products[l.id].swatch }}><Image src={products[l.id].image} alt={products[l.id].name} fill sizes="38px" /></span>))}
+                      {o.lines.slice(0, 3).map((l) => byId[l.id] && (<span className="thumb-s" key={l.id} style={{ background: byId[l.id].swatch }}><Image src={byId[l.id].image} alt={l.name} fill sizes="38px" /></span>))}
                     </div>
                   </td>
                   <td>{o.payment}</td>

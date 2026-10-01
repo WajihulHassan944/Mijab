@@ -3,9 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Arrow } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
-import { fragrances } from "@/lib/products";
+import { fetchCatalog } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "About" };
+export const revalidate = 0;
 
 const values = [
   ["01", "Individuality", "Two fragrances with their own character, because no two people wear a scent the same way."],
@@ -13,7 +14,9 @@ const values = [
   ["03", "Moments", "Made for the evenings, the meetings and the little occasions you want to remember."],
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const catalog = await fetchCatalog();
+  const fragrances = [catalog["cafe-noir"], catalog["vanilla-gourmand"]].filter(Boolean);
   return (
     <>
       <section className="about-hero">

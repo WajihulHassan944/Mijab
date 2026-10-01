@@ -3,25 +3,26 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductMedia } from "@/components/Media";
 import { Arrow } from "@/components/Icons";
-import { fragrances, formatPrice, products, ProductId } from "@/lib/products";
+import { formatPrice, ProductId } from "@/lib/products";
+import { fetchCatalog } from "@/lib/catalog";
 import { PurchasePanel } from "./PurchasePanel";
 
-export function generateStaticParams() {
-  return fragrances.map((p) => ({ slug: p.slug }));
-}
+export const revalidate = 0; // always the live catalog, never a stale build-time snapshot
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const p = fragrances.find((f) => f.slug === slug);
+  const catalog = await fetchCatalog();
+  const p = catalog[slug];
   return { title: p ? p.name : "Product" };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = fragrances.find((f) => f.slug === slug);
+  const catalog = await fetchCatalog();
+  const product = slug !== "duo" ? catalog[slug] : undefined;
   if (!product) notFound();
-  const other = products[(product.id === "cafe-noir" ? "vanilla-gourmand" : "cafe-noir") as ProductId];
-  const duo = products.duo;
+  const other = catalog[(product.id === "cafe-noir" ? "vanilla-gourmand" : "cafe-noir") as ProductId];
+  const duo = catalog.duo;
   const n = product.notes!;
 
   return (

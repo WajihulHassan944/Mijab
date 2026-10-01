@@ -7,7 +7,6 @@ import { ICheck, IPrint } from "@/components/admin/AIcons";
 import { Card, PageHeader, StatusBadge } from "@/components/admin/UI";
 import { STATUS_FLOW, STATUS_LABEL, Status, longDate, money } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
-import { products } from "@/lib/products";
 
 const NEXT: Partial<Record<Status, { to: Status; label: string }>> = {
   placed: { to: "packed", label: "Mark as packed" },
@@ -16,7 +15,7 @@ const NEXT: Partial<Record<Status, { to: Status; label: string }>> = {
 };
 
 export function OrderDetail({ id }: { id: string }) {
-  const { orders, setStatus, notes, setNote } = useAdmin();
+  const { orders, products, setStatus, notes, setNote } = useAdmin();
   const o = orders.find((x) => x.id === id);
   const [note, setLocal] = useState("");
   const [saved, setSaved] = useState(false);
@@ -53,11 +52,16 @@ export function OrderDetail({ id }: { id: string }) {
                 <thead><tr><th>Product</th><th className="num">Price</th><th className="num">Qty</th><th className="num">Total</th></tr></thead>
                 <tbody>
                   {o.lines.map((l) => {
-                    const p = products[l.id];
+                    const p = products.find((x) => x.id === l.id);
                     return (
                       <tr key={l.id}>
-                        <td><div className="cell-prod"><span className="thumb-s" style={{ background: p.swatch }}><Image src={p.image} alt={p.name} fill sizes="38px" /></span><div>{p.name}<span className="sub">{p.audience} · 50 ml</span></div></div></td>
-                        <td className="num">{money(p.price)}</td><td className="num">{l.qty}</td><td className="num">{money(p.price * l.qty)}</td>
+                        <td>
+                          <div className="cell-prod">
+                            {p && <span className="thumb-s" style={{ background: p.swatch }}><Image src={p.image} alt={l.name} fill sizes="38px" /></span>}
+                            <div>{l.name}{p && <span className="sub">{p.audience} · 50 ml</span>}</div>
+                          </div>
+                        </td>
+                        <td className="num">{money(l.price)}</td><td className="num">{l.qty}</td><td className="num">{money(l.price * l.qty)}</td>
                       </tr>
                     );
                   })}

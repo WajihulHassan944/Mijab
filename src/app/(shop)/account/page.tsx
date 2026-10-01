@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Media } from "@/components/Media";
-import { formatPrice, products } from "@/lib/products";
-import { Order, useStore } from "@/lib/store";
+import { formatPrice } from "@/lib/products";
+import { Catalog, Order, useStore } from "@/lib/store";
 
 const status = ["Confirmed", "Packed", "Out for delivery", "Delivered"];
 const bg = ["#EFE4DD", "#EFE4DD", "#DCCBE6", "#E4D3C6"];
 type Tab = "orders" | "addresses" | "profile";
 
-function OrderCard({ o }: { o: Order }) {
+function OrderCard({ o, products }: { o: Order; products: Catalog }) {
   return (
     <div className="card order-card">
       <div className="head">
@@ -19,7 +19,7 @@ function OrderCard({ o }: { o: Order }) {
         <span className="status" style={{ background: bg[o.stage] }}>{status[o.stage]}</span>
       </div>
       <div className="foot">
-        <div className="th">{o.lines.map((l) => <Media key={l.id} src={products[l.id].image} alt={products[l.id].name} bg={products[l.id].swatch} sizes="56px" />)}</div>
+        <div className="th">{o.lines.map((l) => products[l.id] && <Media key={l.id} src={products[l.id].image} alt={l.name} bg={products[l.id].swatch} sizes="56px" />)}</div>
         <div className="acts">
           <div className="tot">{formatPrice(o.total)}</div>
           {o.stage < 3 && <Link className="btn sm" href={`/track?order=${o.id}`}>Track</Link>}
@@ -31,7 +31,7 @@ function OrderCard({ o }: { o: Order }) {
 }
 
 export default function AccountPage() {
-  const { user, ready, orders, signOut, updateUser } = useStore();
+  const { user, ready, orders, signOut, updateUser, products } = useStore();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("orders");
   const [name, setName] = useState("");
@@ -86,7 +86,7 @@ export default function AccountPage() {
                   No orders yet. <Link href="/shop" style={{ textDecoration: "underline" }}>Start shopping</Link>.
                 </div>
               )}
-              {orders.map((o) => <OrderCard key={o.id} o={o} />)}
+              {orders.map((o) => <OrderCard key={o.id} o={o} products={products} />)}
               <div className="form-title" style={{ margin: "16px 0 0" }}>Saved address</div>
               <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.65 }}>

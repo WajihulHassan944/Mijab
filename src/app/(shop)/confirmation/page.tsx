@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { Arrow, Check } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
 import { SummaryRows } from "@/components/Summary";
-import { formatPrice, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export default function ConfirmationPage() {
@@ -18,7 +18,7 @@ export default function ConfirmationPage() {
 }
 
 function Confirmation() {
-  const { lastOrder, orders, ready } = useStore();
+  const { lastOrder, orders, ready, products } = useStore();
   const wanted = useSearchParams().get("order");
   const o = orders.find((x) => x.id === wanted) ?? lastOrder;
 
@@ -53,9 +53,9 @@ function Confirmation() {
           <h2>Order summary</h2>
           {o.lines.map((l) => (
             <div className="mini-line" key={l.id}>
-              <ProductMedia product={products[l.id]} sizes="56px" />
-              <div><div className="n">{products[l.id].name}</div><div className="q">Qty {l.qty}</div></div>
-              <div className="p">{formatPrice(products[l.id].price * l.qty)}</div>
+              {products[l.id] && <ProductMedia product={products[l.id]} sizes="56px" />}
+              <div><div className="n">{l.name}</div><div className="q">Qty {l.qty}</div></div>
+              <div className="p">{formatPrice(l.price * l.qty)}</div>
             </div>
           ))}
           <div style={{ marginTop: 12 }}><SummaryRows subtotal={o.subtotal} discount={o.discount} delivery={o.delivery} total={o.total} /></div>

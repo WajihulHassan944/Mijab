@@ -5,9 +5,6 @@ import { useEffect, useState } from "react";
 import { Card, PageHeader, Toggle } from "@/components/admin/UI";
 import { AdminProduct } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
-import { ProductId, products as catalog } from "@/lib/products";
-
-const FALLBACK_MEDIA = { image: "/images/duo.jpg", swatch: "#141010", audience: "" };
 
 export function ProductEdit({ id }: { id: string }) {
   const { products, updateProduct } = useAdmin();
@@ -19,13 +16,12 @@ export function ProductEdit({ id }: { id: string }) {
   if (!source || !f) {
     return <PageHeader title="Product not found" back={{ href: "/admin/products", label: "Products" }} />;
   }
-  const c = catalog[id as ProductId] ?? FALLBACK_MEDIA;
   const set = <K extends keyof AdminProduct>(k: K, v: AdminProduct[K]) => { setF({ ...f, [k]: v }); setSaved(false); };
   const num = (v: string) => (v === "" ? 0 : Math.max(0, Number(v) || 0));
 
   return (
     <>
-      <PageHeader title={f.name} sub={`${f.sku} · ${c.audience}`} back={{ href: "/admin/products", label: "Products" }}>
+      <PageHeader title={f.name} sub={`${f.sku} · ${f.audience}`} back={{ href: "/admin/products", label: "Products" }}>
         {saved && <span className="inline-note" style={{ alignSelf: "center" }}>Saved</span>}
         <button className="abtn" onClick={() => { updateProduct(f.id, f); setSaved(true); }}>Save changes</button>
       </PageHeader>
@@ -59,7 +55,7 @@ export function ProductEdit({ id }: { id: string }) {
 
         <div className="stack-a">
           <Card title="Preview">
-            <div className="thumb-s" style={{ width: "100%", height: 260, background: c.swatch }}><Image src={c.image} alt={f.name} fill sizes="340px" /></div>
+            <div className="thumb-s" style={{ width: "100%", height: 260, background: f.swatch }}><Image src={f.image} alt={f.name} fill sizes="340px" /></div>
             <div className="setrow" style={{ marginTop: 16 }}>
               <div><b>Visible in store</b><small>Hidden products can&apos;t be bought</small></div>
               <Toggle on={f.active} onChange={(v) => set("active", v)} label="Visible in store" />

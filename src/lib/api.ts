@@ -168,10 +168,15 @@ export type ApiAnalytics = {
 
 // ---- Public / customer endpoints ----
 
+export type PublicSettings = { storeName: string; deliveryFee: number; freeOver: number; cod: boolean; card: boolean; bank: boolean };
+
 export const api = {
   products: {
     list: () => request<{ products: ApiProduct[] }>("/products").then((r) => r.products),
     get: (slug: string) => request<{ product: ApiProduct }>(`/products/${slug}`).then((r) => r.product),
+  },
+  settings: {
+    get: () => request<{ settings: PublicSettings }>("/settings").then((r) => r.settings),
   },
   auth: {
     register: (body: { name: string; email: string; password: string }) =>

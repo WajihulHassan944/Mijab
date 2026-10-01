@@ -1,16 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { Media, ProductMedia } from "@/components/Media";
+import { ProductMedia } from "@/components/Media";
 import { Arrow } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
 import { MobileHero, MobileNotes } from "@/components/HomeMobile";
-import { fragrances, formatPrice, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { fetchCatalog } from "@/lib/catalog";
 
-export default function Home() {
-  const noir = products["cafe-noir"];
-  const vanilla = products["vanilla-gourmand"];
-  const duo = products.duo;
+export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
+
+export default async function Home() {
+  const catalog = await fetchCatalog();
+  const noir = catalog["cafe-noir"];
+  const vanilla = catalog["vanilla-gourmand"];
+  const duo = catalog.duo;
+  const fragrances = [noir, vanilla].filter(Boolean);
 
   return (
     <>
@@ -35,7 +40,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <MobileHero />
+      <MobileHero fragrances={fragrances} />
 
       {/* ---------- collection ---------- */}
       <section className="collection" id="collection">
@@ -137,7 +142,7 @@ export default function Home() {
               <div className="note-row"><span className="k">Base</span><span className="v">{p.notes!.base}</span></div>
             </div>
           ))}
-          <MobileNotes />
+          <MobileNotes fragrances={fragrances} />
         </div>
       </section>
 

@@ -36,6 +36,9 @@ export type AdminProduct = {
   top: string;
   heart: string;
   base: string;
+  image: string;
+  swatch: string;
+  audience: string;
 };
 
 export type Promo = { code: string; percent: number; active: boolean; uses: number; note: string };

@@ -20,7 +20,7 @@ function toAdminOrder(o: ApiOrder): AdminOrder {
     createdAt: o.createdAt,
     stage: o.stage,
     status: o.status,
-    lines: o.lines.map((l) => ({ id: l.id as AdminOrder["lines"][number]["id"], qty: l.qty })),
+    lines: o.lines.map((l) => ({ id: l.id as AdminOrder["lines"][number]["id"], qty: l.qty, name: l.name, price: l.price })),
     subtotal: o.subtotal,
     discount: o.discount,
     delivery: o.delivery,
@@ -48,6 +48,9 @@ function toAdminProduct(p: ApiProduct): AdminProduct {
     top: p.notes?.top ?? "",
     heart: p.notes?.heart ?? "",
     base: p.notes?.base ?? "",
+    image: p.image,
+    swatch: p.swatch,
+    audience: p.audience,
   };
 }
 

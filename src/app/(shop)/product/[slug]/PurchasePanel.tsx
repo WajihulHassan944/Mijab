@@ -6,13 +6,14 @@ import { useState } from "react";
 import { QtyStepper } from "@/components/Buttons";
 import { Arrow, Gift, Lock, Truck } from "@/components/Icons";
 import { Media } from "@/components/Media";
-import { formatPrice, Product, products } from "@/lib/products";
+import { formatPrice, Product } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export function PurchasePanel({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const [view, setView] = useState<"bottle" | "bag" | "duo">("bottle");
-  const { add } = useStore();
+  const { add, products } = useStore();
+  const duoImage = products.duo?.image ?? product.image;
   const router = useRouter();
 
   const thumbs = [
@@ -26,14 +27,14 @@ export function PurchasePanel({ product }: { product: Product }) {
       <div className="pdp-gallery">
         <div className="media main" style={{ background: view === "bottle" ? product.swatch : "var(--sand)" }}>
           {view === "bottle" && <Image src={product.image} alt={`MIJAB ${product.name}`} fill sizes="(max-width: 820px) 100vw, 440px" priority />}
-          {view === "duo" && <Image src={products.duo.image} alt="MIJAB Café Noir and Vanilla Gourmand" fill sizes="(max-width: 820px) 100vw, 440px" />}
+          {view === "duo" && <Image src={duoImage} alt="MIJAB Café Noir and Vanilla Gourmand" fill sizes="(max-width: 820px) 100vw, 440px" />}
           {view === "bag" && <Image src={product.bag!} alt={product.bagLabel!} fill sizes="(max-width: 820px) 100vw, 440px" style={{ objectFit: "contain", padding: 32 }} />}
         </div>
         <div className="thumbs">
           {thumbs.map((t) => (
             <button key={t.id} className={`thumb${view === t.id ? " on" : ""}`} onClick={() => setView(t.id)} aria-label={`Show ${t.label}`} aria-pressed={view === t.id}>
               {t.id === "bottle" && <Media src={product.image} alt="" bg={product.swatch} sizes="136px" />}
-              {t.id === "duo" && <Media src={products.duo.image} alt="" sizes="136px" />}
+              {t.id === "duo" && <Media src={duoImage} alt="" sizes="136px" />}
               {t.id === "bag" && <Image className="bagimg" src={product.bag!} alt="" width={69} height={106} />}
             </button>
           ))}

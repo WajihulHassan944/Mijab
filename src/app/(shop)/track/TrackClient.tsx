@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Arrow, Check } from "@/components/Icons";
 import { Media } from "@/components/Media";
-import { formatPrice, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 import { fromApi, Order, useStore } from "@/lib/store";
 import { getPusher } from "@/lib/pusher-client";
 import { ApiOrder } from "@/lib/api";
@@ -20,7 +20,7 @@ const bg = ["#EFE4DD", "#EFE4DD", "#DCCBE6", "#E4D3C6"];
 
 export function TrackClient() {
   const params = useSearchParams();
-  const { findOrder } = useStore();
+  const { findOrder, products } = useStore();
   const [id, setId] = useState(params.get("order") ?? "");
   const [phone, setPhone] = useState("");
   const [result, setResult] = useState<Order | null | undefined>(undefined);
@@ -115,7 +115,7 @@ export function TrackClient() {
             <div>
               <div className="eyebrow">Items</div>
               <div className="thumbs-sm">
-                {result.lines.map((l) => <Media key={l.id} src={products[l.id].image} alt={products[l.id].name} bg={products[l.id].swatch} sizes="64px" />)}
+                {result.lines.map((l) => products[l.id] && <Media key={l.id} src={products[l.id].image} alt={l.name} bg={products[l.id].swatch} sizes="64px" />)}
               </div>
             </div>
             <div>

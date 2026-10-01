@@ -6,13 +6,13 @@ import { FormEvent, useEffect, useState } from "react";
 import { Arrow } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
 import { SummaryRows } from "@/components/Summary";
-import { formatPrice, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
-const PAYMENTS = [
-  { id: "Cash on delivery", sub: "Pay when your order arrives" },
-  { id: "Debit or credit card", sub: "Visa, Mastercard" },
-  { id: "Bank transfer", sub: "Details sent after you place the order" },
+const PAYMENT_DEFS = [
+  { id: "Cash on delivery", sub: "Pay when your order arrives", key: "cod" as const },
+  { id: "Debit or credit card", sub: "Visa, Mastercard", key: "card" as const },
+  { id: "Bank transfer", sub: "Details sent after you place the order", key: "bank" as const },
 ];
 
 type Form = Record<"email" | "phone" | "first" | "last" | "address" | "apt" | "city" | "province" | "postal", string>;
@@ -29,13 +29,15 @@ function Field({ id, label, value, onChange, error, type = "text", placeholder =
 }
 
 export default function CheckoutPage() {
-  const { cart, totals, promo, user, placeOrder, ready } = useStore();
+  const { cart, totals, promo, user, placeOrder, ready, products, settings } = useStore();
   const router = useRouter();
   const [f, setF] = useState<Form>(blank);
-  const [pay, setPay] = useState(PAYMENTS[0].id);
+  const [pay, setPay] = useState(PAYMENT_DEFS[0].id);
   const [errors, setErrors] = useState<Partial<Form>>({});
   const [submitError, setSubmitError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const payments = PAYMENT_DEFS.filter((p) => settings[p.key]);
 
   useEffect(() => {
     if (user) {
@@ -43,6 +45,12 @@ export default function CheckoutPage() {
       setF((cur) => ({ ...cur, email: cur.email || user.email, first: cur.first || first, last: cur.last || rest.join(" ") }));
     }
   }, [user]);
+
+  // keep the selected method valid if settings load after mount, or an
+  // admin disables whichever method was selected
+  useEffect(() => {
+    if (payments.length && !payments.some((p) => p.id === pay)) setPay(payments[0].id);
+  }, [payments, pay]);
 
   const set = (k: keyof Form) => (v: string) => setF((cur) => ({ ...cur, [k]: v }));
 
@@ -123,13 +131,13 @@ export default function CheckoutPage() {
             <div className="form-title">Delivery method</div>
             <label className="radio on">
               <input type="radio" name="ship" defaultChecked />
-              <span style={{ flex: 1 }}><b>Standard delivery</b><small>Rs. 200</small></span>
+              <span style={{ flex: 1 }}><b>Standard delivery</b><small>{totals.delivery === 0 ? "Free" : formatPrice(settings.deliveryFee)}</small></span>
             </label>
           </div>
           <div>
             <div className="form-title">Payment</div>
             <div className="stack" style={{ gap: 10 }}>
-              {PAYMENTS.map((p) => (
+              {payments.map((p) => (
                 <label key={p.id} className={`radio${pay === p.id ? " on" : ""}`}>
                   <input type="radio" name="pay" checked={pay === p.id} onChange={() => setPay(p.id)} />
                   <span style={{ flex: 1 }}><b>{p.id}</b><small>{p.sub}</small></span>
@@ -146,10 +154,10 @@ export default function CheckoutPage() {
               <div className="mini-line" key={l.id}>
                 <ProductMedia product={products[l.id]} sizes="56px" />
                 <div>
-                  <div className="n">{products[l.id].name}</div>
+                  <div className="n">{products[l.id]?.name}</div>
                   <div className="q">Qty {l.qty}</div>
                 </div>
-                <div className="p">{formatPrice(products[l.id].price * l.qty)}</div>
+                <div className="p">{formatPrice((products[l.id]?.price ?? 0) * l.qty)}</div>
               </div>
             ))}
           </div>
