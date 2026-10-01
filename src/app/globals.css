@@ -79,7 +79,10 @@ h1, h2, h3, p { margin: 0; }
   display: flex; align-items: center; justify-content: space-between;
   background: rgba(248, 242, 238, 0.96); backdrop-filter: blur(10px); border-bottom: 1px solid #e3d3c8;
 }
-.header .logo img { display: block; }
+.header .logo { color: #2a1d18; display: block; }
+.header .logo svg, .footer-top svg, .finale-mid svg { display: block; }
+.header.overlay .logo .logo-hero { color: #f6ebe4; }
+.finale-mid svg { color: #2a1d18; }
 .nav { display: flex; gap: 44px; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; }
 .nav a { padding-bottom: 6px; color: #4a3a30; border-bottom: 1px solid transparent; transition: color 0.2s; }
 .nav a:hover { color: var(--ink); }

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Logo } from "./Logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AccountIcon, BagIcon, SearchIcon } from "./Icons";
@@ -22,8 +22,8 @@ export function Header() {
   return (
     <header className={`header${overlay ? " overlay" : ""}`}>
       <Link href="/" className="logo" aria-label="MIJAB home">
-        {overlay && <Image className="logo-hero" src="/images/logo-hero@4x.png" alt="MIJAB" width={212} height={95} priority unoptimized style={{ width: 70, height: "auto" }} />}
-        <Image className={overlay ? "logo-mobile" : undefined} src="/images/logo-dark@4x.png" alt={overlay ? "" : "MIJAB"} width={212} height={95} priority unoptimized style={{ width: 70, height: "auto" }} />
+        {overlay && <Logo className="logo-hero" width={74} title="MIJAB" />}
+        <Logo className={overlay ? "logo-mobile" : "logo-solid"} width={74} title={overlay ? undefined : "MIJAB"} />
       </Link>
       <nav className="nav" aria-label="Primary">
         {nav.map((n) => (

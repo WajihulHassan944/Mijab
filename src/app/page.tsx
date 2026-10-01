@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { Media, ProductMedia } from "@/components/Media";
 import { Arrow } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
@@ -189,7 +190,7 @@ export default function Home() {
             <div className="cap"><b>For Him</b><i>{noir.name} · {formatPrice(noir.price)}</i></div>
           </Link>
           <div className="finale-mid">
-            <Image src="/images/logo-dark@4x.png" alt="MIJAB" width={212} height={95} unoptimized style={{ width: 84, height: "auto" }} />
+            <Logo width={86} title="MIJAB" />
             <div className="eyebrow">Discover MIJAB</div>
             <h2>Find the one that <i>finds you.</i></h2>
             <div className="rule" />

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Logo } from "./Logo";
 import Link from "next/link";
 import { Facebook, Instagram, TikTok } from "./Icons";
 
@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-top">
         <Link href="/" aria-label="MIJAB">
-          <Image src="/images/logo-light@4x.png" alt="MIJAB" width={187} height={110} unoptimized style={{ width: 72, height: "auto" }} />
+          <Logo width={76} title="MIJAB" />
         </Link>
         <nav className="footer-links" aria-label="Footer">
           <Link href="/shop">Shop</Link>
