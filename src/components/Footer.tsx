@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-top">
         <Link href="/" aria-label="MIJAB">
-          <Image src="/images/logo-light.png" alt="MIJAB" width={234} height={144} style={{ width: 78, height: 48 }} />
+          <Image src="/images/logo-light@4x.png" alt="MIJAB" width={187} height={110} unoptimized style={{ width: 72, height: "auto" }} />
         </Link>
         <nav className="footer-links" aria-label="Footer">
           <Link href="/shop">Shop</Link>

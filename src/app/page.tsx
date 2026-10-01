@@ -189,7 +189,7 @@ export default function Home() {
             <div className="cap"><b>For Him</b><i>{noir.name} · {formatPrice(noir.price)}</i></div>
           </Link>
           <div className="finale-mid">
-            <Image src="/images/logo-dark.png" alt="MIJAB" width={258} height={132} style={{ width: 86, height: 44 }} />
+            <Image src="/images/logo-dark@4x.png" alt="MIJAB" width={212} height={95} unoptimized style={{ width: 84, height: "auto" }} />
             <div className="eyebrow">Discover MIJAB</div>
             <h2>Find the one that <i>finds you.</i></h2>
             <div className="rule" />
