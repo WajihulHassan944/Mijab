@@ -190,7 +190,7 @@ export default function Home() {
             <div className="cap"><b>For Him</b><i>{noir.name} · {formatPrice(noir.price)}</i></div>
           </Link>
           <div className="finale-mid">
-            <Logo width={86} title="MIJAB" />
+            <Logo width={100} title="MIJAB" />
             <div className="eyebrow">Discover MIJAB</div>
             <h2>Find the one that <i>finds you.</i></h2>
             <div className="rule" />

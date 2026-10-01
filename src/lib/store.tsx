@@ -1,13 +1,15 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { DELIVERY_FEE, PROMO_CODES, ProductId, products } from "./products";
+import { DELIVERY_FEE, ProductId, products } from "./products";
+import { promoRate, readStages } from "./promos";
 
 export type Line = { id: ProductId; qty: number };
 
 export type Order = {
   id: string;
   placedOn: string;
+  createdAt?: string;
   stage: 0 | 1 | 2 | 3; // 0 placed, 1 packed, 2 out for delivery, 3 delivered
   lines: Line[];
   subtotal: number;
@@ -50,6 +52,7 @@ export const SEED_ORDERS: Order[] = [
   {
     id: "MJB-10482",
     placedOn: "1 October 2026",
+    createdAt: "2026-10-01T08:30:00.000Z",
     stage: 2,
     lines: [
       { id: "cafe-noir", qty: 1 },
@@ -69,6 +72,7 @@ export const SEED_ORDERS: Order[] = [
   {
     id: "MJB-10311",
     placedOn: "12 September 2026",
+    createdAt: "2026-09-12T10:15:00.000Z",
     stage: 3,
     lines: [{ id: "cafe-noir", qty: 1 }],
     subtotal: 2500,
@@ -133,7 +137,7 @@ type Totals = { subtotal: number; discount: number; delivery: number; total: num
 
 export function computeTotals(lines: Line[], promo: string | null): Totals {
   const subtotal = lines.reduce((sum, l) => sum + products[l.id].price * l.qty, 0);
-  const rate = promo ? PROMO_CODES[promo] ?? 0 : 0;
+  const rate = promo ? promoRate(promo) : 0;
   const discount = Math.round(subtotal * rate);
   const delivery = lines.length ? DELIVERY_FEE : 0;
   return { subtotal, discount, delivery, total: subtotal - discount + delivery };
@@ -192,7 +196,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
-  const orders = useMemo(() => [...state.placed, ...SEED_ORDERS], [state.placed]);
+  const orders = useMemo(() => {
+    const stages = state.ready ? readStages() : {};
+    return [...state.placed, ...SEED_ORDERS].map((o) => {
+      const st = stages[o.id];
+      return typeof st === "number" ? { ...o, stage: st as Order["stage"] } : o;
+    });
+  }, [state.placed, state.ready]);
   const totals = useMemo(() => computeTotals(state.cart, state.promo), [state.cart, state.promo]);
   const count = state.cart.reduce((n, l) => n + l.qty, 0);
   const lastOrder = orders.find((o) => o.id === state.lastOrderId) ?? SEED_ORDERS[0];
@@ -202,7 +212,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const remove = useCallback((id: ProductId) => dispatch({ type: "remove", id }), []);
   const applyPromo = useCallback((code: string) => {
     const c = code.trim().toUpperCase();
-    if (c in PROMO_CODES) {
+    if (promoRate(c) > 0) {
       dispatch({ type: "promo", code: c });
       return true;
     }
@@ -219,6 +229,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ...details,
         id: `MJB-${10483 + state.placed.length}`,
         placedOn: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+        createdAt: new Date().toISOString(),
         stage: 0,
         lines: state.cart,
         ...t,

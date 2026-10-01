@@ -513,7 +513,7 @@ h1, h2, h3, p { margin: 0; }
   .only-desktop { display: none !important; }
   .only-mobile { display: block !important; }
   .only-mobile.flex { display: flex !important; }
-  body { padding-bottom: 76px; }
+  .page { padding-bottom: 76px; }
   .wrap { padding: 0 20px; }
   .h1 { font-size: 40px; }
   .h2 { font-size: 34px; }

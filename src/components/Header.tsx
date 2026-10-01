@@ -22,8 +22,8 @@ export function Header() {
   return (
     <header className={`header${overlay ? " overlay" : ""}`}>
       <Link href="/" className="logo" aria-label="MIJAB home">
-        {overlay && <Logo className="logo-hero" width={74} title="MIJAB" />}
-        <Logo className={overlay ? "logo-mobile" : "logo-solid"} width={74} title={overlay ? undefined : "MIJAB"} />
+        {overlay && <Logo className="logo-hero" width={84} title="MIJAB" />}
+        <Logo className={overlay ? "logo-mobile" : "logo-solid"} width={84} title={overlay ? undefined : "MIJAB"} />
       </Link>
       <nav className="nav" aria-label="Primary">
         {nav.map((n) => (

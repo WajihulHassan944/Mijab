@@ -15,8 +15,23 @@ export function ContactClient() {
   const [sent, setSent] = useState(false);
   const [open, setOpen] = useState<number | null>(0);
 
-  function submit(e: FormEvent) {
+  function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    try {
+      const list = JSON.parse(localStorage.getItem("mijab:messages") ?? "[]");
+      list.unshift({
+        id: `m-${Date.now()}`,
+        name: String(f.get("name") ?? ""),
+        email: String(f.get("email") ?? ""),
+        subject: String(f.get("subject") ?? ""),
+        body: String(f.get("message") ?? ""),
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem("mijab:messages", JSON.stringify(list));
+    } catch {
+      /* the mock still confirms even if storage is unavailable */
+    }
     setSent(true);
   }
 
@@ -36,14 +51,14 @@ export function ContactClient() {
           ) : (
             <form onSubmit={submit}>
               <div className="row">
-                <div className="field"><label htmlFor="c-name">Name</label><input id="c-name" className="input" required /></div>
-                <div className="field"><label htmlFor="c-email">Email</label><input id="c-email" className="input" type="email" placeholder="you@example.com" required /></div>
+                <div className="field"><label htmlFor="c-name">Name</label><input id="c-name" name="name" className="input" required /></div>
+                <div className="field"><label htmlFor="c-email">Email</label><input id="c-email" name="email" className="input" type="email" placeholder="you@example.com" required /></div>
               </div>
               <div className="field">
                 <label htmlFor="c-sub">Subject</label>
-                <select id="c-sub" className="select"><option>Question about an order</option><option>Product advice</option><option>Wholesale or gifting</option><option>Something else</option></select>
+                <select id="c-sub" name="subject" className="select"><option>Question about an order</option><option>Product advice</option><option>Wholesale or gifting</option><option>Something else</option></select>
               </div>
-              <div className="field"><label htmlFor="c-msg">Message</label><textarea id="c-msg" className="textarea" rows={6} required /></div>
+              <div className="field"><label htmlFor="c-msg">Message</label><textarea id="c-msg" name="message" className="textarea" rows={6} required /></div>
               <button className="btn" style={{ width: 220 }}>Send message <Arrow stroke="#F6EAE2" /></button>
             </form>
           )}

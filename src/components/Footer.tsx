@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-top">
         <Link href="/" aria-label="MIJAB">
-          <Logo width={76} title="MIJAB" />
+          <Logo width={88} title="MIJAB" />
         </Link>
         <nav className="footer-links" aria-label="Footer">
           <Link href="/shop">Shop</Link>
