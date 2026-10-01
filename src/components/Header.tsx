@@ -22,7 +22,8 @@ export function Header() {
   return (
     <header className={`header${overlay ? " overlay" : ""}`}>
       <Link href="/" className="logo" aria-label="MIJAB home">
-        <Image src={overlay ? "/images/logo-hero.png" : "/images/logo-dark.png"} alt="MIJAB" width={258} height={132} priority style={{ width: 78, height: 40 }} />
+        {overlay && <Image className="logo-hero" src="/images/logo-hero.png" alt="MIJAB" width={258} height={132} priority style={{ width: 78, height: 40 }} />}
+        <Image className={overlay ? "logo-mobile" : undefined} src="/images/logo-dark.png" alt={overlay ? "" : "MIJAB"} width={258} height={132} priority style={{ width: 78, height: 40 }} />
       </Link>
       <nav className="nav" aria-label="Primary">
         {nav.map((n) => (
