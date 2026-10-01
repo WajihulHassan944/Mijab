@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   AdminOrder,
   AdminProduct,
@@ -9,37 +9,77 @@ import {
   Promo,
   Settings,
   Status,
-  STATUS_FLOW,
-  defaultSettings,
-  deriveCustomers,
-  seedMessages,
-  seedOrders,
-  seedProducts,
-  seedPromos,
-  stageToStatus,
 } from "./admin-data";
-import { ADMIN_KEY } from "./promos";
-import { Order, SEED_ORDERS } from "./store";
+import { api, ApiMessage, ApiOrder, ApiProduct, ApiSettings, tokenStore } from "./api";
+import { getPusher } from "./pusher-client";
 
-export const ADMIN_EMAIL = "admin@mijab.com";
-export const ADMIN_PASSWORD = "admin123";
+function toAdminOrder(o: ApiOrder): AdminOrder {
+  return {
+    id: o.id,
+    placedOn: o.placedOn,
+    createdAt: o.createdAt,
+    stage: o.stage,
+    status: o.status,
+    lines: o.lines.map((l) => ({ id: l.id as AdminOrder["lines"][number]["id"], qty: l.qty })),
+    subtotal: o.subtotal,
+    discount: o.discount,
+    delivery: o.delivery,
+    total: o.total,
+    name: o.name,
+    address: o.address,
+    city: o.city,
+    email: o.email,
+    phone: o.phone,
+    payment: o.payment,
+    note: o.note,
+  };
+}
 
-type Saved = {
-  auth: boolean;
-  stages: Record<string, number | "cancelled">;
-  notes: Record<string, string>;
-  products: AdminProduct[] | null;
-  promos: Promo[] | null;
-  msg: Record<string, { state: Message["state"]; reply?: string }>;
-  msgDeleted: string[];
-  settings: Settings;
+function toAdminProduct(p: ApiProduct): AdminProduct {
+  return {
+    id: p.slug,
+    name: p.name,
+    sku: p.sku,
+    price: p.price,
+    compareAt: p.compareAt,
+    stock: p.stock,
+    active: p.active,
+    description: p.description,
+    top: p.notes?.top ?? "",
+    heart: p.notes?.heart ?? "",
+    base: p.notes?.base ?? "",
+  };
+}
+
+function toMessage(m: ApiMessage): Message {
+  return { id: m._id, name: m.name, email: m.email, subject: m.subject, body: m.body, createdAt: m.createdAt, state: m.state, reply: m.reply };
+}
+
+function toSettings(s: ApiSettings): Settings {
+  return { ...s };
+}
+
+const FALLBACK_SETTINGS: Settings = {
+  storeName: "MIJAB",
+  email: "hello@mijab.com",
+  phone: "",
+  deliveryFee: 200,
+  freeOver: 0,
+  cod: true,
+  card: true,
+  bank: true,
+  notifyOrders: true,
+  notifyLowStock: true,
+  notifyMessages: false,
+  lowStockAt: 10,
 };
 
-const blank: Saved = { auth: false, stages: {}, notes: {}, products: null, promos: null, msg: {}, msgDeleted: [], settings: defaultSettings };
+type AdminUser = { name: string; email: string };
 
 type Ctx = {
   ready: boolean;
   authed: boolean;
+  admin: AdminUser | null;
   today: Date;
   orders: AdminOrder[];
   customers: Customer[];
@@ -48,7 +88,7 @@ type Ctx = {
   messages: Message[];
   settings: Settings;
   notes: Record<string, string>;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   setStatus: (ids: string[], status: Status) => void;
   setNote: (id: string, note: string) => void;
@@ -59,111 +99,228 @@ type Ctx = {
   markMessage: (id: string, state: Message["state"], reply?: string) => void;
   deleteMessage: (id: string) => void;
   updateSettings: (patch: Partial<Settings>) => void;
-  resetDemo: () => void;
 };
 
 const AdminContext = createContext<Ctx | null>(null);
 
-function readJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
-  const [saved, setSaved] = useState<Saved>(blank);
-  const [placed, setPlaced] = useState<Order[]>([]);
-  const [incoming, setIncoming] = useState<Omit<Message, "state">[]>([]);
-  const [today, setToday] = useState(() => new Date("2026-10-01T12:00:00Z"));
+  const [authed, setAuthed] = useState(false);
+  const [admin, setAdmin] = useState<AdminUser | null>(null);
+  const [today] = useState(() => new Date());
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [promos, setPromos] = useState<Promo[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [settings, setSettings] = useState<Settings>(FALLBACK_SETTINGS);
+
+  const loadAll = useCallback(async (token: string) => {
+    const [ordersRes, customersRes, productsRes, promosRes, messagesRes, settingsRes] = await Promise.all([
+      api.admin.orders.list(token, { limit: 200 }),
+      api.admin.customers.list(token),
+      api.admin.products.list(token),
+      api.admin.promos.list(token),
+      api.admin.messages.list(token),
+      api.admin.settings.get(token),
+    ]);
+    setOrders(ordersRes.orders.map(toAdminOrder));
+    setCustomers(customersRes);
+    setProducts(productsRes.map(toAdminProduct));
+    setPromos(promosRes);
+    setMessages(messagesRes.map(toMessage));
+    setSettings(toSettings(settingsRes));
+  }, []);
+
+  const refreshOrdersAndCustomers = useCallback(async (token: string) => {
+    const [ordersRes, customersRes] = await Promise.all([api.admin.orders.list(token, { limit: 200 }), api.admin.customers.list(token)]);
+    setOrders(ordersRes.orders.map(toAdminOrder));
+    setCustomers(customersRes);
+  }, []);
 
   useEffect(() => {
-    const load = () => {
-      setSaved({ ...blank, ...readJSON<Partial<Saved>>(ADMIN_KEY, {}) });
-      setPlaced(readJSON<{ placed?: Order[] }>("mijab:v1", {}).placed ?? []);
-      setIncoming(readJSON<Omit<Message, "state">[]>("mijab:messages", []));
-      setToday(new Date(Math.max(Date.now(), Date.parse("2026-10-01T12:00:00Z"))));
-      setReady(true);
-    };
-    load();
-    window.addEventListener("focus", load);
-    return () => window.removeEventListener("focus", load);
-  }, []);
-
-  const persist = useCallback((fn: (s: Saved) => Saved) => {
-    setSaved((cur) => {
-      const next = fn(cur);
-      try {
-        localStorage.setItem(ADMIN_KEY, JSON.stringify(next));
-      } catch {
-        /* demo data only */
+    (async () => {
+      const token = tokenStore.getAdmin();
+      if (token) {
+        try {
+          const user = await api.admin.auth.me(token);
+          setAdmin({ name: user.name, email: user.email });
+          setAuthed(true);
+          await loadAll(token);
+        } catch {
+          tokenStore.setAdmin(null);
+        }
       }
-      return next;
-    });
+      setReady(true);
+    })();
+  }, [loadAll]);
+
+  // Realtime: new orders / new contact messages land on the "mijab-admin" channel.
+  const authedRef = useRef(authed);
+  authedRef.current = authed;
+  useEffect(() => {
+    if (!authed) return;
+    const pusher = getPusher();
+    if (!pusher) return;
+    const channel = pusher.subscribe("mijab-admin");
+
+    const onNewOrder = (payload: ApiOrder) => setOrders((cur) => (cur.some((o) => o.id === payload.id) ? cur : [toAdminOrder(payload), ...cur]));
+    const onNewMessage = (payload: Message) => setMessages((cur) => (cur.some((m) => m.id === payload.id) ? cur : [payload, ...cur]));
+
+    channel.bind("order:new", onNewOrder);
+    channel.bind("message:new", onNewMessage);
+    return () => {
+      channel.unbind("order:new", onNewOrder);
+      channel.unbind("message:new", onNewMessage);
+      pusher.unsubscribe("mijab-admin");
+    };
+  }, [authed]);
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        const res = await api.admin.auth.login({ email, password });
+        tokenStore.setAdmin(res.token);
+        setAdmin({ name: res.user.name, email: res.user.email });
+        setAuthed(true);
+        await loadAll(res.token);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [loadAll],
+  );
+
+  const logout = useCallback(() => {
+    tokenStore.setAdmin(null);
+    setAuthed(false);
+    setAdmin(null);
   }, []);
 
-  const orders = useMemo<AdminOrder[]>(() => {
-    const base = seedOrders(today, SEED_ORDERS);
-    const mine: AdminOrder[] = placed.map((o) => ({ ...o, createdAt: o.createdAt ?? new Date().toISOString(), status: stageToStatus(o.stage) }));
-    return [...base, ...mine]
-      .map((o) => {
-        const st = saved.stages[o.id];
-        if (st === "cancelled") return { ...o, status: "cancelled" as Status };
-        if (typeof st === "number") return { ...o, stage: st as Order["stage"], status: stageToStatus(st) };
-        return o;
+  const setStatus = useCallback((ids: string[], status: Status) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.orders
+      .setStatus(token, ids, status)
+      .then((updated) => {
+        setOrders((cur) => cur.map((o) => {
+          const match = updated.find((u) => u.id === o.id);
+          return match ? toAdminOrder(match) : o;
+        }));
+        // customer spend/order counts depend on order status, so refresh those too
+        refreshOrdersAndCustomers(token).catch(() => {});
       })
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [today, placed, saved.stages]);
+      .catch((e) => console.error("setStatus failed:", e));
+  }, [refreshOrdersAndCustomers]);
 
-  const customers = useMemo(() => deriveCustomers(orders), [orders]);
-  const products = saved.products ?? seedProducts();
-  const promos = saved.promos ?? seedPromos();
+  const setNote = useCallback((id: string, note: string) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.orders
+      .update(token, id, { note })
+      .then((updated) => setOrders((cur) => cur.map((o) => (o.id === id ? toAdminOrder(updated) : o))))
+      .catch((e) => console.error("setNote failed:", e));
+  }, []);
 
-  const messages = useMemo<Message[]>(() => {
-    const all: Message[] = [...incoming.map((m) => ({ ...m, state: "unread" as const })), ...seedMessages(today)];
-    return all
-      .filter((m) => !saved.msgDeleted.includes(m.id))
-      .map((m) => ({ ...m, ...(saved.msg[m.id] ?? {}) }))
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [incoming, today, saved.msg, saved.msgDeleted]);
+  const updateProduct = useCallback((id: string, patch: Partial<AdminProduct>) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    const { top, heart, base, id: _drop, ...rest } = patch;
+    void _drop;
+    const body: Partial<ApiProduct> & { slug?: never } = { ...rest };
+    if (top !== undefined || heart !== undefined || base !== undefined) {
+      (body as Record<string, unknown>).notes = {
+        ...(top !== undefined ? { top } : {}),
+        ...(heart !== undefined ? { heart } : {}),
+        ...(base !== undefined ? { base } : {}),
+      };
+    }
+    api.admin.products
+      .update(token, id, body)
+      .then((updated) => setProducts((cur) => cur.map((p) => (p.id === id ? toAdminProduct(updated) : p))))
+      .catch((e) => console.error("updateProduct failed:", e));
+  }, []);
+
+  const addPromo = useCallback((p: Promo) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.promos
+      .create(token, { code: p.code, percent: p.percent, active: p.active, note: p.note })
+      .then((created) => setPromos((cur) => [created, ...cur]))
+      .catch((e) => console.error("addPromo failed:", e));
+  }, []);
+
+  const updatePromo = useCallback((code: string, patch: Partial<Promo>) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.promos
+      .update(token, code, patch)
+      .then((updated) => setPromos((cur) => cur.map((p) => (p.code === code ? updated : p))))
+      .catch((e) => console.error("updatePromo failed:", e));
+  }, []);
+
+  const deletePromo = useCallback((code: string) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.promos
+      .remove(token, code)
+      .then(() => setPromos((cur) => cur.filter((p) => p.code !== code)))
+      .catch((e) => console.error("deletePromo failed:", e));
+  }, []);
+
+  const markMessage = useCallback((id: string, state: Message["state"], reply?: string) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.messages
+      .update(token, id, { state, reply })
+      .then((updated) => setMessages((cur) => cur.map((m) => (m.id === id ? toMessage(updated) : m))))
+      .catch((e) => console.error("markMessage failed:", e));
+  }, []);
+
+  const deleteMessage = useCallback((id: string) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.messages
+      .remove(token, id)
+      .then(() => setMessages((cur) => cur.filter((m) => m.id !== id)))
+      .catch((e) => console.error("deleteMessage failed:", e));
+  }, []);
+
+  const updateSettings = useCallback((patch: Partial<Settings>) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    api.admin.settings
+      .update(token, patch)
+      .then((updated) => setSettings(toSettings(updated)))
+      .catch((e) => console.error("updateSettings failed:", e));
+  }, []);
+
+  const notes = useMemo(() => Object.fromEntries(orders.map((o) => [o.id, o.note ?? ""])), [orders]);
 
   const value: Ctx = {
     ready,
-    authed: saved.auth,
+    authed,
+    admin,
     today,
     orders,
     customers,
     products,
     promos,
     messages,
-    settings: saved.settings,
-    notes: saved.notes,
-    login: (email, password) => {
-      const ok = email.trim().toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD;
-      if (ok) persist((s) => ({ ...s, auth: true }));
-      return ok;
-    },
-    logout: () => persist((s) => ({ ...s, auth: false })),
-    setStatus: (ids, status) =>
-      persist((s) => {
-        const stages = { ...s.stages };
-        ids.forEach((id) => {
-          stages[id] = status === "cancelled" ? "cancelled" : STATUS_FLOW.indexOf(status);
-        });
-        return { ...s, stages };
-      }),
-    setNote: (id, note) => persist((s) => ({ ...s, notes: { ...s.notes, [id]: note } })),
-    updateProduct: (id, patch) => persist((s) => ({ ...s, products: (s.products ?? seedProducts()).map((p) => (p.id === id ? { ...p, ...patch } : p)) })),
-    addPromo: (p) => persist((s) => ({ ...s, promos: [p, ...(s.promos ?? seedPromos())] })),
-    updatePromo: (code, patch) => persist((s) => ({ ...s, promos: (s.promos ?? seedPromos()).map((p) => (p.code === code ? { ...p, ...patch } : p)) })),
-    deletePromo: (code) => persist((s) => ({ ...s, promos: (s.promos ?? seedPromos()).filter((p) => p.code !== code) })),
-    markMessage: (id, state, reply) => persist((s) => ({ ...s, msg: { ...s.msg, [id]: { state, reply: reply ?? s.msg[id]?.reply } } })),
-    deleteMessage: (id) => persist((s) => ({ ...s, msgDeleted: [...s.msgDeleted, id] })),
-    updateSettings: (patch) => persist((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
-    resetDemo: () => persist((s) => ({ ...blank, auth: s.auth })),
+    settings,
+    notes,
+    login,
+    logout,
+    setStatus,
+    setNote,
+    updateProduct,
+    addPromo,
+    updatePromo,
+    deletePromo,
+    markMessage,
+    deleteMessage,
+    updateSettings,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { DELIVERY_FEE, ProductId, products } from "./products";
-import { promoRate, readStages } from "./promos";
+import { api, ApiOrder, tokenStore } from "./api";
 
 export type Line = { id: ProductId; qty: number };
 
@@ -24,124 +24,46 @@ export type Order = {
   payment: string;
 };
 
-export type User = { name: string; email: string; address?: string };
+export type User = { name: string; email: string; address?: string; phone?: string; city?: string };
 
-type State = {
-  ready: boolean;
-  cart: Line[];
-  promo: string | null;
-  user: User | null;
-  placed: Order[];
-  lastOrderId: string | null;
-};
+const CART_KEY = "mijab:cart";
 
-type Action =
-  | { type: "load"; state: Partial<State> }
-  | { type: "add"; id: ProductId; qty: number }
-  | { type: "setQty"; id: ProductId; qty: number }
-  | { type: "remove"; id: ProductId }
-  | { type: "promo"; code: string | null }
-  | { type: "signIn"; user: User }
-  | { type: "signOut" }
-  | { type: "updateUser"; patch: Partial<User> }
-  | { type: "place"; order: Order };
+export function fromApi(o: ApiOrder): Order {
+  return {
+    id: o.id,
+    placedOn: o.placedOn,
+    createdAt: o.createdAt,
+    stage: o.stage,
+    lines: o.lines.map((l) => ({ id: l.id as ProductId, qty: l.qty })),
+    subtotal: o.subtotal,
+    discount: o.discount,
+    delivery: o.delivery,
+    total: o.total,
+    name: o.name,
+    address: o.address,
+    city: o.city,
+    email: o.email,
+    phone: o.phone,
+    payment: o.payment,
+  };
+}
 
-const KEY = "mijab:v1";
-
-export const SEED_ORDERS: Order[] = [
-  {
-    id: "MJB-10482",
-    placedOn: "1 October 2026",
-    createdAt: "2026-10-01T08:30:00.000Z",
-    stage: 2,
-    lines: [
-      { id: "cafe-noir", qty: 1 },
-      { id: "vanilla-gourmand", qty: 1 },
-    ],
-    subtotal: 5000,
-    discount: 0,
-    delivery: DELIVERY_FEE,
-    total: 5200,
-    name: "Ayesha Khan",
-    address: "House 12, Street 4, F-7",
-    city: "Islamabad, Pakistan",
-    email: "ayesha@example.com",
-    phone: "0300 0000000",
-    payment: "Cash on delivery",
-  },
-  {
-    id: "MJB-10311",
-    placedOn: "12 September 2026",
-    createdAt: "2026-09-12T10:15:00.000Z",
-    stage: 3,
-    lines: [{ id: "cafe-noir", qty: 1 }],
-    subtotal: 2500,
-    discount: 0,
-    delivery: DELIVERY_FEE,
-    total: 2700,
-    name: "Ayesha Khan",
-    address: "House 12, Street 4, F-7",
-    city: "Islamabad, Pakistan",
-    email: "ayesha@example.com",
-    phone: "0300 0000000",
-    payment: "Cash on delivery",
-  },
-];
-
-const initial: State = {
-  ready: false,
-  cart: [
-    { id: "cafe-noir", qty: 1 },
-    { id: "vanilla-gourmand", qty: 1 },
-  ],
-  promo: null,
-  user: null,
-  placed: [],
-  lastOrderId: null,
-};
-
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case "load":
-      return { ...state, ...action.state, ready: true };
-    case "add": {
-      const found = state.cart.find((l) => l.id === action.id);
-      const cart = found
-        ? state.cart.map((l) => (l.id === action.id ? { ...l, qty: Math.min(10, l.qty + action.qty) } : l))
-        : [...state.cart, { id: action.id, qty: action.qty }];
-      return { ...state, cart };
-    }
-    case "setQty":
-      return {
-        ...state,
-        cart: state.cart
-          .map((l) => (l.id === action.id ? { ...l, qty: Math.max(0, Math.min(10, action.qty)) } : l))
-          .filter((l) => l.qty > 0),
-      };
-    case "remove":
-      return { ...state, cart: state.cart.filter((l) => l.id !== action.id) };
-    case "promo":
-      return { ...state, promo: action.code };
-    case "signIn":
-      return { ...state, user: action.user };
-    case "signOut":
-      return { ...state, user: null };
-    case "updateUser":
-      return state.user ? { ...state, user: { ...state.user, ...action.patch } } : state;
-    case "place":
-      return { ...state, cart: [], promo: null, placed: [action.order, ...state.placed], lastOrderId: action.order.id };
-  }
+function toUser(u: { name: string; email: string; address?: string; phone?: string; city?: string }): User {
+  return { name: u.name, email: u.email, address: u.address, phone: u.phone, city: u.city };
 }
 
 type Totals = { subtotal: number; discount: number; delivery: number; total: number };
 
-export function computeTotals(lines: Line[], promo: string | null): Totals {
+/** Client-side estimate for the bag/checkout summary. The backend always
+ * recomputes authoritative totals from live prices/stock at order time. */
+export function computeTotals(lines: Line[], promoPercent: number): Totals {
   const subtotal = lines.reduce((sum, l) => sum + products[l.id].price * l.qty, 0);
-  const rate = promo ? promoRate(promo) : 0;
-  const discount = Math.round(subtotal * rate);
+  const discount = Math.round(subtotal * (promoPercent / 100));
   const delivery = lines.length ? DELIVERY_FEE : 0;
   return { subtotal, discount, delivery, total: subtotal - discount + delivery };
 }
+
+type Result = { ok: true } | { ok: false; error: string };
 
 type Ctx = {
   ready: boolean;
@@ -151,119 +73,198 @@ type Ctx = {
   totals: Totals;
   user: User | null;
   orders: Order[];
-  lastOrder: Order;
+  lastOrder: Order | null;
   add: (id: ProductId, qty?: number) => void;
   setQty: (id: ProductId, qty: number) => void;
   remove: (id: ProductId) => void;
-  applyPromo: (code: string) => boolean;
-  signIn: (user: User) => void;
+  applyPromo: (code: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<Result>;
+  register: (name: string, email: string, password: string) => Promise<Result>;
   signOut: () => void;
-  updateUser: (patch: Partial<User>) => void;
-  placeOrder: (details: Omit<Order, "id" | "placedOn" | "stage" | "lines" | "subtotal" | "discount" | "delivery" | "total">) => Order;
-  findOrder: (id: string, phone: string) => Order | null;
+  updateUser: (patch: Partial<Pick<User, "name" | "email" | "address" | "phone" | "city">>) => Promise<Result>;
+  placeOrder: (details: { name: string; address: string; city: string; email: string; phone: string; payment: string }) => Promise<{ ok: true; order: Order } | { ok: false; error: string }>;
+  findOrder: (id: string, phone: string) => Promise<Order | null>;
 };
 
 const StoreContext = createContext<Ctx | null>(null);
 
-const digits = (s: string) => s.replace(/\D/g, "");
+const errorMessage = (e: unknown, fallback: string) => (e instanceof Error ? e.message : fallback);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initial);
-  const loaded = useRef(false);
+  const [ready, setReady] = useState(false);
+  const [cart, setCart] = useState<Line[]>([
+    { id: "cafe-noir", qty: 1 },
+    { id: "vanilla-gourmand", qty: 1 },
+  ]);
+  const [promo, setPromo] = useState<string | null>(null);
+  const [promoPercent, setPromoPercent] = useState(0);
+  const [user, setUser] = useState<User | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const saved = JSON.parse(raw) as Partial<State>;
-        dispatch({ type: "load", state: { cart: saved.cart, promo: saved.promo ?? null, user: saved.user ?? null, placed: saved.placed ?? [], lastOrderId: saved.lastOrderId ?? null } });
-      } else {
-        dispatch({ type: "load", state: {} });
+    let cancelled = false;
+    (async () => {
+      try {
+        const raw = localStorage.getItem(CART_KEY);
+        if (raw) setCart(JSON.parse(raw));
+      } catch {
+        /* storage unavailable: cart just starts at the default */
       }
-    } catch {
-      dispatch({ type: "load", state: {} });
-    }
-    loaded.current = true;
+
+      const token = tokenStore.get();
+      if (token) {
+        try {
+          const apiUser = await api.auth.me(token);
+          const mine = await api.orders.mine(token);
+          if (!cancelled) {
+            setUser(toUser(apiUser));
+            setOrders(mine.map(fromApi));
+          }
+        } catch {
+          tokenStore.set(null); // stale or expired token
+        }
+      }
+      if (!cancelled) setReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (!state.ready) return;
+    if (!ready) return;
     try {
-      const { cart, promo, user, placed, lastOrderId } = state;
-      localStorage.setItem(KEY, JSON.stringify({ cart, promo, user, placed, lastOrderId }));
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
     } catch {
-      /* storage unavailable: the mock still works for this session */
+      /* storage unavailable: the cart still works for this session */
     }
-  }, [state]);
+  }, [cart, ready]);
 
-  const orders = useMemo(() => {
-    const stages = state.ready ? readStages() : {};
-    return [...state.placed, ...SEED_ORDERS].map((o) => {
-      const st = stages[o.id];
-      return typeof st === "number" ? { ...o, stage: st as Order["stage"] } : o;
+  const add = useCallback((id: ProductId, qty = 1) => {
+    setCart((cur) => {
+      const found = cur.find((l) => l.id === id);
+      return found ? cur.map((l) => (l.id === id ? { ...l, qty: Math.min(10, l.qty + qty) } : l)) : [...cur, { id, qty }];
     });
-  }, [state.placed, state.ready]);
-  const totals = useMemo(() => computeTotals(state.cart, state.promo), [state.cart, state.promo]);
-  const count = state.cart.reduce((n, l) => n + l.qty, 0);
-  const lastOrder = orders.find((o) => o.id === state.lastOrderId) ?? SEED_ORDERS[0];
-
-  const add = useCallback((id: ProductId, qty = 1) => dispatch({ type: "add", id, qty }), []);
-  const setQty = useCallback((id: ProductId, qty: number) => dispatch({ type: "setQty", id, qty }), []);
-  const remove = useCallback((id: ProductId) => dispatch({ type: "remove", id }), []);
-  const applyPromo = useCallback((code: string) => {
-    const c = code.trim().toUpperCase();
-    if (promoRate(c) > 0) {
-      dispatch({ type: "promo", code: c });
-      return true;
-    }
-    return false;
   }, []);
-  const signIn = useCallback((user: User) => dispatch({ type: "signIn", user }), []);
-  const signOut = useCallback(() => dispatch({ type: "signOut" }), []);
-  const updateUser = useCallback((patch: Partial<User>) => dispatch({ type: "updateUser", patch }), []);
 
-  const placeOrder: Ctx["placeOrder"] = useCallback(
-    (details) => {
-      const t = computeTotals(state.cart, state.promo);
-      const order: Order = {
-        ...details,
-        id: `MJB-${10483 + state.placed.length}`,
-        placedOn: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
-        createdAt: new Date().toISOString(),
-        stage: 0,
-        lines: state.cart,
-        ...t,
-      };
-      dispatch({ type: "place", order });
-      return order;
+  const setQty = useCallback((id: ProductId, qty: number) => {
+    setCart((cur) =>
+      cur.map((l) => (l.id === id ? { ...l, qty: Math.max(0, Math.min(10, qty)) } : l)).filter((l) => l.qty > 0),
+    );
+  }, []);
+
+  const remove = useCallback((id: ProductId) => setCart((cur) => cur.filter((l) => l.id !== id)), []);
+
+  const applyPromo = useCallback(async (code: string) => {
+    const c = code.trim();
+    if (!c) return false;
+    try {
+      const res = await api.promos.validate(c);
+      if (res.valid && res.percent) {
+        setPromo(res.code ?? c.toUpperCase());
+        setPromoPercent(res.percent);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const login = useCallback(async (email: string, password: string): Promise<Result> => {
+    try {
+      const res = await api.auth.login({ email, password });
+      tokenStore.set(res.token);
+      setUser(toUser(res.user));
+      const mine = await api.orders.mine(res.token).catch(() => []);
+      setOrders(mine.map(fromApi));
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: errorMessage(e, "Sign in failed") };
+    }
+  }, []);
+
+  const register = useCallback(async (name: string, email: string, password: string): Promise<Result> => {
+    try {
+      const res = await api.auth.register({ name, email, password });
+      tokenStore.set(res.token);
+      setUser(toUser(res.user));
+      setOrders([]);
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: errorMessage(e, "Could not create your account") };
+    }
+  }, []);
+
+  const signOut = useCallback(() => {
+    tokenStore.set(null);
+    setUser(null);
+    setOrders([]);
+  }, []);
+
+  const updateUser = useCallback(async (patch: Partial<Pick<User, "name" | "email" | "address" | "phone" | "city">>): Promise<Result> => {
+    const token = tokenStore.get();
+    if (!token) return { ok: false, error: "Please sign in again" };
+    try {
+      const res = await api.auth.update(token, patch);
+      setUser(toUser(res));
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: errorMessage(e, "Could not save changes") };
+    }
+  }, []);
+
+  const placeOrder = useCallback(
+    async (details: { name: string; address: string; city: string; email: string; phone: string; payment: string }) => {
+      try {
+        const token = tokenStore.get();
+        const order = await api.orders.place(token, {
+          lines: cart.map((l) => ({ productId: l.id, qty: l.qty })),
+          promoCode: promo ?? undefined,
+          ...details,
+        });
+        const mapped = fromApi(order);
+        setLastOrder(mapped);
+        setOrders((cur) => [mapped, ...cur]);
+        setCart([]);
+        setPromo(null);
+        setPromoPercent(0);
+        return { ok: true as const, order: mapped };
+      } catch (e) {
+        return { ok: false as const, error: errorMessage(e, "Could not place your order") };
+      }
     },
-    [state.cart, state.promo, state.placed.length],
+    [cart, promo],
   );
 
-  const findOrder = useCallback(
-    (id: string, phone: string) => {
-      const wanted = id.trim().toUpperCase();
-      const match = orders.find((o) => o.id === wanted);
-      if (!match) return null;
-      return digits(match.phone) === digits(phone) ? match : null;
-    },
-    [orders],
-  );
+  const findOrder = useCallback(async (id: string, phone: string) => {
+    try {
+      const order = await api.orders.track(id.trim(), phone.trim());
+      return fromApi(order);
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const count = cart.reduce((n, l) => n + l.qty, 0);
+  const totals = useMemo(() => computeTotals(cart, promoPercent), [cart, promoPercent]);
 
   const value: Ctx = {
-    ready: state.ready,
-    cart: state.cart,
+    ready,
+    cart,
     count,
-    promo: state.promo,
+    promo,
     totals,
-    user: state.user,
+    user,
     orders,
     lastOrder,
     add,
     setQty,
     remove,
     applyPromo,
-    signIn,
+    login,
+    register,
     signOut,
     updateUser,
     placeOrder,

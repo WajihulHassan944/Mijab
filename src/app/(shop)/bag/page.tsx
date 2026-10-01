@@ -79,9 +79,9 @@ export default function BagPage() {
           <div style={{ marginTop: 16 }}><SummaryRows {...totals} promo={promo} /></div>
           <form
             className="promo"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              const ok = applyPromo(code);
+              const ok = await applyPromo(code);
               setMsg(ok ? { ok, text: "Promo applied." } : { ok, text: "That code isn't valid. Try WELCOME10." });
             }}
           >

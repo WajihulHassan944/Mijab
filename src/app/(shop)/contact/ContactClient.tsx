@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Arrow, ChevronDown, Facebook, Instagram, Mail, TikTok } from "@/components/Icons";
+import { api, ApiError } from "@/lib/api";
 
 const faqs = [
   ["How do I choose a fragrance?", "Café Noir is deep and warm, made for him. Vanilla Gourmand is soft and sweet, made for her. Many people take the Duo."],
@@ -14,25 +15,27 @@ const faqs = [
 export function ContactClient() {
   const [sent, setSent] = useState(false);
   const [open, setOpen] = useState<number | null>(0);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
     const f = new FormData(e.currentTarget);
+    setBusy(true);
     try {
-      const list = JSON.parse(localStorage.getItem("mijab:messages") ?? "[]");
-      list.unshift({
-        id: `m-${Date.now()}`,
+      await api.contact.submit({
         name: String(f.get("name") ?? ""),
         email: String(f.get("email") ?? ""),
         subject: String(f.get("subject") ?? ""),
         body: String(f.get("message") ?? ""),
-        createdAt: new Date().toISOString(),
       });
-      localStorage.setItem("mijab:messages", JSON.stringify(list));
-    } catch {
-      /* the mock still confirms even if storage is unavailable */
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not send your message. Please try again.");
+    } finally {
+      setBusy(false);
     }
-    setSent(true);
   }
 
   return (
@@ -59,7 +62,8 @@ export function ContactClient() {
                 <select id="c-sub" name="subject" className="select"><option>Question about an order</option><option>Product advice</option><option>Wholesale or gifting</option><option>Something else</option></select>
               </div>
               <div className="field"><label htmlFor="c-msg">Message</label><textarea id="c-msg" name="message" className="textarea" rows={6} required /></div>
-              <button className="btn" style={{ width: 220 }}>Send message <Arrow stroke="#F6EAE2" /></button>
+              {error && <div className="err-text" role="alert">{error}</div>}
+              <button className="btn" style={{ width: 220 }} disabled={busy}>{busy ? "Sending…" : "Send message"} <Arrow stroke="#F6EAE2" /></button>
             </form>
           )}
           <aside>

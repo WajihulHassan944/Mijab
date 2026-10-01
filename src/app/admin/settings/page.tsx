@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { Card, PageHeader, Toggle } from "@/components/admin/UI";
 import { Settings } from "@/lib/admin-data";
-import { ADMIN_EMAIL, useAdmin } from "@/lib/admin-store";
+import { useAdmin } from "@/lib/admin-store";
 
 export default function SettingsPage() {
-  const { settings, updateSettings, resetDemo } = useAdmin();
+  const { settings, updateSettings, admin } = useAdmin();
   const [f, setF] = useState<Settings>(settings);
   const [saved, setSaved] = useState(false);
   useEffect(() => setF(settings), [settings]);
@@ -37,7 +37,7 @@ export default function SettingsPage() {
             <p className="inline-note" style={{ marginTop: 10 }}>Set free delivery to 0 to always charge delivery.</p>
           </Card>
           <Card title="Account">
-            <dl className="kv-a"><dt>Signed in as</dt><dd>{ADMIN_EMAIL}</dd><dt>Role</dt><dd>Owner</dd></dl>
+            <dl className="kv-a"><dt>Signed in as</dt><dd>{admin?.email}</dd><dt>Role</dt><dd>Owner</dd></dl>
           </Card>
         </div>
 
@@ -52,10 +52,6 @@ export default function SettingsPage() {
             <div className="setrow"><div><b>Low stock</b><small>Alert when a product runs low</small></div><Toggle on={f.notifyLowStock} onChange={(v) => set("notifyLowStock", v)} label="Low stock alerts" /></div>
             <div className="setrow"><div><b>Customer messages</b><small>Email me new contact form messages</small></div><Toggle on={f.notifyMessages} onChange={(v) => set("notifyMessages", v)} label="Message emails" /></div>
             <div className="afield" style={{ marginTop: 14 }}><label className="alabel" htmlFor="s-low">Low stock threshold (units)</label><input id="s-low" className="ain" inputMode="numeric" value={f.lowStockAt} onChange={(e) => set("lowStockAt", num(e.target.value))} /></div>
-          </Card>
-          <Card title="Demo data">
-            <p className="inline-note" style={{ marginBottom: 12 }}>Everything in this admin is stored in your browser. Reset to clear status changes, product edits, promo codes and message replies.</p>
-            <button className="abtn danger" onClick={() => confirm("Reset all demo changes?") && resetDemo()}>Reset demo data</button>
           </Card>
         </div>
       </div>

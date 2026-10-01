@@ -54,7 +54,7 @@ export default function PromotionsPage() {
             {err && <div className="err-text" role="alert">{err}</div>}
             <button className="abtn" type="submit"><IPlus size={15} /> Create code</button>
           </form>
-          <p className="inline-note" style={{ marginTop: 14 }}>Codes you create here work in the storefront bag on this device.</p>
+          <p className="inline-note" style={{ marginTop: 14 }}>Codes you create here work storefront-wide immediately.</p>
         </Card>
       </div>
     </>

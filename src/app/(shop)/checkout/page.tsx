@@ -34,6 +34,8 @@ export default function CheckoutPage() {
   const [f, setF] = useState<Form>(blank);
   const [pay, setPay] = useState(PAYMENTS[0].id);
   const [errors, setErrors] = useState<Partial<Form>>({});
+  const [submitError, setSubmitError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -44,8 +46,9 @@ export default function CheckoutPage() {
 
   const set = (k: keyof Form) => (v: string) => setF((cur) => ({ ...cur, [k]: v }));
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
+    setSubmitError("");
     const err: Partial<Form> = {};
     if (!/^\S+@\S+\.\S+$/.test(f.email)) err.email = "Enter a valid email address.";
     if (f.phone.replace(/\D/g, "").length < 10) err.phone = "Enter a phone number with at least 10 digits.";
@@ -55,7 +58,8 @@ export default function CheckoutPage() {
       document.getElementById("checkout-form")?.querySelector<HTMLElement>("[aria-invalid=true]")?.focus();
       return;
     }
-    placeOrder({
+    setBusy(true);
+    const result = await placeOrder({
       name: `${f.first.trim()} ${f.last.trim()}`,
       address: [f.address.trim(), f.apt.trim()].filter(Boolean).join(", "),
       city: [f.city.trim(), f.province.trim()].filter(Boolean).join(", "),
@@ -63,7 +67,9 @@ export default function CheckoutPage() {
       phone: f.phone.trim(),
       payment: pay,
     });
-    router.push("/confirmation");
+    setBusy(false);
+    if (!result.ok) return setSubmitError(result.error);
+    router.push(`/confirmation?order=${result.order.id}`);
   }
 
   if (ready && cart.length === 0) {
@@ -148,7 +154,8 @@ export default function CheckoutPage() {
             ))}
           </div>
           <div style={{ marginTop: 12 }}><SummaryRows {...totals} promo={promo} /></div>
-          <button type="submit" form="checkout-form" className="btn" style={{ marginTop: 20 }}>Place order <Arrow stroke="#F6EAE2" /></button>
+          {submitError && <div className="err-text" role="alert" style={{ marginTop: 12 }}>{submitError}</div>}
+          <button type="submit" form="checkout-form" className="btn" style={{ marginTop: 20 }} disabled={busy}>{busy ? "Placing order…" : "Place order"} <Arrow stroke="#F6EAE2" /></button>
           <Link href="/bag" className="link-arrow" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}>Return to bag</Link>
         </aside>
       </section>

@@ -47,9 +47,19 @@ export default function AccountPage() {
   if (!user) return <div className="wrap" style={{ padding: "96px 0" }} />;
 
   const first = user.name.split(" ")[0];
-  const latest = orders[0];
-  const saveProfile = (e: FormEvent) => { e.preventDefault(); updateUser({ name: name.trim() || user.name, email: email.trim() || user.email }); setSaved("Profile updated."); };
-  const saveAddress = (e: FormEvent) => { e.preventDefault(); updateUser({ address: address.trim() }); setSaved("Address saved."); };
+  const latest = orders[0] as typeof orders[number] | undefined;
+  const saveProfile = async (e: FormEvent) => {
+    e.preventDefault();
+    setSaved("");
+    const res = await updateUser({ name: name.trim() || user.name, email: email.trim() || user.email });
+    setSaved(res.ok ? "Profile updated." : res.error);
+  };
+  const saveAddress = async (e: FormEvent) => {
+    e.preventDefault();
+    setSaved("");
+    const res = await updateUser({ address: address.trim() });
+    setSaved(res.ok ? "Address saved." : res.error);
+  };
   const go = (t: Tab) => { setTab(t); setSaved(""); };
 
   return (
@@ -71,11 +81,16 @@ export default function AccountPage() {
           {tab === "orders" && (
             <>
               <div className="form-title" style={{ marginBottom: 0 }}>Your orders</div>
+              {orders.length === 0 && (
+                <div className="card" style={{ fontSize: 14, fontWeight: 300 }}>
+                  No orders yet. <Link href="/shop" style={{ textDecoration: "underline" }}>Start shopping</Link>.
+                </div>
+              )}
               {orders.map((o) => <OrderCard key={o.id} o={o} />)}
               <div className="form-title" style={{ margin: "16px 0 0" }}>Saved address</div>
               <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.65 }}>
-                  {user.address ? user.address : <>{latest.name}<br />{latest.address}<br />{latest.city}</>}
+                  {user.address ? user.address : latest ? <>{latest.name}<br />{latest.address}<br />{latest.city}</> : "No address saved yet."}
                 </div>
                 <button className="link-arrow" style={{ minHeight: 44 }} onClick={() => go("addresses")}>Edit</button>
               </div>
@@ -84,7 +99,7 @@ export default function AccountPage() {
           {tab === "addresses" && (
             <form className="stack" onSubmit={saveAddress} style={{ maxWidth: 520 }}>
               <div className="form-title" style={{ marginBottom: 0 }}>Saved address</div>
-              <div className="field"><label htmlFor="a-addr">Address</label><textarea id="a-addr" className="textarea" rows={4} value={address} placeholder={`${latest.name}\n${latest.address}\n${latest.city}`} onChange={(e) => setAddress(e.target.value)} /></div>
+              <div className="field"><label htmlFor="a-addr">Address</label><textarea id="a-addr" className="textarea" rows={4} value={address} placeholder={latest ? `${latest.name}\n${latest.address}\n${latest.city}` : "House, street, city"} onChange={(e) => setAddress(e.target.value)} /></div>
               <button className="btn fit" style={{ width: 200 }}>Save address</button>
               {saved && <div className="sent" role="status">{saved}</div>}
             </form>

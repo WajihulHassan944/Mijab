@@ -18,9 +18,27 @@ export default function ConfirmationPage() {
 }
 
 function Confirmation() {
-  const { lastOrder, orders } = useStore();
+  const { lastOrder, orders, ready } = useStore();
   const wanted = useSearchParams().get("order");
   const o = orders.find((x) => x.id === wanted) ?? lastOrder;
+
+  if (!o) {
+    return (
+      <div className="wrap empty">
+        {ready && (
+          <>
+            <div className="eyebrow">Order confirmed</div>
+            <h1 className="h1" style={{ margin: "12px 0 14px" }}>We couldn&apos;t find that order</h1>
+            <p className="lead" style={{ marginBottom: 28 }}>
+              Track it with your order number and phone, or check your account.
+            </p>
+            <Link href="/track" className="btn" style={{ display: "inline-flex", width: 240 }}>Track an order</Link>
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="wrap">
       <section className="confirm-head">

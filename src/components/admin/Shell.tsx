@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Logo } from "../Logo";
-import { ADMIN_EMAIL, ADMIN_PASSWORD, useAdmin } from "@/lib/admin-store";
+import { useAdmin } from "@/lib/admin-store";
 import { IChart, IClose, IDash, IExt, IGear, IMail, IMenu, IOrders, IOut, IProducts, ISearch, ITag, IUsers } from "./AIcons";
 
 const nav = [
@@ -21,7 +21,7 @@ const nav = [
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { ready, authed, orders, messages, logout } = useAdmin();
+  const { ready, authed, admin, orders, messages, logout } = useAdmin();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const isLogin = pathname === "/admin/login";
@@ -68,7 +68,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <ISearch size={16} />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search orders by number, name or email" aria-label="Search orders" />
           </form>
-          <div className="adm-me"><span className="avatar">A</span><div><b>Admin</b><small>{ADMIN_EMAIL}</small></div></div>
+          <div className="adm-me"><span className="avatar">{admin?.name?.[0]?.toUpperCase() ?? "A"}</span><div><b>{admin?.name ?? "Admin"}</b><small>{admin?.email}</small></div></div>
         </header>
         <main className="adm-content">{children}</main>
       </div>
@@ -82,11 +82,16 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
-    if (login(email, pass)) router.replace("/admin");
-    else setErr("Those details don't match. Use the demo login below.");
+    setErr("");
+    setBusy(true);
+    const ok = await login(email, pass);
+    setBusy(false);
+    if (ok) router.replace("/admin");
+    else setErr("Invalid email or password.");
   }
 
   return (
@@ -98,14 +103,8 @@ export function LoginForm() {
         <div className="field"><label htmlFor="a-email">Email</label><input id="a-email" className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" /></div>
         <div className="field"><label htmlFor="a-pass">Password</label><input id="a-pass" className="input" type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="current-password" /></div>
         {err && <div className="err-text" role="alert">{err}</div>}
-        <button className="btn" type="submit">Sign in</button>
+        <button className="btn" type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
       </form>
-      <div className="login-demo">
-        <b>Demo login</b>
-        <span>{ADMIN_EMAIL}</span>
-        <span>{ADMIN_PASSWORD}</span>
-        <button type="button" onClick={() => { setEmail(ADMIN_EMAIL); setPass(ADMIN_PASSWORD); setErr(""); }}>Fill in for me</button>
-      </div>
     </div>
   );
 }

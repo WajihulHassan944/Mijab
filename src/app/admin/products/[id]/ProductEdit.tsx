@@ -7,6 +7,8 @@ import { AdminProduct } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
 import { ProductId, products as catalog } from "@/lib/products";
 
+const FALLBACK_MEDIA = { image: "/images/duo.jpg", swatch: "#141010", audience: "" };
+
 export function ProductEdit({ id }: { id: string }) {
   const { products, updateProduct } = useAdmin();
   const source = products.find((p) => p.id === id);
@@ -17,7 +19,7 @@ export function ProductEdit({ id }: { id: string }) {
   if (!source || !f) {
     return <PageHeader title="Product not found" back={{ href: "/admin/products", label: "Products" }} />;
   }
-  const c = catalog[id as ProductId];
+  const c = catalog[id as ProductId] ?? FALLBACK_MEDIA;
   const set = <K extends keyof AdminProduct>(k: K, v: AdminProduct[K]) => { setF({ ...f, [k]: v }); setSaved(false); };
   const num = (v: string) => (v === "" ? 0 : Math.max(0, Number(v) || 0));
 

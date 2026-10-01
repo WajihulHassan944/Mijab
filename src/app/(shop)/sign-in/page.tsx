@@ -13,17 +13,23 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
-  const { signIn } = useStore();
+  const [busy, setBusy] = useState(false);
+  const { login, register } = useStore();
   const router = useRouter();
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
+    setError("");
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Enter a valid email address.");
-    if (pass.length < 1) return setError("Enter your password.");
+    if (mode === "up" && pass.length < 6) return setError("Password must be at least 6 characters.");
+    if (mode === "in" && pass.length < 1) return setError("Enter your password.");
     if (mode === "up" && !name.trim()) return setError("Tell us your name.");
-    const local = email.split("@")[0].replace(/[._-]+/g, " ");
-    const display = mode === "up" ? name.trim() : local.replace(/\b\w/g, (c) => c.toUpperCase());
-    signIn({ name: display, email });
+
+    setBusy(true);
+    const result = mode === "up" ? await register(name.trim(), email.trim(), pass) : await login(email.trim(), pass);
+    setBusy(false);
+
+    if (!result.ok) return setError(result.error);
     router.push("/account");
   }
 
@@ -54,11 +60,10 @@ export default function SignInPage() {
             </div>
           )}
           {error && <div className="err-text" role="alert">{error}</div>}
-          <button type="submit" className="btn" style={{ marginTop: 8 }}>{mode === "in" ? "Sign in" : "Create account"} <Arrow stroke="#F6EAE2" /></button>
+          <button type="submit" className="btn" style={{ marginTop: 8 }} disabled={busy}>{busy ? "Please wait…" : mode === "in" ? "Sign in" : "Create account"} <Arrow stroke="#F6EAE2" /></button>
         </form>
         <div className="or">or</div>
         <Link href="/checkout" className="btn-outline">Continue as guest</Link>
-        <p className="hint">Demo store: any email and password will sign you in.</p>
       </div>
     </section>
   );

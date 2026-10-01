@@ -1,11 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Arrow, Check } from "@/components/Icons";
 import { Media } from "@/components/Media";
 import { formatPrice, products } from "@/lib/products";
-import { Order, useStore } from "@/lib/store";
+import { fromApi, Order, useStore } from "@/lib/store";
+import { getPusher } from "@/lib/pusher-client";
+import { ApiOrder } from "@/lib/api";
 
 const steps = [
   { name: "Order placed", sub: "" },
@@ -18,19 +20,40 @@ const bg = ["#EFE4DD", "#EFE4DD", "#DCCBE6", "#E4D3C6"];
 
 export function TrackClient() {
   const params = useSearchParams();
-  const { findOrder, orders } = useStore();
-  const initialId = params.get("order") ?? "MJB-10482";
-  const seed = orders.find((o) => o.id === initialId);
-  const [id, setId] = useState(initialId);
-  const [phone, setPhone] = useState(seed?.phone ?? "0300 0000000");
-  const [result, setResult] = useState<Order | null | undefined>(() => (seed ? findOrder(seed.id, seed.phone) : undefined));
+  const { findOrder } = useStore();
+  const [id, setId] = useState(params.get("order") ?? "");
+  const [phone, setPhone] = useState("");
+  const [result, setResult] = useState<Order | null | undefined>(undefined);
   const [searched, setSearched] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
     setSearched(true);
-    setResult(findOrder(id, phone));
+    setBusy(true);
+    setResult(await findOrder(id, phone));
+    setBusy(false);
   }
+
+  // keep the order field in sync if the user arrives via /track?order=MJB-xxxxx
+  useEffect(() => {
+    const fromQuery = params.get("order");
+    if (fromQuery) setId(fromQuery);
+  }, [params]);
+
+  // live status updates while this order is on screen (admin marks it packed/out/delivered)
+  useEffect(() => {
+    if (!result) return;
+    const pusher = getPusher();
+    if (!pusher) return;
+    const channel = pusher.subscribe(`mijab-order-${result.id}`);
+    const onUpdate = (payload: ApiOrder) => setResult(fromApi(payload));
+    channel.bind("order:update", onUpdate);
+    return () => {
+      channel.unbind("order:update", onUpdate);
+      pusher.unsubscribe(`mijab-order-${result.id}`);
+    };
+  }, [result?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="wrap">
@@ -49,7 +72,7 @@ export function TrackClient() {
           <label htmlFor="f-phone">Phone number</label>
           <input id="f-phone" className="input" type="tel" placeholder="03xx xxxxxxx" value={phone} onChange={(e) => setPhone(e.target.value)} required />
         </div>
-        <button className="btn" type="submit">Track <Arrow stroke="#F6EAE2" /></button>
+        <button className="btn" type="submit" disabled={busy}>{busy ? "Searching…" : "Track"} <Arrow stroke="#F6EAE2" /></button>
       </form>
 
       {result === null && searched && (
