@@ -11,6 +11,7 @@ import { useAdmin } from "@/lib/admin-store";
 
 const TABS: ("all" | Status)[] = ["all", "placed", "packed", "out", "delivered", "cancelled"];
 const PER = 10;
+const STALE_PENDING_MS = 60 * 60 * 1000; // 1 hour — a card order with no webhook by now was probably abandoned
 
 export function OrdersClient() {
   const { orders, products, setStatus } = useAdmin();
@@ -88,21 +89,32 @@ export function OrdersClient() {
               </tr>
             </thead>
             <tbody>
-              {view.map((o) => (
-                <tr key={o.id} className="link" onClick={() => router.push(`/admin/orders/${o.id}`)}>
-                  <td onClick={(e) => e.stopPropagation()}><input type="checkbox" aria-label={`Select ${o.id}`} checked={picked.includes(o.id)} onChange={() => setPicked(picked.includes(o.id) ? picked.filter((x) => x !== o.id) : [...picked, o.id])} /></td>
-                  <td className="id"><Link href={`/admin/orders/${o.id}`} onClick={(e) => e.stopPropagation()}>{o.id}</Link><span className="sub">{longDate(o.createdAt)}</span></td>
-                  <td>{o.name}<span className="sub">{o.city.split(",")[0]}</span></td>
-                  <td>
-                    <div className="thumb-row">
-                      {o.lines.slice(0, 3).map((l) => byId[l.id] && (<span className="thumb-s" key={l.id} style={{ background: byId[l.id].swatch }}><Image src={byId[l.id].image} alt={l.name} fill sizes="38px" /></span>))}
-                    </div>
-                  </td>
-                  <td>{o.payment}</td>
-                  <td><StatusBadge status={o.status} /></td>
-                  <td className="num">{money(o.total)}</td>
-                </tr>
-              ))}
+              {view.map((o) => {
+                const isStalePending = o.paymentStatus === "pending" && Date.now() - new Date(o.createdAt).getTime() > STALE_PENDING_MS;
+                return (
+                  <tr key={o.id} className="link" onClick={() => router.push(`/admin/orders/${o.id}`)}>
+                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" aria-label={`Select ${o.id}`} checked={picked.includes(o.id)} onChange={() => setPicked(picked.includes(o.id) ? picked.filter((x) => x !== o.id) : [...picked, o.id])} /></td>
+                    <td className="id"><Link href={`/admin/orders/${o.id}`} onClick={(e) => e.stopPropagation()}>{o.id}</Link><span className="sub">{longDate(o.createdAt)}</span></td>
+                    <td>{o.name}<span className="sub">{o.city.split(",")[0]}</span></td>
+                    <td>
+                      <div className="thumb-row">
+                        {o.lines.slice(0, 3).map((l) => byId[l.id] && (<span className="thumb-s" key={l.id} style={{ background: byId[l.id].swatch }}><Image src={byId[l.id].image} alt={l.name} fill sizes="38px" /></span>))}
+                      </div>
+                    </td>
+                    <td>
+                      {o.payment}
+                      {o.paymentStatus === "pending" && (
+                        <span className="sub" style={{ display: "block", color: isStalePending ? "#a4443b" : undefined }}>
+                          {isStalePending ? "Payment stuck pending — likely abandoned" : "Awaiting payment"}
+                        </span>
+                      )}
+                      {o.paymentStatus === "failed" && <span className="sub" style={{ display: "block", color: "#a4443b" }}>Payment failed</span>}
+                    </td>
+                    <td><StatusBadge status={o.status} /></td>
+                    <td className="num">{money(o.total)}</td>
+                  </tr>
+                );
+              })}
               {view.length === 0 && (<tr><td colSpan={7}><div className="empty-a">No orders match these filters.</div></td></tr>)}
             </tbody>
           </table>

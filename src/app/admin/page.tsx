@@ -30,6 +30,7 @@ export default function Dashboard() {
   const low = products.filter((p) => p.active && p.stock <= settings.lowStockAt);
   const unread = messages.filter((m) => m.state === "unread");
   const toShip = orders.filter((o) => o.status === "placed" || o.status === "packed");
+  const stalePayments = orders.filter((o) => o.paymentStatus === "pending" && Date.now() - new Date(o.createdAt).getTime() > 60 * 60 * 1000);
 
   return (
     <>
@@ -78,6 +79,9 @@ export default function Dashboard() {
             <ul className="alist" style={{ margin: "-18px -22px -22px" }}>
               <li><div className="grow"><div className="t">{toShip.length} orders to fulfil</div><div className="s">New or packed, not yet shipped</div></div><Link href="/admin/orders?status=placed" className="abtn ghost sm">Review</Link></li>
               <li><div className="grow"><div className="t">{unread.length} unread message{unread.length === 1 ? "" : "s"}</div><div className="s">From the contact form</div></div><Link href="/admin/messages" className="abtn ghost sm">Open</Link></li>
+              {stalePayments.length > 0 && (
+                <li><IWarn size={18} stroke="#a4443b" /><div className="grow"><div className="t">{stalePayments.length} card payment{stalePayments.length === 1 ? "" : "s"} stuck pending</div><div className="s low">Likely abandoned at checkout — cancel to release stock</div></div><Link href="/admin/orders" className="abtn ghost sm">Review</Link></li>
+              )}
               {low.map((p) => (
                 <li key={p.id}><IWarn size={18} stroke="#a4443b" /><div className="grow"><div className="t">{p.name} is low</div><div className="s low">{p.stock} left in stock</div></div><Link href={`/admin/products/${p.id}`} className="abtn ghost sm">Restock</Link></li>
               ))}
