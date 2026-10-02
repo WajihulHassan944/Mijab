@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Arrow, Check } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
 import { SummaryRows } from "@/components/Summary";
 import { formatPrice } from "@/lib/products";
-import { useStore } from "@/lib/store";
+import { clearPendingPaymentHandoff, Order, readPendingPaymentHandoff, useStore } from "@/lib/store";
 
 export default function ConfirmationPage() {
   return (
@@ -18,14 +18,34 @@ export default function ConfirmationPage() {
 }
 
 function Confirmation() {
-  const { lastOrder, orders, ready, products } = useStore();
+  const { lastOrder, orders, ready, products, findOrder } = useStore();
   const wanted = useSearchParams().get("order");
-  const o = orders.find((x) => x.id === wanted) ?? lastOrder;
+  const [recovered, setRecovered] = useState<Order | null>(null);
+  const [recovering, setRecovering] = useState(false);
+  const o = orders.find((x) => x.id === wanted) ?? lastOrder ?? recovered;
+
+  // Returning from Safepay's hosted checkout is a full page reload, which
+  // wipes the in-memory store — a guest's order wouldn't otherwise be found
+  // here. Recover it the same way /track does: by its own order id + phone,
+  // handed off via localStorage right before the redirect to Safepay.
+  useEffect(() => {
+    if (o || !wanted || !ready) return;
+    const pending = readPendingPaymentHandoff();
+    if (!pending || pending.id !== wanted) return;
+    setRecovering(true);
+    findOrder(pending.id, pending.phone).then((found) => {
+      setRecovering(false);
+      if (found) {
+        setRecovered(found);
+        if (found.paymentStatus !== "pending") clearPendingPaymentHandoff();
+      }
+    });
+  }, [o, wanted, ready, findOrder]);
 
   if (!o) {
     return (
       <div className="wrap empty">
-        {ready && (
+        {ready && !recovering && (
           <>
             <div className="eyebrow">Order confirmed</div>
             <h1 className="h1" style={{ margin: "12px 0 14px" }}>We couldn&apos;t find that order</h1>
@@ -35,6 +55,32 @@ function Confirmation() {
             <Link href="/track" className="btn" style={{ display: "inline-flex", width: 240 }}>Track an order</Link>
           </>
         )}
+      </div>
+    );
+  }
+
+  if (o.paymentStatus === "pending") {
+    return (
+      <div className="wrap empty">
+        <div className="eyebrow">Order {o.id}</div>
+        <h1 className="h1" style={{ margin: "12px 0 14px" }}>Confirming your payment…</h1>
+        <p className="lead" style={{ marginBottom: 28 }}>
+          This usually takes just a few seconds. Refresh this page, or check your order on the track page shortly.
+        </p>
+        <Link href={`/track?order=${o.id}`} className="btn" style={{ display: "inline-flex", width: 240 }}>Track this order</Link>
+      </div>
+    );
+  }
+
+  if (o.paymentStatus === "failed") {
+    return (
+      <div className="wrap empty">
+        <div className="eyebrow">Order {o.id}</div>
+        <h1 className="h1" style={{ margin: "12px 0 14px" }}>Payment didn&apos;t go through</h1>
+        <p className="lead" style={{ marginBottom: 28 }}>
+          The card payment for this order failed, so it&apos;s been cancelled and nothing was charged.
+        </p>
+        <Link href="/checkout" className="btn" style={{ display: "inline-flex", width: 240 }}>Try again</Link>
       </div>
     );
   }

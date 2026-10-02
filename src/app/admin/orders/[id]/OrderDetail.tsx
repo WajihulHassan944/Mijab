@@ -33,10 +33,15 @@ export function OrderDetail({ id }: { id: string }) {
   const next = NEXT[o.status];
   const stageIdx = o.status === "cancelled" ? -1 : STATUS_FLOW.indexOf(o.status);
   const when = (i: number) => (i === 0 ? longDate(o.createdAt) : i <= stageIdx ? "Updated by admin" : "Pending");
+  const paymentBadge =
+    o.paymentStatus === "paid" ? { text: "Paid", cls: "s-delivered" } :
+    o.paymentStatus === "pending" ? { text: "Awaiting payment", cls: "s-placed" } :
+    o.paymentStatus === "failed" ? { text: "Payment failed", cls: "s-cancelled" } : null;
 
   return (
     <>
       <PageHeader title={o.id} sub={`Placed ${longDate(o.createdAt)} · ${o.payment}`} back={{ href: "/admin/orders", label: "Orders" }}>
+        {paymentBadge && <span className={`pill ${paymentBadge.cls}`}>{paymentBadge.text}</span>}
         <StatusBadge status={o.status} />
         <button className="abtn ghost" onClick={() => window.print()}><IPrint size={15} /> Print</button>
         {next && <button className="abtn" onClick={() => setStatus([o.id], next.to)}>{next.label}</button>}

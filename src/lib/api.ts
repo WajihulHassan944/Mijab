@@ -123,6 +123,7 @@ export type ApiOrder = {
   email: string;
   phone: string;
   payment: string;
+  paymentStatus?: "not_required" | "pending" | "paid" | "failed";
   note?: string;
 };
 
@@ -199,6 +200,9 @@ export const api = {
   },
   contact: {
     submit: (body: { name: string; email: string; subject: string; body: string }) => request<{ id: string }>("/contact", { method: "POST", body }),
+  },
+  payments: {
+    safepayCheckout: (orderId: string) => request<{ checkoutUrl: string }>("/payments/safepay/checkout", { method: "POST", body: { orderId } }).then((r) => r.checkoutUrl),
   },
 
   // ---- Admin ----

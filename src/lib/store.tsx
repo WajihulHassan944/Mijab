@@ -32,11 +32,44 @@ export type Order = {
   email: string;
   phone: string;
   payment: string;
+  paymentStatus: "not_required" | "pending" | "paid" | "failed";
 };
 
 export type User = { name: string; email: string; address?: string; phone?: string; city?: string };
 
 const CART_KEY = "mijab:cart";
+
+// Redirecting to Safepay's hosted checkout and back is a full page
+// navigation, which wipes React/context state — a guest's just-placed order
+// would otherwise vanish. This tiny localStorage handoff survives that trip
+// so the confirmation page can look the order back up (by its own phone
+// number, the same way /track does) once Safepay sends the customer back.
+const PENDING_PAYMENT_KEY = "mijab:pending-payment";
+
+export function savePendingPaymentHandoff(order: { id: string; phone: string }) {
+  try {
+    localStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify({ id: order.id, phone: order.phone }));
+  } catch {
+    /* storage unavailable — confirmation page just won't have this fallback */
+  }
+}
+
+export function readPendingPaymentHandoff(): { id: string; phone: string } | null {
+  try {
+    const raw = localStorage.getItem(PENDING_PAYMENT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingPaymentHandoff() {
+  try {
+    localStorage.removeItem(PENDING_PAYMENT_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function fromApi(o: ApiOrder): Order {
   return {
@@ -55,6 +88,7 @@ export function fromApi(o: ApiOrder): Order {
     email: o.email,
     phone: o.phone,
     payment: o.payment,
+    paymentStatus: o.paymentStatus ?? "not_required",
   };
 }
 

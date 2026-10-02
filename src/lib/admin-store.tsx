@@ -31,6 +31,7 @@ function toAdminOrder(o: ApiOrder): AdminOrder {
     email: o.email,
     phone: o.phone,
     payment: o.payment,
+    paymentStatus: o.paymentStatus ?? "not_required",
     note: o.note,
   };
 }

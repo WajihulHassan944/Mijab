@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { Arrow } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
 import { SummaryRows } from "@/components/Summary";
 import { formatPrice } from "@/lib/products";
-import { useStore } from "@/lib/store";
+import { savePendingPaymentHandoff, useStore } from "@/lib/store";
+import { api, ApiError } from "@/lib/api";
 
 const PAYMENT_DEFS = [
   { id: "Cash on delivery", sub: "Pay when your order arrives", key: "cod" as const },
@@ -29,13 +30,24 @@ function Field({ id, label, value, onChange, error, type = "text", placeholder =
 }
 
 export default function CheckoutPage() {
+  return (
+    <Suspense>
+      <CheckoutForm />
+    </Suspense>
+  );
+}
+
+function CheckoutForm() {
   const { cart, totals, promo, user, placeOrder, ready, products, settings } = useStore();
   const router = useRouter();
+  const params = useSearchParams();
+  const cancelledOrderId = params.get("payment") === "cancelled" ? params.get("order") : null;
   const [f, setF] = useState<Form>(blank);
   const [pay, setPay] = useState(PAYMENT_DEFS[0].id);
   const [errors, setErrors] = useState<Partial<Form>>({});
   const [submitError, setSubmitError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   const payments = PAYMENT_DEFS.filter((p) => settings[p.key]);
 
@@ -75,9 +87,62 @@ export default function CheckoutPage() {
       phone: f.phone.trim(),
       payment: pay,
     });
+    if (!result.ok) {
+      setBusy(false);
+      return setSubmitError(result.error);
+    }
+
+    if (pay === "Debit or credit card") {
+      try {
+        const checkoutUrl = await api.payments.safepayCheckout(result.order.id);
+        savePendingPaymentHandoff(result.order);
+        window.location.href = checkoutUrl; // leaves the SPA — no need to clear `busy`
+        return;
+      } catch (err) {
+        setBusy(false);
+        setSubmitError(
+          `Your order ${result.order.id} was placed, but we couldn't start the card payment (${err instanceof ApiError ? err.message : "please try again"}). ` +
+            `You can retry below, or track the order and pay another way.`,
+        );
+        router.replace(`/checkout?payment=cancelled&order=${result.order.id}`);
+        return;
+      }
+    }
+
     setBusy(false);
-    if (!result.ok) return setSubmitError(result.error);
     router.push(`/confirmation?order=${result.order.id}`);
+  }
+
+  async function retryPayment(orderId: string) {
+    setRetrying(true);
+    setSubmitError("");
+    try {
+      const checkoutUrl = await api.payments.safepayCheckout(orderId);
+      window.location.href = checkoutUrl;
+    } catch (err) {
+      setRetrying(false);
+      setSubmitError(err instanceof ApiError ? err.message : "Could not start the card payment. Please try again.");
+    }
+  }
+
+  // the order already exists (and its stock already reserved) from before
+  // the customer bounced off Safepay's checkout — let them retry the same
+  // order rather than forcing them to rebuild an empty bag
+  if (cancelledOrderId) {
+    return (
+      <div className="wrap empty">
+        <div className="eyebrow">Checkout</div>
+        <h1 className="h1" style={{ margin: "12px 0 14px" }}>Payment wasn&apos;t completed</h1>
+        <p className="lead" style={{ marginBottom: 20 }}>
+          Order <b>{cancelledOrderId}</b> is saved, but the card payment didn&apos;t go through. You can try again, or pay another way by contacting us with your order number.
+        </p>
+        {submitError && <div className="err-text" role="alert" style={{ marginBottom: 20 }}>{submitError}</div>}
+        <button className="btn" style={{ display: "inline-flex", width: 240 }} disabled={retrying} onClick={() => retryPayment(cancelledOrderId)}>
+          {retrying ? "Starting…" : "Try payment again"}
+        </button>
+        <Link href={`/track?order=${cancelledOrderId}`} className="link-arrow" style={{ marginTop: 16 }}>Track this order instead</Link>
+      </div>
+    );
   }
 
   if (ready && cart.length === 0) {
