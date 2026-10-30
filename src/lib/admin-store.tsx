@@ -65,7 +65,7 @@ function toSettings(s: ApiSettings): Settings {
 
 const FALLBACK_SETTINGS: Settings = {
   storeName: "MIJAB",
-  email: "hello@mijab.com",
+  email: "mjb_essence@outlook.com",
   phone: "",
   deliveryFee: 200,
   freeOver: 0,

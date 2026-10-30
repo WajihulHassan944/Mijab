@@ -70,7 +70,7 @@ export function ContactClient() {
             <h2>Get in touch</h2>
             <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "flex-start" }}>
               <Mail size={20} />
-              <div><div className="eyebrow">Email</div><div style={{ marginTop: 4, fontSize: 14, fontWeight: 300 }}>hello@mijab.com</div></div>
+              <div><div className="eyebrow">Email</div><div style={{ marginTop: 4, fontSize: 14, fontWeight: 300 }}>mjb_essence@outlook.com</div></div>
             </div>
             <div className="eyebrow" style={{ marginTop: 20 }}>Follow</div>
             <div className="socials" style={{ marginTop: 8, marginLeft: -12 }}>
