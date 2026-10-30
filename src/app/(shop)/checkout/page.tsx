@@ -12,7 +12,7 @@ import { api, ApiError } from "@/lib/api";
 
 const PAYMENT_DEFS = [
   { id: "Cash on delivery", sub: "Pay when your order arrives", key: "cod" as const },
-  { id: "Debit or credit card", sub: "Visa, Mastercard", key: "card" as const },
+  { id: "Debit or credit card", sub: "Available soon", key: "card" as const, disabled: true },
   { id: "Bank transfer", sub: "Details sent after you place the order", key: "bank" as const },
 ];
 
@@ -49,7 +49,8 @@ function CheckoutForm() {
   const [busy, setBusy] = useState(false);
   const [retrying, setRetrying] = useState(false);
 
-  const payments = PAYMENT_DEFS.filter((p) => settings[p.key]);
+  const payments = PAYMENT_DEFS.filter((p) => p.disabled || settings[p.key]);
+  const selectablePayments = payments.filter((p) => !p.disabled);
 
   useEffect(() => {
     if (user) {
@@ -61,8 +62,8 @@ function CheckoutForm() {
   // keep the selected method valid if settings load after mount, or an
   // admin disables whichever method was selected
   useEffect(() => {
-    if (payments.length && !payments.some((p) => p.id === pay)) setPay(payments[0].id);
-  }, [payments, pay]);
+    if (selectablePayments.length && !selectablePayments.some((p) => p.id === pay)) setPay(selectablePayments[0].id);
+  }, [selectablePayments, pay]);
 
   const set = (k: keyof Form) => (v: string) => setF((cur) => ({ ...cur, [k]: v }));
 
@@ -203,8 +204,12 @@ function CheckoutForm() {
             <div className="form-title">Payment</div>
             <div className="stack" style={{ gap: 10 }}>
               {payments.map((p) => (
-                <label key={p.id} className={`radio${pay === p.id ? " on" : ""}`}>
-                  <input type="radio" name="pay" checked={pay === p.id} onChange={() => setPay(p.id)} />
+                <label
+                  key={p.id}
+                  className={`radio${pay === p.id ? " on" : ""}${p.disabled ? " disabled" : ""}`}
+                  style={p.disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+                >
+                  <input type="radio" name="pay" checked={pay === p.id} disabled={p.disabled} onChange={() => !p.disabled && setPay(p.id)} />
                   <span style={{ flex: 1 }}><b>{p.id}</b><small>{p.sub}</small></span>
                 </label>
               ))}
