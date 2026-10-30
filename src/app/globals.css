@@ -233,7 +233,7 @@ h1, h2, h3, p { margin: 0; }
   background: var(--blush); color: var(--brown); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.5;
   box-shadow: 0 8px 18px rgba(42, 29, 24, 0.22);
 }
-.duo-img .media { aspect-ratio: 360 / 240; position: relative; z-index: 1; }
+.duo-img .media { aspect-ratio: 1200 / 1297; position: relative; z-index: 1; }
 .duo-copy { flex: 1; }
 .duo-copy h2 { margin-top: 14px; font-family: var(--serif); font-weight: 400; font-size: 44px; line-height: 1.08; }
 .duo-copy p { margin-top: 18px; max-width: 400px; font-size: 13px; line-height: 1.6; font-weight: 300; color: var(--body); }
@@ -568,7 +568,7 @@ h1, h2, h3, p { margin: 0; }
   .m-hero .it { position: relative; z-index: 1; margin-top: 12px; font-family: var(--serif); font-style: italic; font-size: 21px; color: #8a4e48; }
   .m-hero .label-line { position: relative; z-index: 1; margin-top: 12px; font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
   .m-hero .btn { position: relative; z-index: 1; margin-top: 22px; width: auto; }
-  .m-hero-shot { position: relative; z-index: 1; margin-top: 26px; width: 100%; aspect-ratio: 4 / 3.3; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 40px -14px rgba(42, 29, 24, 0.38); }
+  .m-hero-shot { position: relative; z-index: 1; margin-top: 26px; width: 100%; aspect-ratio: 1200 / 1297; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 40px -14px rgba(42, 29, 24, 0.38); }
   .m-hero-shot img { object-fit: cover; }
 
   .header.overlay .icon-btn svg { stroke: #2a1d18; }
