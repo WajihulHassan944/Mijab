@@ -3,15 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Product } from "@/lib/products";
-import { ProductMedia } from "./Media";
 import { Arrow } from "./Icons";
 
 /** Mobile home hero: static banner mirroring the desktop hero — headline,
- * CTA into the collection, and the two bottles staged in front of their
- * signature gift bags. */
-export function MobileHero({ fragrances }: { fragrances: Product[] }) {
-  const noir = fragrances.find((f) => f.id === "cafe-noir") ?? fragrances[0];
-  const vanilla = fragrances.find((f) => f.id === "vanilla-gourmand") ?? fragrances[1];
+ * CTA into the collection, and the signature duo shot. */
+export function MobileHero({ fragrances: _fragrances }: { fragrances: Product[] }) {
   return (
     <section className="m-hero only-mobile">
       <div className="eyebrow">Exclusive Fragrances</div>
@@ -19,23 +15,8 @@ export function MobileHero({ fragrances }: { fragrances: Product[] }) {
       <div className="it">It&apos;s a feeling. It&apos;s you.</div>
       <p className="label-line">Two signature fragrances. One beautiful story.</p>
       <a className="btn" href="#collection">Explore the Collection <Arrow stroke="#F6EAE2" /></a>
-      <div className="m-hero-stage">
-        <div className="m-hero-bags">
-          <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} priority />
-          <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} priority />
-        </div>
-        <div className="m-hero-bottles">
-          {noir && (
-            <div className="m-hero-bottle-card">
-              <ProductMedia product={noir} sizes="150px" priority />
-            </div>
-          )}
-          {vanilla && (
-            <div className="m-hero-bottle-card">
-              <ProductMedia product={vanilla} sizes="150px" priority />
-            </div>
-          )}
-        </div>
+      <div className="m-hero-shot">
+        <Image src="/images/duo.jpg" alt="MIJAB Café Noir and Vanilla Gourmand" fill sizes="100vw" priority />
       </div>
     </section>
   );
