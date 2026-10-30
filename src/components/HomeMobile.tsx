@@ -19,19 +19,19 @@ export function MobileHero({ fragrances }: { fragrances: Product[] }) {
       <div className="it">It&apos;s a feeling. It&apos;s you.</div>
       <p className="label-line">Two signature fragrances. One beautiful story.</p>
       <a className="btn" href="#collection">Explore the Collection <Arrow stroke="#F6EAE2" /></a>
-      <div className="hero-stage">
-        <div className="hero-bags">
+      <div className="m-hero-stage">
+        <div className="m-hero-bags">
           <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} priority />
           <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} priority />
         </div>
-        <div className="hero-bottles">
+        <div className="m-hero-bottles">
           {noir && (
-            <div className="hero-bottle-card">
+            <div className="m-hero-bottle-card">
               <ProductMedia product={noir} sizes="150px" priority />
             </div>
           )}
           {vanilla && (
-            <div className="hero-bottle-card">
+            <div className="m-hero-bottle-card">
               <ProductMedia product={vanilla} sizes="150px" priority />
             </div>
           )}

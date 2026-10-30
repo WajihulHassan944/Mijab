@@ -186,26 +186,18 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* =================================================== HOME =================================================== */
-.hero {
-  position: relative; min-height: 560px; overflow: hidden; color: var(--ink);
-  background:
-    radial-gradient(90% 140% at 78% 10%, rgba(176, 143, 132, 0.16), transparent 60%),
-    linear-gradient(135deg, #f7efe8, #f1e4d9 55%, #ead9ca);
-}
+.hero { position: relative; min-height: 560px; overflow: hidden; background: #3b322c; color: #fbf4ef; }
+.hero > img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .hero-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 150px 64px 70px; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; min-height: 560px; }
-.hero-copy { max-width: 420px; padding-bottom: 8px; }
-.hero-copy .eyebrow { color: var(--rose); font-size: 10px; }
-.hero-copy h1 { margin-top: 18px; font-family: var(--serif); font-weight: 400; font-size: 58px; line-height: 1; color: var(--ink); }
-.hero-copy .it { margin-top: 24px; font-family: var(--serif); font-style: italic; font-size: 26px; color: #8a4e48; }
-.hero-copy .label-line { margin-top: 18px; font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.hero-copy .btn { margin-top: 30px; width: auto; }
-.hero-stage { position: relative; align-self: flex-end; width: 520px; height: 440px; flex-shrink: 0; }
-.hero-bags { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 16px; }
-.hero-bags img { display: block; height: 380px; width: auto; }
-.hero-bottles { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 18px; }
-.hero-bottle-card { display: block; width: 150px; }
-.hero-bottle-card .media { aspect-ratio: 150 / 190; border-radius: 10px; box-shadow: 0 24px 40px -14px rgba(42, 29, 24, 0.38); transition: transform 0.35s; }
-.hero-bottle-card:hover .media { transform: translateY(-6px); }
+.hero-copy { max-width: 400px; padding-bottom: 8px; }
+.hero-copy .eyebrow { color: #e0c3b2; font-size: 10px; }
+.hero-copy h1 { margin-top: 18px; font-family: var(--serif); font-weight: 400; font-size: 58px; line-height: 1; color: #fbf4ef; }
+.hero-copy .it { margin-top: 24px; font-family: var(--serif); font-style: italic; font-size: 26px; color: #f3e3da; }
+.hero-copy p { margin-top: 18px; font-size: 14px; line-height: 1.6; font-weight: 300; }
+.hero-copy .btn-blush { margin-top: 30px; width: auto; }
+.hero-bags { display: flex; align-items: flex-end; gap: 16px; align-self: flex-end; margin-bottom: -70px; }
+.hero-bags img { display: block; height: 430px; width: auto; transition: transform 0.6s; }
+.hero-bags img:hover { transform: translateY(-8px); }
 
 .collection { background: linear-gradient(90deg, #f1e8e1, #f3ece7); padding: 88px 0; }
 .collection .wrap { display: flex; gap: 56px; align-items: center; }
@@ -224,7 +216,7 @@ h1, h2, h3, p { margin: 0; }
 .col-card .name-row .n { font-family: var(--serif); font-size: 21px; }
 .col-card .name-row .p { font-size: 14px; font-weight: 500; white-space: nowrap; }
 .col-card .sub { margin: 6px 0 14px; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rose); }
-.scent-line { margin: 0 0 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.scent-line { display: none; margin: 0 0 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .scent-line .k { display: block; font-size: 9px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rose); }
 .scent-line .v { display: block; margin-top: 6px; font-size: 12px; font-weight: 300; line-height: 1.6; color: var(--body); }
 .btn.dark-btn { background: var(--ink); }
@@ -235,6 +227,7 @@ h1, h2, h3, p { margin: 0; }
 .duo-band .wrap { display: flex; align-items: center; gap: 64px; }
 .duo-img { position: relative; width: 400px; flex-shrink: 0; }
 .save-badge {
+  display: none;
   position: absolute; z-index: 3; top: 14px; right: 14px; width: 72px; height: 72px; border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
   background: var(--blush); color: var(--brown); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.5;
@@ -578,11 +571,12 @@ h1, h2, h3, p { margin: 0; }
   .m-hero .it { position: relative; z-index: 1; margin-top: 12px; font-family: var(--serif); font-style: italic; font-size: 21px; color: #8a4e48; }
   .m-hero .label-line { position: relative; z-index: 1; margin-top: 12px; font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
   .m-hero .btn { position: relative; z-index: 1; margin-top: 22px; width: auto; }
-  .m-hero .hero-stage { position: relative; z-index: 1; margin-top: 26px; width: 100%; height: 260px; }
-  .m-hero .hero-bags { justify-content: center; gap: 10px; }
-  .m-hero .hero-bags img { height: 230px; }
-  .m-hero .hero-bottles { bottom: 8px; gap: 10px; }
-  .m-hero .hero-bottle-card { width: 112px; }
+  .m-hero-stage { position: relative; z-index: 1; margin-top: 26px; width: 100%; height: 260px; }
+  .m-hero-bags { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 10px; }
+  .m-hero-bags img { display: block; height: 230px; width: auto; }
+  .m-hero-bottles { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; justify-content: center; gap: 10px; }
+  .m-hero-bottle-card { display: block; width: 112px; }
+  .m-hero-bottle-card .media { aspect-ratio: 150 / 190; border-radius: 10px; box-shadow: 0 24px 40px -14px rgba(42, 29, 24, 0.38); }
 
   .header.overlay .icon-btn svg { stroke: #2a1d18; }
   .header.overlay .badge { background: var(--brown); color: var(--cream); }
@@ -603,9 +597,10 @@ h1, h2, h3, p { margin: 0; }
   .col-card .cap { margin: 10px 0 12px; }
   .col-card .name-row .n { font-size: 17px; }
   .col-card .name-row .p { font-size: 12px; }
-  .scent-line { margin-bottom: 12px; padding-top: 10px; }
+  .scent-line { display: block; margin-bottom: 12px; padding-top: 10px; }
   .scent-line .v { font-size: 10.5px; }
   .col-card .btn { min-height: 42px; font-size: 9px; padding: 0 10px; }
+  .save-badge { display: flex; }
 
   .duo-band { padding: 40px 0; }
   .duo-band .wrap { flex-direction: column; align-items: stretch; gap: 28px; }
