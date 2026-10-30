@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { ProductMedia } from "@/components/Media";
-import { Arrow } from "@/components/Icons";
+import { Arrow, Truck, Lock, Gift, Check } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
 import { MobileHero, MobileNotes } from "@/components/HomeMobile";
 import { formatPrice } from "@/lib/products";
@@ -21,22 +21,27 @@ export default async function Home() {
     <>
       {/* ---------- hero ---------- */}
       <section className="hero only-desktop">
-        <Image className="bg" src="/images/hero.jpg" alt="" fill priority sizes="100vw" />
         <div className="hero-inner">
           <div className="hero-copy">
             <div className="eyebrow">Exclusive Fragrances</div>
             <h1>More Than Just a Scent</h1>
             <div className="it">It&apos;s a feeling. It&apos;s you.</div>
-            <p>
-              Discover MIJAB — two unique fragrances,
-              <br />one timeless essence. Crafted for the moments
-              <br />that matter.
-            </p>
-            <a className="btn-blush" href="#collection">Explore the Collection <Arrow stroke="#2A1D18" /></a>
+            <p className="label-line">Two signature fragrances. One beautiful story.</p>
+            <a className="btn fit" href="#collection">Explore the Collection <Arrow stroke="#F6EAE2" /></a>
           </div>
-          <div className="hero-bags">
-            <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} priority />
-            <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} priority />
+          <div className="hero-stage">
+            <div className="hero-bags">
+              <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} priority />
+              <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} priority />
+            </div>
+            <div className="hero-bottles">
+              <Link href={`/product/${noir.slug}`} className="hero-bottle-card">
+                <ProductMedia product={noir} sizes="200px" priority />
+              </Link>
+              <Link href={`/product/${vanilla.slug}`} className="hero-bottle-card">
+                <ProductMedia product={vanilla} sizes="200px" priority />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -67,6 +72,12 @@ export default async function Home() {
                   <span className="p">{formatPrice(p.price)}</span>
                 </div>
                 <div className="sub">Eau de Parfum · 50 ml</div>
+                {p.notes && (
+                  <div className="scent-line">
+                    <span className="k">Scent Notes</span>
+                    <span className="v">{[p.notes.top, p.notes.heart, p.notes.base].join(" · ")}</span>
+                  </div>
+                )}
                 <AddToBag id={p.id} className={`btn ${p.id === "cafe-noir" ? "dark-btn" : "lilac-btn"}`} arrow go={null} label="Add to bag" />
               </div>
             ))}
@@ -79,10 +90,11 @@ export default async function Home() {
         <div className="wrap">
           <div className="duo-img">
             <ProductMedia product={duo} sizes="400px" />
+            {duo.compareAt && <span className="save-badge">Save<br />{formatPrice(duo.compareAt - duo.price)}</span>}
           </div>
           <div className="duo-copy">
-            <div className="eyebrow">The Duo</div>
-            <h2>Two Fragrances. One Story.</h2>
+            <div className="eyebrow">The Signature Duo</div>
+            <h2>Both Fragrances. One Exclusive Set.</h2>
             <p>Gift him, gift her, or keep both. The pair arrives together in a signature MIJAB bag.</p>
             <div className="duo-buy">
               <span className="price">{formatPrice(duo.price)}</span>
@@ -105,6 +117,20 @@ export default async function Home() {
               MIJAB is a celebration of individuality, elegance and the little moments that make life beautiful. We believe a fragrance isn&apos;t just worn — it&apos;s felt. It becomes a part of your story.
             </p>
             <Link href="/about" className="link-arrow">Learn More <Arrow stroke="#9B6B66" w={12} /></Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- easy to order ---------- */}
+      <section className="easy">
+        <div className="wrap">
+          <h2>Easy to Order</h2>
+          <p>Premium fragrances, made simple.</p>
+          <div className="easy-grid">
+            <div className="easy-item"><Truck size={26} /><b>Free Delivery</b><span>Across Pakistan</span></div>
+            <div className="easy-item"><Lock size={26} /><b>Secure Payments</b><span>Safe &amp; trusted</span></div>
+            <div className="easy-item"><Gift size={26} /><b>Gift Ready</b><span>Beautiful packaging</span></div>
+            <div className="easy-item"><Check size={26} /><b>Premium Quality</b><span>Long lasting scents</span></div>
           </div>
         </div>
       </section>

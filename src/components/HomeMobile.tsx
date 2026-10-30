@@ -2,47 +2,40 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { formatPrice, Product } from "@/lib/products";
-import { useStore } from "@/lib/store";
-import { QtyStepper } from "./Buttons";
-import { Media } from "./Media";
+import { Product } from "@/lib/products";
+import { ProductMedia } from "./Media";
+import { Arrow } from "./Icons";
 
-/** Mobile home hero: For Him / For Her switcher with a featured product. */
+/** Mobile home hero: static banner mirroring the desktop hero — headline,
+ * CTA into the collection, and the two bottles staged in front of their
+ * signature gift bags. */
 export function MobileHero({ fragrances }: { fragrances: Product[] }) {
-  const [pick, setPick] = useState<"cafe-noir" | "vanilla-gourmand">("cafe-noir");
-  const [qty, setQty] = useState(1);
-  const [added, setAdded] = useState(false);
-  const { add } = useStore();
-  const p = fragrances.find((f) => f.id === pick) ?? fragrances[0];
+  const noir = fragrances.find((f) => f.id === "cafe-noir") ?? fragrances[0];
+  const vanilla = fragrances.find((f) => f.id === "vanilla-gourmand") ?? fragrances[1];
   return (
     <section className="m-hero only-mobile">
       <div className="eyebrow">Exclusive Fragrances</div>
       <h1>More Than Just a Scent</h1>
       <div className="it">It&apos;s a feeling. It&apos;s you.</div>
-      <div className="seg" role="tablist" aria-label="Choose fragrance">
-        {fragrances.map((f) => (
-          <button key={f.id} role="tab" aria-selected={pick === f.id} className={pick === f.id ? "on" : ""} onClick={() => setPick(f.id as typeof pick)}>
-            {f.audience}
-          </button>
-        ))}
-      </div>
-      <Media src={p.image} alt={`MIJAB ${p.name}`} bg={p.swatch} priority sizes="100vw">
-        <div className="tg">{p.tagline.replace(/ \/ /g, "  /  ")}</div>
-      </Media>
-      <div className="nm"><span className="n">{p.name}</span><span className="p">{formatPrice(p.price)}</span></div>
-      <div className="sub">Eau de Parfum · 50 ml</div>
-      <div className="buy">
-        <QtyStepper value={qty} onChange={setQty} />
-        <button
-          className="btn"
-          onClick={() => {
-            add(p.id, qty);
-            setAdded(true);
-            setTimeout(() => setAdded(false), 1400);
-          }}
-        >
-          {added ? "Added to bag" : "Add to bag"}
-        </button>
+      <p className="label-line">Two signature fragrances. One beautiful story.</p>
+      <a className="btn" href="#collection">Explore the Collection <Arrow stroke="#F6EAE2" /></a>
+      <div className="hero-stage">
+        <div className="hero-bags">
+          <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} priority />
+          <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} priority />
+        </div>
+        <div className="hero-bottles">
+          {noir && (
+            <div className="hero-bottle-card">
+              <ProductMedia product={noir} sizes="150px" priority />
+            </div>
+          )}
+          {vanilla && (
+            <div className="hero-bottle-card">
+              <ProductMedia product={vanilla} sizes="150px" priority />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
