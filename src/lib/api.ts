@@ -228,6 +228,18 @@ export const api = {
       update: (token: string, id: string, patch: Partial<ApiProduct>) =>
         request<{ product: ApiProduct }>(`/admin/products/${id}`, { method: "PATCH", body: patch, token }).then((r) => r.product),
       remove: (token: string, id: string) => request<{ ok: true }>(`/admin/products/${id}`, { method: "DELETE", token }),
+      uploadImage: async (token: string, id: string, file: File) => {
+        const form = new FormData();
+        form.append("image", file);
+        const res = await fetch(`${BASE}/admin/products/${id}/image`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: form,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new ApiError(data.error ?? `Request failed (${res.status})`, res.status, data.details);
+        return data.product as ApiProduct;
+      },
     },
     promos: {
       list: (token: string) => request<{ promos: ApiPromo[] }>("/admin/promos", { token }).then((r) => r.promos),

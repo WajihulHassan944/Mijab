@@ -7,11 +7,28 @@ import { AdminProduct } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
 
 export function ProductEdit({ id }: { id: string }) {
-  const { products, updateProduct } = useAdmin();
+  const { products, updateProduct, uploadProductImage } = useAdmin();
   const source = products.find((p) => p.id === id);
   const [f, setF] = useState<AdminProduct | null>(source ?? null);
   const [saved, setSaved] = useState(false);
+  const [imgBusy, setImgBusy] = useState(false);
+  const [imgError, setImgError] = useState("");
   useEffect(() => { if (source) setF(source); }, [source?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function onImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setImgError("");
+    setImgBusy(true);
+    try {
+      await uploadProductImage(id, file);
+    } catch (err) {
+      setImgError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setImgBusy(false);
+    }
+  }
 
   if (!source || !f) {
     return <PageHeader title="Product not found" back={{ href: "/admin/products", label: "Products" }} />;
@@ -56,6 +73,11 @@ export function ProductEdit({ id }: { id: string }) {
         <div className="stack-a">
           <Card title="Preview">
             <div className="thumb-s" style={{ width: "100%", height: 260, background: f.swatch }}><Image src={f.image} alt={f.name} fill sizes="340px" /></div>
+            <label className="abtn" style={{ marginTop: 12, display: "inline-flex", cursor: imgBusy ? "default" : "pointer", opacity: imgBusy ? 0.6 : 1 }}>
+              {imgBusy ? "Uploading…" : "Replace photo"}
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onImagePick} disabled={imgBusy} style={{ display: "none" }} />
+            </label>
+            {imgError && <div className="err-text" style={{ marginTop: 8 }}>{imgError}</div>}
             <div className="setrow" style={{ marginTop: 16 }}>
               <div><b>Visible in store</b><small>Hidden products can&apos;t be bought</small></div>
               <Toggle on={f.active} onChange={(v) => set("active", v)} label="Visible in store" />

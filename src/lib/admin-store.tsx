@@ -97,6 +97,7 @@ type Ctx = {
   setStatus: (ids: string[], status: Status) => void;
   setNote: (id: string, note: string) => void;
   updateProduct: (id: string, patch: Partial<AdminProduct>) => void;
+  uploadProductImage: (id: string, file: File) => Promise<void>;
   addPromo: (p: Promo) => void;
   updatePromo: (code: string, patch: Partial<Promo>) => void;
   deletePromo: (code: string) => void;
@@ -246,6 +247,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       .catch((e) => console.error("updateProduct failed:", e));
   }, []);
 
+  const uploadProductImage = useCallback(async (id: string, file: File) => {
+    const token = tokenStore.getAdmin();
+    if (!token) return;
+    const updated = await api.admin.products.uploadImage(token, id, file);
+    setProducts((cur) => cur.map((p) => (p.id === id ? toAdminProduct(updated) : p)));
+  }, []);
+
   const addPromo = useCallback((p: Promo) => {
     const token = tokenStore.getAdmin();
     if (!token) return;
@@ -319,6 +327,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     setStatus,
     setNote,
     updateProduct,
+    uploadProductImage,
     addPromo,
     updatePromo,
     deletePromo,
