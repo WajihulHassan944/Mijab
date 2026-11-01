@@ -54,6 +54,16 @@ export const TikTok = (p: P) => (
 export const Facebook = (p: P) => (
   <svg {...base({ size: 18, stroke: "#F0E4DC", ...p })}><path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8.5A.5.5 0 0114 8z" /></svg>
 );
+export const Diamond = (p: P) => (
+  <svg {...base(p)}><path d="M5 9l3-5h8l3 5-7 11-7-11z" /><path d="M5 9h14M9.5 4l-1.5 5 4 11 4-11-1.5-5" /></svg>
+);
+export const Lotus = (p: P) => (
+  <svg {...base(p)}><path d="M12 20c-4-1-7-4-7-8 3 0 5 1.5 7 4 2-2.5 4-4 7-4 0 4-3 7-7 8z" /><path d="M12 20V9" /><path d="M12 9c-1.5-2-1.5-5 0-7 1.5 2 1.5 5 0 7z" /></svg>
+);
+export const Heart = (p: P) => (
+  <svg {...base(p)}><path d="M12 20S4 14.5 4 9a4 4 0 017-2.6A4 4 0 0120 9c0 5.5-8 11-8 11z" /></svg>
+);
+
 export const Arrow = ({ stroke = "currentColor", w = 14 }: { stroke?: string; w?: number }) => (
   <svg className="arrow" width={w} height={(w * 8) / 14} viewBox="0 0 22 10" fill="none" stroke={stroke} strokeWidth="1.4" aria-hidden>
     <path d="M0 5h21M17 1l4 4-4 4" />
