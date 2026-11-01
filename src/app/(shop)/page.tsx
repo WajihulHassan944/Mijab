@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
@@ -10,6 +11,29 @@ import { fetchCatalog } from "@/lib/catalog";
 
 export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
 
+const HOME_DESCRIPTION =
+  "Discover MIJAB — Café Noir for him and Vanilla Gourmand for her. Premium eau de parfum, free delivery across Pakistan, cash on delivery available.";
+
+export const metadata: Metadata = {
+  title: { absolute: "MIJAB — Scent / Elegance / You" },
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "MIJAB",
+    title: "MIJAB — Scent / Elegance / You",
+    description: HOME_DESCRIPTION,
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "MIJAB — Café Noir and Vanilla Gourmand" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MIJAB — Scent / Elegance / You",
+    description: HOME_DESCRIPTION,
+    images: ["/og-image.jpg"],
+  },
+};
+
 export default async function Home() {
   const catalog = await fetchCatalog();
   const noir = catalog["cafe-noir"];
@@ -17,8 +41,32 @@ export default async function Home() {
   const duo = catalog.duo;
   const fragrances = [noir, vanilla].filter(Boolean);
 
+  const productsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: [noir, vanilla, duo].filter(Boolean).map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Product",
+        name: `MIJAB ${p.name}`,
+        image: `https://mijab.shop${p.image}`,
+        description: p.blurb || p.tagline,
+        brand: { "@type": "Brand", name: "MIJAB" },
+        offers: {
+          "@type": "Offer",
+          url: `https://mijab.shop/product/${p.slug}`,
+          priceCurrency: "PKR",
+          price: p.price,
+          availability: "https://schema.org/InStock",
+        },
+      },
+    })),
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }} />
       {/* ---------- hero ---------- */}
       <section className="hero only-desktop">
         <Image className="bg" src="/images/hero.jpg" alt="" fill priority sizes="100vw" />
