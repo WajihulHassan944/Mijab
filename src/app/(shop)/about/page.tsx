@@ -13,9 +13,7 @@ export default function AboutPage() {
         <div className="wrap in">
           <div className="l">
             <div className="eyebrow-line">About Mijab</div>
-            <h1 className="h1">
-              <span className="spark">✨</span> The Wait Is Over.<br />MIJAB Is Here. <span className="spark">✨</span>
-            </h1>
+            <h1 className="h1">The Wait Is Over.<br />MIJAB Is Here.</h1>
             <p className="lead">
               Some things are more than a fragrance.
               <br />They are a feeling, a memory, a little touch of confidence, and a part of who we are.
@@ -31,9 +29,9 @@ export default function AboutPage() {
             <div className="rule" />
             <div className="welcome">Welcome to the MIJAB family. 🤍</div>
           </div>
-          <div className="r">
-            <Image src="/images/duo.jpg" alt="MIJAB Café Noir and Vanilla Gourmand" fill sizes="(max-width: 820px) 100vw, 480px" priority />
-          </div>
+        </div>
+        <div className="r only-mobile">
+          <Image src="/images/duo.jpg" alt="MIJAB Café Noir and Vanilla Gourmand" fill sizes="100vw" priority />
         </div>
       </section>
 
