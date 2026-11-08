@@ -40,9 +40,7 @@ export function Header() {
     <header className={`header${overlay ? " overlay" : ""}${menuOpen ? " menu-open" : ""}`}>
       {overlay && (
         <button type="button" className="menu-btn icon-btn" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="m-menu" onClick={() => setMenuOpen(true)}>
-          <svg className="menu-lines" width="22" height="16" viewBox="0 0 22 16" fill="none" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
-            <path d="M1 2h20" /><path d="M1 8h12" /><path d="M1 14h16" />
-          </svg>
+          <span className="menu-lines" aria-hidden><i /><i /></span>
         </button>
       )}
       <Link href="/" className="logo" aria-label="MIJAB home">

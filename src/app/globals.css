@@ -976,9 +976,12 @@ h1, h2, h3, p { margin: 0; }
   .mh-reveal.mh-hidden { opacity: 0; transform: translateY(26px); }
 
   /* hamburger: frosted round button, staggered lines */
-  .header.overlay .menu-btn { width: 42px; height: 42px; margin-left: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.3); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 6px 16px -8px rgba(20, 12, 8, 0.5); transition: transform 0.2s, background 0.2s; }
-  .header.overlay .menu-btn:active { transform: scale(0.94); background: rgba(255, 255, 255, 0.22); }
-  .menu-lines path { transition: d 0.3s; }
+  /* hamburger: two fine lines, the lower one shorter; it draws out to full length on press */
+  .header.overlay .menu-btn { justify-content: flex-start; padding-left: 12px; }
+  .menu-lines { display: flex; flex-direction: column; gap: 6px; width: 22px; }
+  .menu-lines i { display: block; height: 1.3px; width: 22px; border-radius: 1px; background: #f6eae2; box-shadow: 0 1px 2px rgba(20, 12, 8, 0.25); transition: width 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), background 0.4s; }
+  .menu-lines i:last-child { width: 13px; }
+  .header.overlay .menu-btn:active .menu-lines i:last-child, .header.overlay .menu-btn[aria-expanded="true"] .menu-lines i:last-child { width: 22px; }
   .m-menu nav a { display: flex; align-items: center; justify-content: space-between; }
   .m-menu nav a::after { content: "→"; font-family: var(--sans); font-size: 14px; color: #8a776c; transition: transform 0.2s; }
   .m-menu nav a:active::after { transform: translateX(4px); }
