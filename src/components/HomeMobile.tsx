@@ -7,17 +7,18 @@ import { api, ApiError } from "@/lib/api";
 import { Arrow, Mail } from "./Icons";
 
 /** tone: what sits behind the header icons, so they can switch colour to stay visible */
-type Slide = { img: string; alt: string; tone: "light" | "dark"; full?: boolean; title: ReactNode; sub: string; cta: string; href: string };
+type Slide = { img: string; alt: string; tone: "light" | "dark"; full?: boolean; bags?: boolean; title: ReactNode; sub: string; cta: string; href: string };
 
 /** Mobile home hero: a three-slide banner under the transparent header.
  * Swipe, tap a dot, or let it advance on its own (paused while touched). */
 export function MobileHero({ duoImage }: { duoImage: string }) {
   const slides: Slide[] = [
     {
-      img: "/images/m-home/hero.jpg",
-      alt: "MIJAB gift bags with pink and black bows",
+      img: "/images/m-home/hero-bg.jpg",
+      alt: "",
       tone: "light",
       full: true,
+      bags: true,
       title: <>More Than<br />Just a <em>Scent</em></>,
       sub: "A lasting impression\nin every spray.",
       cta: "Shop Best Sellers",
@@ -76,6 +77,12 @@ export function MobileHero({ duoImage }: { duoImage: string }) {
             <div className="mh-slide-img">
               <Image src={s.img} alt={s.alt} fill sizes="100vw" priority={k === 0} />
             </div>
+            {s.bags && (
+              <div className="mh-slide-bags">
+                <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} sizes="30vw" priority />
+                <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} sizes="30vw" priority />
+              </div>
+            )}
             <div className="mh-slide-copy">
               {k === 0 ? <h1>{s.title}</h1> : <h2>{s.title}</h2>}
               <p>{s.sub}</p>

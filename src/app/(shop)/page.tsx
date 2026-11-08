@@ -126,7 +126,7 @@ export default async function Home() {
 
       {/* ---------- mobile: about band ---------- */}
       <section className="mh-about only-mobile" aria-labelledby="mh-about-title">
-        <div className="mh-about-img"><Image src="/images/m-home/about.jpg" alt="Hands holding a MIJAB bottle" fill sizes="60vw" /></div>
+        <Image className="mh-about-bg" src="/images/m-home/elegance.jpg" alt="A man spraying MIJAB eau de parfum" fill sizes="100vw" />
         <div className="mh-about-copy">
           <div className="mh-about-eyebrow">About MIJAB</div>
           <h2 id="mh-about-title">Elegance in Every Spray</h2>

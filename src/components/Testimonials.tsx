@@ -126,7 +126,7 @@ export function Testimonials({ reviews }: { reviews: ApiReview[] }) {
   );
 }
 
-/** Mobile reviews: two cards in view, swipe or use the side arrows. */
+/** Mobile reviews: one card in view, swipe or use the side arrows. */
 export function MobileTestimonials({ reviews }: { reviews: ApiReview[] }) {
   const track = useRef<HTMLDivElement>(null);
   const [edge, setEdge] = useState({ start: true, end: false });
@@ -152,7 +152,7 @@ export function MobileTestimonials({ reviews }: { reviews: ApiReview[] }) {
       <div className="mh-eyebrow"><span>Loved by our customers</span></div>
       <h2 className="mh-title">In Their Words</h2>
       <div className="mh-reviews-stage">
-        <button type="button" className="mh-arrow" onClick={() => step(-1)} disabled={edge.start} aria-label="Previous reviews">
+        <button type="button" className="mh-arrow" onClick={() => step(-1)} disabled={edge.start} aria-label="Previous review">
           <Chevron dir="left" />
         </button>
         <div className="mh-reviews-track" ref={track} onScroll={sync}>
@@ -169,7 +169,7 @@ export function MobileTestimonials({ reviews }: { reviews: ApiReview[] }) {
             </figure>
           ))}
         </div>
-        <button type="button" className="mh-arrow" onClick={() => step(1)} disabled={edge.end} aria-label="Next reviews">
+        <button type="button" className="mh-arrow" onClick={() => step(1)} disabled={edge.end} aria-label="Next review">
           <Chevron dir="right" />
         </button>
       </div>
