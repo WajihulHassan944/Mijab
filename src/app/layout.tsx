@@ -9,7 +9,7 @@ const sans = Jost({ subsets: ["latin"], weight: ["300", "400", "500"], variable:
 const SITE_URL = "https://mijab.shop";
 const SITE_NAME = "MIJAB";
 const DEFAULT_DESCRIPTION =
-  "MIJAB — premium eau de parfum from Pakistan. Café Noir for him, Vanilla Gourmand for her, and the signature Duo. Free delivery, cash on delivery available.";
+  "MIJAB — premium eau de parfum from Pakistan. Café Noir for him, Vanilla Gourmand for her, and the signature Duo. Delivery across Pakistan, cash on delivery available.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

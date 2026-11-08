@@ -4,7 +4,8 @@ import { Logo } from "./Logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AccountIcon, BagIcon, CloseIcon, MenuIcon, SearchIcon } from "./Icons";
+import { AccountIcon, BagIcon, CloseIcon, SearchIcon } from "./Icons";
+import { formatPrice } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 const nav = [
@@ -16,7 +17,7 @@ const nav = [
 
 export function Header() {
   const pathname = usePathname();
-  const { count, user } = useStore();
+  const { count, user, settings } = useStore();
   const overlay = pathname === "/";
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href) || (href === "/shop" && pathname.startsWith("/product")));
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,7 +40,9 @@ export function Header() {
     <header className={`header${overlay ? " overlay" : ""}${menuOpen ? " menu-open" : ""}`}>
       {overlay && (
         <button type="button" className="menu-btn icon-btn" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="m-menu" onClick={() => setMenuOpen(true)}>
-          <MenuIcon size={26} width={1.6} />
+          <svg className="menu-lines" width="22" height="16" viewBox="0 0 22 16" fill="none" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+            <path d="M1 2h20" /><path d="M1 8h12" /><path d="M1 14h16" />
+          </svg>
         </button>
       )}
       <Link href="/" className="logo" aria-label="MIJAB home">
@@ -62,7 +65,7 @@ export function Header() {
         </Link>
         <Link href="/bag" className="icon-btn" aria-label={`Bag, ${count} item${count === 1 ? "" : "s"}`}>
           <BagIcon />
-          {count > 0 && <span className="badge">{count}</span>}
+          {count > 0 && <span className="badge" key={count}>{count}</span>}
         </Link>
       </div>
 
@@ -83,7 +86,7 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            <p className="m-menu-note">Free delivery across Pakistan · Cash on delivery</p>
+            <p className="m-menu-note">Delivery across Pakistan · {formatPrice(settings.deliveryFee)}{settings.cod ? " · Cash on delivery" : ""}</p>
           </div>
         </div>
       )}

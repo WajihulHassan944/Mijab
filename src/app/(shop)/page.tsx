@@ -3,9 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { ProductMedia } from "@/components/Media";
-import { Arrow, ChevronRight, Headset, ShieldCheck, Sparkle, Truck } from "@/components/Icons";
+import { Arrow } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
 import { MobileHero, Newsletter } from "@/components/HomeMobile";
+import { AnnounceBar, PromiseTicker, QuickAdd, RevealOnScroll, ScentNotes, ScentQuiz, TrustStrip } from "@/components/HomeMobileExtras";
 import { MobileTestimonials, Testimonials } from "@/components/Testimonials";
 import { formatPrice } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
@@ -14,7 +15,7 @@ import { api, ApiReview } from "@/lib/api";
 export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
 
 const HOME_DESCRIPTION =
-  "Discover MIJAB — Café Noir for him and Vanilla Gourmand for her. Premium eau de parfum, free delivery across Pakistan, cash on delivery available.";
+  "Discover MIJAB — Café Noir for him and Vanilla Gourmand for her. Premium eau de parfum, delivered across Pakistan, cash on delivery available.";
 
 export const metadata: Metadata = {
   title: { absolute: "MIJAB — Scent / Elegance / You" },
@@ -70,11 +71,8 @@ export default async function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }} />
       {/* ---------- mobile: announcement ---------- */}
-      <Link href="/shop" className="mh-announce only-mobile">
-        <Sparkle size={13} color="#e9b2a6" />
-        <span>Free Delivery Across Pakistan</span>
-        <ChevronRight size={14} stroke="#f6eae2" width={1.6} />
-      </Link>
+      <AnnounceBar />
+      <RevealOnScroll />
 
       {/* ---------- hero ---------- */}
       <section className="hero only-desktop">
@@ -106,26 +104,69 @@ export default async function Home() {
         <p className="mh-lead">Discover our signature scents crafted<br />for every mood and moment.</p>
         <div className="mh-cards">
           {[noir, vanilla, duo].filter(Boolean).map((p, i) => (
-            <Link href={`/product/${p.slug}`} className="mh-card" key={p.id}>
-              <ProductMedia product={p} sizes="34vw" />
+            <div className="mh-card" key={p.id}>
+              <Link href={`/product/${p.slug}`} className="mh-card-link">
+                <ProductMedia product={p} sizes="34vw" />
+                <span className="mh-card-name">{p.name}</span>
+                <span className="mh-card-price">{formatPrice(p.price)}</span>
+              </Link>
               {i === 0 && <span className="mh-badge">Bestseller</span>}
-              <span className="mh-card-name">{p.name}</span>
-              <span className="mh-card-price">{formatPrice(p.price)}</span>
-            </Link>
+              <QuickAdd id={p.id} name={p.name} />
+            </div>
           ))}
         </div>
         <Link href="/shop" className="mh-pill dark">View All Fragrances <Arrow stroke="#F6EAE2" w={13} /></Link>
       </section>
 
-      {/* ---------- mobile: trust strip ---------- */}
-      <section className="mh-trust only-mobile" aria-label="Why shop with MIJAB">
-        <div><Truck size={26} width={1.4} /><b>Free Delivery</b><span>Across Pakistan</span></div>
-        <div><ShieldCheck size={26} width={1.4} /><b>Secure Checkout</b><span>Shop with Confidence</span></div>
-        <div><Headset size={26} width={1.4} /><b>Friendly Support</b><span>We&apos;re Here to Help</span></div>
+      {/* ---------- mobile: promises ---------- */}
+      <PromiseTicker />
+      <TrustStrip />
+
+      {/* ---------- mobile: the duo offer ---------- */}
+      {duo && (
+        <section className="mh-duo only-mobile mh-reveal" aria-labelledby="mh-duo-title">
+          <Link href={`/product/${duo.slug}`} className="mh-duo-img">
+            <ProductMedia product={duo} sizes="45vw" />
+            {duo.compareAt && duo.compareAt > duo.price && <span className="mh-duo-save">Save<br />{formatPrice(duo.compareAt - duo.price)}</span>}
+          </Link>
+          <div className="mh-duo-copy">
+            <div className="mh-about-eyebrow">The Duo</div>
+            <h2 id="mh-duo-title">Two Fragrances.<br /><em>One Story.</em></h2>
+            <p>Café Noir and Vanilla Gourmand, together in one signature bag.</p>
+            <div className="mh-duo-price">
+              <b>{formatPrice(duo.price)}</b>
+              {duo.compareAt && duo.compareAt > duo.price && <s>{formatPrice(duo.compareAt)}</s>}
+            </div>
+            <AddToBag id="duo" go={null} className="mh-pill blush" label="Add the pair" />
+          </div>
+        </section>
+      )}
+
+      {/* ---------- mobile: scent finder + notes ---------- */}
+      <ScentQuiz catalog={catalog} />
+      <ScentNotes fragrances={fragrances} />
+
+      {/* ---------- mobile: gift edition ---------- */}
+      <section className="mh-gift only-mobile" aria-labelledby="mh-gift-title">
+        <div className="mh-reveal">
+          <div className="mh-eyebrow"><span>The Gift Edition</span></div>
+          <h2 className="mh-title" id="mh-gift-title">Wrapped to Be Remembered</h2>
+          <p className="mh-lead">Every MIJAB arrives gift-ready in its own<br />signature bag: pink for her, black for him.</p>
+        </div>
+        <div className="mh-gift-stage mh-reveal">
+          <figure>
+            <Image src="/images/bag-pink.png" alt="MIJAB gift bag with pink bow" width={270} height={425} sizes="40vw" />
+            <figcaption><b>Pink</b> For Her</figcaption>
+          </figure>
+          <figure>
+            <Image src="/images/bag-black.png" alt="MIJAB gift bag with black bow" width={280} height={430} sizes="40vw" />
+            <figcaption><b>Black</b> For Him</figcaption>
+          </figure>
+        </div>
       </section>
 
       {/* ---------- mobile: about band ---------- */}
-      <section className="mh-about only-mobile" aria-labelledby="mh-about-title">
+      <section className="mh-about only-mobile mh-reveal" aria-labelledby="mh-about-title">
         <Image className="mh-about-bg" src="/images/m-home/elegance.jpg" alt="A man spraying MIJAB eau de parfum" fill sizes="100vw" />
         <div className="mh-about-copy">
           <div className="mh-about-eyebrow">About MIJAB</div>

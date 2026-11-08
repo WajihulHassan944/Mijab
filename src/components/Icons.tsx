@@ -64,9 +64,6 @@ export const Heart = (p: P) => (
   <svg {...base(p)}><path d="M12 20S4 14.5 4 9a4 4 0 017-2.6A4 4 0 0120 9c0 5.5-8 11-8 11z" /></svg>
 );
 
-export const MenuIcon = (p: P) => (
-  <svg {...base(p)}><path d="M3 6h18M3 12h18M3 18h18" /></svg>
-);
 export const CloseIcon = (p: P) => (
   <svg {...base(p)}><path d="M6 6l12 12M18 6L6 18" /></svg>
 );
