@@ -72,7 +72,7 @@ export const products: Record<ProductId, Product> = {
 export const fragrances = [products["cafe-noir"], products["vanilla-gourmand"]];
 export const shopItems = [products["cafe-noir"], products["vanilla-gourmand"], products.duo];
 
-export const DELIVERY_FEE = 200;
+export const DELIVERY_FEE = 350;
 export const PROMO_CODES: Record<string, number> = { WELCOME10: 0.1, MIJAB10: 0.1 };
 
 export const formatPrice = (n: number) => `Rs. ${n.toLocaleString("en-US")}`;

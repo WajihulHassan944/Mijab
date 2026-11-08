@@ -9,11 +9,13 @@ import { SummaryRows } from "@/components/Summary";
 import { formatPrice } from "@/lib/products";
 import { savePendingPaymentHandoff, useStore } from "@/lib/store";
 import { api, ApiError } from "@/lib/api";
+import { BANK } from "@/lib/bank";
+import { DeliveryMethod } from "@/components/DeliveryMethod";
 
 const PAYMENT_DEFS = [
   { id: "Cash on delivery", sub: "Pay when your order arrives", key: "cod" as const },
   { id: "Debit or credit card", sub: "Available soon", key: "card" as const, disabled: true },
-  { id: "Bank transfer", sub: "Details sent after you place the order", key: "bank" as const },
+  { id: "Bank transfer", sub: `Pay to ${BANK.name}`, key: "bank" as const },
 ];
 
 type Form = Record<"email" | "phone" | "first" | "last" | "address" | "apt" | "city" | "province" | "postal", string>;
@@ -38,12 +40,13 @@ export default function CheckoutPage() {
 }
 
 function CheckoutForm() {
-  const { cart, totals, promo, user, placeOrder, ready, products, settings } = useStore();
+  const { cart, totals, promo, user, placeOrder, ready, products, settings, fulfillment } = useStore();
   const router = useRouter();
   const params = useSearchParams();
   const cancelledOrderId = params.get("payment") === "cancelled" ? params.get("order") : null;
   const [f, setF] = useState<Form>(blank);
   const [pay, setPay] = useState(PAYMENT_DEFS[0].id);
+  const isPickup = fulfillment === "pickup";
   const [errors, setErrors] = useState<Partial<Form>>({});
   const [submitError, setSubmitError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -73,7 +76,7 @@ function CheckoutForm() {
     const err: Partial<Form> = {};
     if (!/^\S+@\S+\.\S+$/.test(f.email)) err.email = "Enter a valid email address.";
     if (f.phone.replace(/\D/g, "").length < 10) err.phone = "Enter a phone number with at least 10 digits.";
-    (["first", "last", "address", "city", "province", "postal"] as const).forEach((k) => { if (!f[k].trim()) err[k] = "Required"; });
+    (isPickup ? (["first", "last"] as const) : (["first", "last", "address", "city", "province", "postal"] as const)).forEach((k) => { if (!f[k].trim()) err[k] = "Required"; });
     setErrors(err);
     if (Object.keys(err).length) {
       document.getElementById("checkout-form")?.querySelector<HTMLElement>("[aria-invalid=true]")?.focus();
@@ -82,11 +85,12 @@ function CheckoutForm() {
     setBusy(true);
     const result = await placeOrder({
       name: `${f.first.trim()} ${f.last.trim()}`,
-      address: [f.address.trim(), f.apt.trim()].filter(Boolean).join(", "),
-      city: [f.city.trim(), f.province.trim()].filter(Boolean).join(", "),
+      address: isPickup ? "" : [f.address.trim(), f.apt.trim()].filter(Boolean).join(", "),
+      city: isPickup ? "" : [f.city.trim(), f.province.trim()].filter(Boolean).join(", "),
       email: f.email.trim(),
       phone: f.phone.trim(),
       payment: pay,
+      fulfillment: isPickup ? "pickup" : "delivery",
     });
     if (!result.ok) {
       setBusy(false);
@@ -111,6 +115,10 @@ function CheckoutForm() {
     }
 
     setBusy(false);
+    if (pay === "Bank transfer") {
+      router.push(`/payment-proof?order=${result.order.id}&phone=${encodeURIComponent(result.order.phone)}`);
+      return;
+    }
     router.push(`/confirmation?order=${result.order.id}`);
   }
 
@@ -178,27 +186,35 @@ function CheckoutForm() {
             </div>
           </div>
           <div>
-            <div className="form-title">Delivery address</div>
+            <div className="form-title">Delivery method</div>
+            <DeliveryMethod />
+            {isPickup && (
+              <div className="card" style={{ marginTop: 12, fontSize: 14, fontWeight: 300, lineHeight: 1.7 }}>
+                <div style={{ fontWeight: 500, marginBottom: 6 }}>Pickup location</div>
+                <div style={{ whiteSpace: "pre-line" }}>{settings.pickupAddress || "We'll call or message you with the pickup location and time."}</div>
+                <div style={{ color: "#888", marginTop: 8 }}>We&apos;ll email you as soon as your order is ready to collect.</div>
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="form-title">{isPickup ? "Your name" : "Delivery address"}</div>
             <div className="stack">
               <div className="row">
                 <Field id="f-first" label="First name" value={f.first} onChange={set("first")} error={errors.first} />
                 <Field id="f-last" label="Last name" value={f.last} onChange={set("last")} error={errors.last} />
               </div>
-              <Field id="f-address" label="Address" placeholder="House, street, area" value={f.address} onChange={set("address")} error={errors.address} />
-              <Field id="f-apt" label="Apartment or landmark (optional)" value={f.apt} onChange={set("apt")} />
-              <div className="row">
-                <Field id="f-city" label="City" value={f.city} onChange={set("city")} error={errors.city} />
-                <Field id="f-province" label="Province" value={f.province} onChange={set("province")} error={errors.province} />
-                <Field id="f-postal" label="Postal code" value={f.postal} onChange={set("postal")} error={errors.postal} flex={0.7} />
-              </div>
+              {!isPickup && (
+                <>
+                  <Field id="f-address" label="Address" placeholder="House, street, area" value={f.address} onChange={set("address")} error={errors.address} />
+                  <Field id="f-apt" label="Apartment or landmark (optional)" value={f.apt} onChange={set("apt")} />
+                  <div className="row">
+                    <Field id="f-city" label="City" value={f.city} onChange={set("city")} error={errors.city} />
+                    <Field id="f-province" label="Province" value={f.province} onChange={set("province")} error={errors.province} />
+                    <Field id="f-postal" label="Postal code" value={f.postal} onChange={set("postal")} error={errors.postal} flex={0.7} />
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-          <div>
-            <div className="form-title">Delivery method</div>
-            <label className="radio on">
-              <input type="radio" name="ship" defaultChecked />
-              <span style={{ flex: 1 }}><b>Standard delivery</b><small>{totals.delivery === 0 ? "Free" : formatPrice(settings.deliveryFee)}</small></span>
-            </label>
           </div>
           <div>
             <div className="form-title">Payment</div>
@@ -210,10 +226,21 @@ function CheckoutForm() {
                   style={p.disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                 >
                   <input type="radio" name="pay" checked={pay === p.id} disabled={p.disabled} onChange={() => !p.disabled && setPay(p.id)} />
-                  <span style={{ flex: 1 }}><b>{p.id}</b><small>{p.sub}</small></span>
+                  <span style={{ flex: 1 }}><b>{isPickup && p.key === "cod" ? "Cash on pickup" : p.id}</b><small>{isPickup && p.key === "cod" ? "Pay in cash when you collect" : p.sub}</small></span>
                 </label>
               ))}
             </div>
+            {pay === "Bank transfer" && (
+              <div className="card" style={{ marginTop: 12, fontSize: 14, fontWeight: 300, lineHeight: 1.7 }}>
+                <div style={{ fontWeight: 500, marginBottom: 6 }}>Send payment by bank transfer</div>
+                <div>Bank: <b>{BANK.name}</b></div>
+                <div>Account number: <b>{BANK.account}</b></div>
+                <div>Account title: <b>{BANK.title}</b></div>
+                <div style={{ color: "#888", marginTop: 8 }}>
+                  After placing your order, you&apos;ll be asked to upload a screenshot of the transfer so we can confirm it.
+                </div>
+              </div>
+            )}
           </div>
         </form>
 
@@ -231,7 +258,7 @@ function CheckoutForm() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 12 }}><SummaryRows {...totals} promo={promo} /></div>
+          <div style={{ marginTop: 12 }}><SummaryRows {...totals} promo={promo} deliveryLabel={isPickup ? "Store pickup" : undefined} /></div>
           {submitError && <div className="err-text" role="alert" style={{ marginTop: 12 }}>{submitError}</div>}
           <button type="submit" form="checkout-form" className="btn" style={{ marginTop: 20 }} disabled={busy}>{busy ? "Placing order…" : "Place order"} <Arrow stroke="#F6EAE2" /></button>
           <Link href="/bag" className="link-arrow" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}>Return to bag</Link>

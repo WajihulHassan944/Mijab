@@ -30,7 +30,9 @@ export function OrderDetail({ id }: { id: string }) {
     );
   }
 
-  const next = NEXT[o.status];
+  const isPickup = o.fulfillment === "pickup";
+  const next = isPickup && o.status === "packed" ? { to: "out" as Status, label: "Mark ready for pickup" } : isPickup && o.status === "out" ? { to: "delivered" as Status, label: "Mark as collected" } : NEXT[o.status];
+  const stepLabel = (s: Status) => (isPickup && s === "out" ? "Ready for pickup" : isPickup && s === "delivered" ? "Collected" : STATUS_LABEL[s]);
   const stageIdx = o.status === "cancelled" ? -1 : STATUS_FLOW.indexOf(o.status);
   const when = (i: number) => (i === 0 ? longDate(o.createdAt) : i <= stageIdx ? "Updated by admin" : "Pending");
   const paymentBadge =
@@ -40,7 +42,7 @@ export function OrderDetail({ id }: { id: string }) {
 
   return (
     <>
-      <PageHeader title={o.id} sub={`Placed ${longDate(o.createdAt)} · ${o.payment}`} back={{ href: "/admin/orders", label: "Orders" }}>
+      <PageHeader title={o.id} sub={`Placed ${longDate(o.createdAt)} · ${o.payment}${isPickup ? " · Store pickup" : ""}`} back={{ href: "/admin/orders", label: "Orders" }}>
         {paymentBadge && <span className={`pill ${paymentBadge.cls}`}>{paymentBadge.text}</span>}
         <StatusBadge status={o.status} />
         <button className="abtn ghost" onClick={() => window.print()}><IPrint size={15} /> Print</button>
@@ -77,7 +79,7 @@ export function OrderDetail({ id }: { id: string }) {
               <div className="sumrows">
                 <div><span>Subtotal</span><span>{money(o.subtotal)}</span></div>
                 {o.discount > 0 && <div><span>Discount</span><span>− {money(o.discount)}</span></div>}
-                <div><span>Delivery</span><span>{money(o.delivery)}</span></div>
+                <div><span>{isPickup ? "Store pickup" : "Delivery"}</span><span>{money(o.delivery)}</span></div>
                 <div className="total"><span>Total</span><span>{money(o.total)}</span></div>
               </div>
             </div>
@@ -98,7 +100,7 @@ export function OrderDetail({ id }: { id: string }) {
                 {STATUS_FLOW.map((s, i) => (
                   <li key={s} className={i < stageIdx || stageIdx === 3 ? "done" : i === stageIdx ? "now" : "todo"}>
                     <span className="dot" />
-                    <div><b>{STATUS_LABEL[s]}</b><small>{when(i)}</small></div>
+                    <div><b>{stepLabel(s)}</b><small>{when(i)}</small></div>
                   </li>
                 ))}
               </ol>
@@ -111,9 +113,24 @@ export function OrderDetail({ id }: { id: string }) {
               <dt>Phone</dt><dd>{o.phone}</dd>
             </dl>
           </Card>
-          <Card title="Delivery address">
-            <p style={{ lineHeight: 1.6 }}>{o.name}<br />{o.address}<br />{o.city}</p>
+          <Card title={isPickup ? "Store pickup" : "Delivery address"}>
+            {isPickup ? (
+              <p style={{ lineHeight: 1.6 }}><span className="pill s-packed">Customer collects</span><br />{o.name} will pick this up — no delivery needed.</p>
+            ) : (
+              <p style={{ lineHeight: 1.6 }}>{o.name}<br />{o.address}<br />{o.city}</p>
+            )}
           </Card>
+          {o.payment === "Bank transfer" && (
+            <Card title="Payment proof">
+              {o.paymentProofUrl ? (
+                <a href={o.paymentProofUrl} target="_blank" rel="noreferrer">
+                  <Image src={o.paymentProofUrl} alt="Payment screenshot" width={320} height={320} style={{ width: "100%", height: "auto", borderRadius: 8 }} unoptimized />
+                </a>
+              ) : (
+                <p className="inline-note">No screenshot uploaded yet.</p>
+              )}
+            </Card>
+          )}
         </div>
       </div>
     </>

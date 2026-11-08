@@ -6,8 +6,10 @@ import { ProductMedia } from "@/components/Media";
 import { Arrow, Truck, Lock, Gift, Check } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
 import { MobileHero, MobileNotes } from "@/components/HomeMobile";
+import { Testimonials } from "@/components/Testimonials";
 import { formatPrice } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
+import { api, ApiReview } from "@/lib/api";
 
 export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
 
@@ -35,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const catalog = await fetchCatalog();
+  const [catalog, reviews] = await Promise.all([fetchCatalog(), api.reviews.list(6).catch((): ApiReview[] => [])]);
   const noir = catalog["cafe-noir"];
   const vanilla = catalog["vanilla-gourmand"];
   const duo = catalog.duo;
@@ -233,6 +235,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* ---------- reviews (admin-approved only) ---------- */}
+      <Testimonials reviews={reviews} />
 
       {/* ---------- how to order ---------- */}
       <section className="how">

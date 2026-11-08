@@ -16,6 +16,13 @@ const steps = [
   { name: "Delivered", sub: "Arrives at your door" },
 ];
 const badge = ["Confirmed", "Packed", "In transit", "Delivered"];
+const pickupSteps = [
+  { name: "Order placed", sub: "" },
+  { name: "Packed", sub: "Your order is packed" },
+  { name: "Ready for pickup", sub: "Come and collect it" },
+  { name: "Collected", sub: "Picked up from our store" },
+];
+const pickupBadge = ["Confirmed", "Packed", "Ready to collect", "Collected"];
 const bg = ["#EFE4DD", "#EFE4DD", "#DCCBE6", "#E4D3C6"];
 
 export function TrackClient() {
@@ -81,18 +88,22 @@ export function TrackClient() {
         </div>
       )}
 
-      {result && (
+      {result && (() => {
+        const isPickup = result.fulfillment === "pickup";
+        const st = isPickup ? pickupSteps : steps;
+        const bd = isPickup ? pickupBadge : badge;
+        return (
         <section className="track-card">
           <div className="track-head">
             <div>
               <div className="eyebrow">Order {result.id}</div>
-              <div className="st">{steps[result.stage].name}</div>
+              <div className="st">{st[result.stage].name}</div>
             </div>
-            <span className="status" style={{ background: bg[result.stage] }}>{badge[result.stage]}</span>
+            <span className="status" style={{ background: bg[result.stage] }}>{bd[result.stage]}</span>
           </div>
 
           <ol className="timeline" style={{ listStyle: "none", padding: 0, margin: "36px 0 0" }}>
-            {steps.map((s, i) => {
+            {st.map((s, i) => {
               const done = i < result.stage || result.stage === 3;
               const now = i === result.stage && result.stage !== 3;
               return (
@@ -101,7 +112,7 @@ export function TrackClient() {
                     {done && <Check size={18} stroke="#F6EAE2" />}
                     {now && <i />}
                   </div>
-                  {i < steps.length - 1 && <div className={`tl-line${done ? " done" : ""}`} />}
+                  {i < st.length - 1 && <div className={`tl-line${done ? " done" : ""}`} />}
                   <div className="txt">
                     <b className={!done && !now ? "off" : ""}>{s.name}</b>
                     <span>{i === 0 ? result.placedOn : s.sub}</span>
@@ -119,16 +130,24 @@ export function TrackClient() {
               </div>
             </div>
             <div>
-              <div className="eyebrow">Delivering to</div>
-              <div className="v">{result.name}<br />{result.address}<br />{result.city.split(",")[0]}</div>
+              <div className="eyebrow">{isPickup ? "Pickup from" : "Delivering to"}</div>
+              <div className="v" style={isPickup ? { whiteSpace: "pre-line" } : undefined}>{result.name}<br />{result.address}{!isPickup && <><br />{result.city.split(",")[0]}</>}</div>
             </div>
             <div>
               <div className="eyebrow">Payment</div>
               <div className="v">{result.payment}<br />Total {formatPrice(result.total)}</div>
             </div>
           </div>
+
+          {result.stage === 3 && (
+            <div className="track-review">
+              <span>Loved your MIJAB? Tell others what you think.</span>
+              <a href={`/review?order=${encodeURIComponent(result.id)}&phone=${encodeURIComponent(phone)}`} className="btn sm fit">Leave a review <Arrow stroke="#F6EAE2" w={12} /></a>
+            </div>
+          )}
         </section>
-      )}
+        );
+      })()}
     </div>
   );
 }

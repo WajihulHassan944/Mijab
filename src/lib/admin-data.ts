@@ -56,6 +56,8 @@ export type Settings = {
   notifyLowStock: boolean;
   notifyMessages: boolean;
   lowStockAt: number;
+  pickup: boolean;
+  pickupAddress: string;
 };
 
 export type Customer = { email: string; name: string; phone: string; city: string; orders: number; spent: number; first: string; last: string };

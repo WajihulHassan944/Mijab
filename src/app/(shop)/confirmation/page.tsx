@@ -94,6 +94,16 @@ function Confirmation() {
         <p>Order <b>{o.id}</b> · Placed on {o.placedOn}</p>
       </section>
 
+      {o.payment === "Bank transfer" && !o.paymentProofUrl && (
+        <section className="card" style={{ margin: "0 0 28px", fontSize: 14, fontWeight: 300, lineHeight: 1.7 }}>
+          <b>Haven&apos;t sent your payment screenshot yet?</b>
+          <p style={{ margin: "6px 0 12px", color: "#888" }}>Upload it so we can confirm your bank transfer.</p>
+          <Link href={`/payment-proof?order=${o.id}&phone=${encodeURIComponent(o.phone)}`} className="btn sm" style={{ display: "inline-flex" }}>
+            Upload screenshot
+          </Link>
+        </section>
+      )}
+
       <section className="two-cards">
         <div>
           <h2>Order summary</h2>
@@ -104,12 +114,16 @@ function Confirmation() {
               <div className="p">{formatPrice(l.price * l.qty)}</div>
             </div>
           ))}
-          <div style={{ marginTop: 12 }}><SummaryRows subtotal={o.subtotal} discount={o.discount} delivery={o.delivery} total={o.total} /></div>
+          <div style={{ marginTop: 12 }}><SummaryRows subtotal={o.subtotal} discount={o.discount} delivery={o.delivery} total={o.total} deliveryLabel={o.fulfillment === "pickup" ? "Store pickup" : undefined} /></div>
         </div>
         <div>
-          <h2>Delivery details</h2>
+          <h2>{o.fulfillment === "pickup" ? "Pickup details" : "Delivery details"}</h2>
           <div className="kv"><div className="k">Name</div><div className="v">{o.name}</div></div>
-          <div className="kv"><div className="k">Address</div><div className="v">{o.address}<br />{o.city}</div></div>
+          {o.fulfillment === "pickup" ? (
+            <div className="kv"><div className="k">Pickup</div><div className="v" style={{ whiteSpace: "pre-line" }}>{o.address}<br />We&apos;ll email you when it&apos;s ready to collect.</div></div>
+          ) : (
+            <div className="kv"><div className="k">Address</div><div className="v">{o.address}<br />{o.city}</div></div>
+          )}
           <div className="kv"><div className="k">Contact</div><div className="v">{o.email}<br />{o.phone}</div></div>
           <div className="kv"><div className="k">Payment</div><div className="v">{o.payment}</div></div>
         </div>

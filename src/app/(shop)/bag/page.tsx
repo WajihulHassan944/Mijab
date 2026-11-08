@@ -6,11 +6,12 @@ import { Arrow, ChevronLeft, Gift, Lock } from "@/components/Icons";
 import { ProductMedia } from "@/components/Media";
 import { QtyStepper } from "@/components/Buttons";
 import { SummaryRows } from "@/components/Summary";
+import { DeliveryMethod } from "@/components/DeliveryMethod";
 import { formatPrice } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 export default function BagPage() {
-  const { cart, count, totals, promo, setQty, remove, applyPromo, ready, products } = useStore();
+  const { cart, count, totals, promo, setQty, remove, applyPromo, ready, products, fulfillment } = useStore();
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -76,7 +77,9 @@ export default function BagPage() {
 
         <aside className="summary">
           <h2>Order summary</h2>
-          <div style={{ marginTop: 16 }}><SummaryRows {...totals} promo={promo} /></div>
+          <div className="ship-title">Delivery method</div>
+          <DeliveryMethod compact />
+          <div style={{ marginTop: 16 }}><SummaryRows {...totals} promo={promo} deliveryLabel={fulfillment === "pickup" ? "Store pickup" : undefined} /></div>
           <form
             className="promo"
             onSubmit={async (e) => {

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Logo } from "../Logo";
 import { useAdmin } from "@/lib/admin-store";
-import { IChart, IClose, IDash, IExt, IGear, IMail, IMenu, IOrders, IOut, IProducts, ISearch, ITag, IUsers } from "./AIcons";
+import { IChart, IClose, IDash, IExt, IGear, IMail, IMenu, IOrders, IOut, IProducts, ISearch, IStar, ITag, IUsers } from "./AIcons";
 
 const nav = [
   { href: "/admin", label: "Dashboard", icon: IDash },
@@ -14,6 +14,7 @@ const nav = [
   { href: "/admin/customers", label: "Customers", icon: IUsers },
   { href: "/admin/promotions", label: "Promotions", icon: ITag },
   { href: "/admin/messages", label: "Messages", icon: IMail, badge: "messages" as const },
+  { href: "/admin/reviews", label: "Reviews", icon: IStar },
   { href: "/admin/analytics", label: "Analytics", icon: IChart },
   { href: "/admin/settings", label: "Settings", icon: IGear },
 ];

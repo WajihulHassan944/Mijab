@@ -36,6 +36,14 @@ export default function SettingsPage() {
             </div>
             <p className="inline-note" style={{ marginTop: 10 }}>Set free delivery to 0 to always charge delivery.</p>
           </Card>
+          <Card title="Store pickup">
+            <div className="setrow"><div><b>Offer store pickup</b><small>Customers collect their order — no delivery fee</small></div><Toggle on={f.pickup} onChange={(v) => set("pickup", v)} label="Store pickup" /></div>
+            <div className="afield" style={{ marginTop: 14 }}>
+              <label className="alabel" htmlFor="s-pickup">Pickup address &amp; timings</label>
+              <textarea id="s-pickup" className="ata" rows={3} maxLength={400} placeholder={"e.g. MIJAB, Shop 12, F-7 Markaz, Islamabad\nMon–Sat, 11am–7pm"} value={f.pickupAddress} onChange={(e) => set("pickupAddress", e.target.value)} />
+            </div>
+            <p className="inline-note" style={{ marginTop: 10 }}>Shown at checkout and in the customer&apos;s emails. If left empty, customers are told you&apos;ll contact them with the details.</p>
+          </Card>
           <Card title="Account">
             <dl className="kv-a"><dt>Signed in as</dt><dd>{admin?.email}</dd><dt>Role</dt><dd>Owner</dd></dl>
           </Card>

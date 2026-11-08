@@ -14,7 +14,7 @@ export type Line = { id: ProductId; qty: number };
 // shows what was actually charged even if the catalog price changes later.
 export type OrderLine = { id: ProductId; qty: number; name: string; price: number };
 
-const FALLBACK_SETTINGS: PublicSettings = { storeName: "MIJAB", deliveryFee: DELIVERY_FEE, freeOver: 0, cod: true, card: true, bank: true };
+const FALLBACK_SETTINGS: PublicSettings = { storeName: "MIJAB", deliveryFee: DELIVERY_FEE, freeOver: 0, cod: true, card: true, bank: true, pickup: true, pickupAddress: "" };
 
 export type Order = {
   id: string;
@@ -32,12 +32,17 @@ export type Order = {
   email: string;
   phone: string;
   payment: string;
+  fulfillment: "delivery" | "pickup";
   paymentStatus: "not_required" | "pending" | "paid" | "failed";
+  paymentProofUrl: string | null;
 };
 
 export type User = { name: string; email: string; address?: string; phone?: string; city?: string };
 
 const CART_KEY = "mijab:cart";
+const FULFILLMENT_KEY = "mijab:fulfillment";
+
+export type Fulfillment = "delivery" | "pickup";
 
 // Redirecting to Safepay's hosted checkout and back is a full page
 // navigation, which wipes React/context state — a guest's just-placed order
@@ -88,7 +93,9 @@ export function fromApi(o: ApiOrder): Order {
     email: o.email,
     phone: o.phone,
     payment: o.payment,
+    fulfillment: o.fulfillment ?? "delivery",
     paymentStatus: o.paymentStatus ?? "not_required",
+    paymentProofUrl: o.paymentProofUrl ?? null,
   };
 }
 
@@ -101,11 +108,12 @@ type Totals = { subtotal: number; discount: number; delivery: number; total: num
 /** Client-side estimate for the bag/checkout summary, from live catalog
  * prices and live delivery settings. The backend always recomputes
  * authoritative totals from the database at order time regardless. */
-export function computeTotals(lines: Line[], catalog: Catalog, promoPercent: number, settings: PublicSettings): Totals {
+export function computeTotals(lines: Line[], catalog: Catalog, promoPercent: number, settings: PublicSettings, fulfillment: Fulfillment = "delivery"): Totals {
   const subtotal = lines.reduce((sum, l) => sum + (catalog[l.id]?.price ?? 0) * l.qty, 0);
   const discount = Math.round(subtotal * (promoPercent / 100));
   let delivery = lines.length ? settings.deliveryFee : 0;
   if (lines.length && settings.freeOver > 0 && subtotal >= settings.freeOver) delivery = 0;
+  if (fulfillment === "pickup") delivery = 0; // store pickup never pays delivery
   return { subtotal, discount, delivery, total: subtotal - discount + delivery };
 }
 
@@ -117,6 +125,11 @@ type Ctx = {
   count: number;
   promo: string | null;
   totals: Totals;
+  /** what home delivery would cost for this bag, whichever method is selected */
+  homeDeliveryFee: number;
+  /** delivery method chosen on the bag/checkout page (shared, remembered) */
+  fulfillment: Fulfillment;
+  setFulfillment: (f: Fulfillment) => void;
   products: Catalog;
   productList: Product[];
   fragrances: Product[];
@@ -132,7 +145,7 @@ type Ctx = {
   register: (name: string, email: string, password: string) => Promise<Result>;
   signOut: () => void;
   updateUser: (patch: Partial<Pick<User, "name" | "email" | "address" | "phone" | "city">>) => Promise<Result>;
-  placeOrder: (details: { name: string; address: string; city: string; email: string; phone: string; payment: string }) => Promise<{ ok: true; order: Order } | { ok: false; error: string }>;
+  placeOrder: (details: { name: string; address: string; city: string; email: string; phone: string; payment: string; fulfillment: "delivery" | "pickup" }) => Promise<{ ok: true; order: Order } | { ok: false; error: string }>;
   findOrder: (id: string, phone: string) => Promise<Order | null>;
 };
 
@@ -156,6 +169,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // description, ...) as soon as it resolves, so admin edits always win
   const [products, setProducts] = useState<Catalog>(staticProducts);
   const [settings, setSettings] = useState<PublicSettings>(FALLBACK_SETTINGS);
+  const [chosenFulfillment, setChosenFulfillment] = useState<Fulfillment>("delivery");
 
   useEffect(() => {
     let cancelled = false;
@@ -163,6 +177,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       try {
         const raw = localStorage.getItem(CART_KEY);
         if (raw) setCart(JSON.parse(raw));
+        if (localStorage.getItem(FULFILLMENT_KEY) === "pickup") setChosenFulfillment("pickup");
       } catch {
         /* storage unavailable: cart just starts at the default */
       }
@@ -280,7 +295,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const placeOrder = useCallback(
-    async (details: { name: string; address: string; city: string; email: string; phone: string; payment: string }) => {
+    async (details: { name: string; address: string; city: string; email: string; phone: string; payment: string; fulfillment: "delivery" | "pickup" }) => {
       try {
         const token = tokenStore.get();
         const order = await api.orders.place(token, {
@@ -312,7 +327,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const count = cart.reduce((n, l) => n + l.qty, 0);
-  const totals = useMemo(() => computeTotals(cart, products, promoPercent, settings), [cart, products, promoPercent, settings]);
+  // pickup only counts while the store actually offers it
+  const fulfillment: Fulfillment = chosenFulfillment === "pickup" && settings.pickup ? "pickup" : "delivery";
+  const setFulfillment = useCallback((f: Fulfillment) => {
+    setChosenFulfillment(f);
+    try {
+      localStorage.setItem(FULFILLMENT_KEY, f);
+    } catch {
+      /* storage unavailable — choice just isn't remembered */
+    }
+  }, []);
+  const totals = useMemo(() => computeTotals(cart, products, promoPercent, settings, fulfillment), [cart, products, promoPercent, settings, fulfillment]);
+  const homeDeliveryFee = useMemo(() => computeTotals(cart, products, promoPercent, settings, "delivery").delivery, [cart, products, promoPercent, settings]);
   const productList = useMemo(() => Object.values(products), [products]);
   const fragrances = useMemo(() => productList.filter((p) => p.id !== "duo"), [productList]);
 
@@ -322,6 +348,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     count,
     promo,
     totals,
+    homeDeliveryFee,
+    fulfillment,
+    setFulfillment,
     products,
     productList,
     fragrances,

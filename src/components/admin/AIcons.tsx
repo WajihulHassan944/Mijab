@@ -22,3 +22,4 @@ export const IArrowUp = (p: P) => (<svg {...b(p)}><path d="M12 19V5M6 11l6-6 6 6
 export const IArrowDown = (p: P) => (<svg {...b(p)}><path d="M12 5v14M6 13l6 6 6-6" /></svg>);
 export const IWarn = (p: P) => (<svg {...b(p)}><path d="M12 3l10 18H2z" /><path d="M12 10v5M12 18v.5" /></svg>);
 export const ICheck = (p: P) => (<svg {...b(p)}><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>);
+export const IStar = (p: P) => (<svg {...b(p)}><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z" /></svg>);

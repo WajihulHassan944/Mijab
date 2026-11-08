@@ -31,7 +31,9 @@ function toAdminOrder(o: ApiOrder): AdminOrder {
     email: o.email,
     phone: o.phone,
     payment: o.payment,
+    fulfillment: o.fulfillment ?? "delivery",
     paymentStatus: o.paymentStatus ?? "not_required",
+    paymentProofUrl: o.paymentProofUrl ?? null,
     note: o.note,
   };
 }
@@ -76,6 +78,8 @@ const FALLBACK_SETTINGS: Settings = {
   notifyLowStock: true,
   notifyMessages: false,
   lowStockAt: 10,
+  pickup: true,
+  pickupAddress: "",
 };
 
 type AdminUser = { name: string; email: string };

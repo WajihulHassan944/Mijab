@@ -95,7 +95,7 @@ export function OrdersClient() {
                   <tr key={o.id} className="link" onClick={() => router.push(`/admin/orders/${o.id}`)}>
                     <td onClick={(e) => e.stopPropagation()}><input type="checkbox" aria-label={`Select ${o.id}`} checked={picked.includes(o.id)} onChange={() => setPicked(picked.includes(o.id) ? picked.filter((x) => x !== o.id) : [...picked, o.id])} /></td>
                     <td className="id"><Link href={`/admin/orders/${o.id}`} onClick={(e) => e.stopPropagation()}>{o.id}</Link><span className="sub">{longDate(o.createdAt)}</span></td>
-                    <td>{o.name}<span className="sub">{o.city.split(",")[0]}</span></td>
+                    <td>{o.name}<span className="sub">{o.fulfillment === "pickup" ? "Store pickup" : o.city.split(",")[0]}</span></td>
                     <td>
                       <div className="thumb-row">
                         {o.lines.slice(0, 3).map((l) => byId[l.id] && (<span className="thumb-s" key={l.id} style={{ background: byId[l.id].swatch }}><Image src={byId[l.id].image} alt={l.name} fill sizes="38px" /></span>))}

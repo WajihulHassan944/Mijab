@@ -123,7 +123,9 @@ export type ApiOrder = {
   email: string;
   phone: string;
   payment: string;
+  fulfillment?: "delivery" | "pickup";
   paymentStatus?: "not_required" | "pending" | "paid" | "failed";
+  paymentProofUrl?: string | null;
   note?: string;
 };
 
@@ -140,6 +142,18 @@ export type ApiMessage = {
   createdAt: string;
 };
 
+export type ApiReview = {
+  id: string;
+  name: string;
+  city: string;
+  products: string[];
+  rating: number;
+  body: string;
+  createdAt: string;
+};
+
+export type ApiAdminReview = ApiReview & { orderId: string; email: string; status: "pending" | "approved" | "rejected"; updatedAt: string };
+
 export type ApiSettings = {
   storeName: string;
   email: string;
@@ -153,6 +167,8 @@ export type ApiSettings = {
   notifyLowStock: boolean;
   notifyMessages: boolean;
   lowStockAt: number;
+  pickup: boolean;
+  pickupAddress: string;
 };
 
 export type ApiCustomer = { email: string; name: string; phone: string; city: string; orders: number; spent: number; first: string; last: string };
@@ -169,7 +185,7 @@ export type ApiAnalytics = {
 
 // ---- Public / customer endpoints ----
 
-export type PublicSettings = { storeName: string; deliveryFee: number; freeOver: number; cod: boolean; card: boolean; bank: boolean };
+export type PublicSettings = { storeName: string; deliveryFee: number; freeOver: number; cod: boolean; card: boolean; bank: boolean; pickup: boolean; pickupAddress: string };
 
 export const api = {
   products: {
@@ -194,12 +210,28 @@ export const api = {
     mine: (token: string) => request<{ orders: ApiOrder[] }>("/orders/mine", { token }).then((r) => r.orders),
     track: (id: string, phone: string) =>
       request<{ order: ApiOrder }>("/orders/track", { method: "POST", body: { id, phone } }).then((r) => r.order),
+    uploadPaymentProof: async (orderId: string, phone: string, file: File) => {
+      const form = new FormData();
+      form.append("phone", phone);
+      form.append("image", file);
+      const res = await fetch(`${BASE}/orders/${orderId}/payment-proof`, { method: "POST", body: form });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) throw new ApiError(data.error ?? `Request failed (${res.status})`, res.status, data.details);
+      return data.order as ApiOrder;
+    },
   },
   promos: {
     validate: (code: string) => request<{ valid: boolean; code?: string; percent?: number }>("/promos/validate", { method: "POST", body: { code } }),
   },
   contact: {
     submit: (body: { name: string; email: string; subject: string; body: string }) => request<{ id: string }>("/contact", { method: "POST", body }),
+  },
+  reviews: {
+    list: (limit = 6) => request<{ reviews: ApiReview[] }>(`/reviews?limit=${limit}`).then((r) => r.reviews),
+    eligibility: (orderId: string, phone: string) =>
+      request<{ eligible: boolean; reason: "reviewed" | "not_delivered" | null; name: string; products: string[] }>("/reviews/eligibility", { method: "POST", body: { orderId, phone } }),
+    submit: (body: { orderId: string; phone: string; rating: number; body: string; name?: string }) =>
+      request<{ review: ApiReview }>("/reviews", { method: "POST", body }).then((r) => r.review),
   },
   payments: {
     safepayCheckout: (orderId: string) => request<{ checkoutUrl: string }>("/payments/safepay/checkout", { method: "POST", body: { orderId } }).then((r) => r.checkoutUrl),
@@ -254,6 +286,12 @@ export const api = {
       update: (token: string, id: string, patch: { state?: ApiMessage["state"]; reply?: string }) =>
         request<{ message: ApiMessage }>(`/admin/messages/${id}`, { method: "PATCH", body: patch, token }).then((r) => r.message),
       remove: (token: string, id: string) => request<{ ok: true }>(`/admin/messages/${id}`, { method: "DELETE", token }),
+    },
+    reviews: {
+      list: (token: string) => request<{ reviews: ApiAdminReview[] }>("/admin/reviews", { token }).then((r) => r.reviews),
+      setStatus: (token: string, id: string, status: ApiAdminReview["status"]) =>
+        request<{ review: ApiAdminReview }>(`/admin/reviews/${id}`, { method: "PATCH", body: { status }, token }).then((r) => r.review),
+      remove: (token: string, id: string) => request<{ ok: true }>(`/admin/reviews/${id}`, { method: "DELETE", token }),
     },
     customers: {
       list: (token: string) => request<{ customers: ApiCustomer[] }>("/admin/customers", { token }).then((r) => r.customers),
