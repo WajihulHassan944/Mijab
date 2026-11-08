@@ -3,10 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { ProductMedia } from "@/components/Media";
-import { Arrow, Truck, Lock, Gift, Check } from "@/components/Icons";
+import { Arrow, ChevronRight, Headset, ShieldCheck, Sparkle, Truck } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
-import { MobileHero, MobileNotes } from "@/components/HomeMobile";
-import { Testimonials } from "@/components/Testimonials";
+import { MobileHero, Newsletter } from "@/components/HomeMobile";
+import { MobileTestimonials, Testimonials } from "@/components/Testimonials";
 import { formatPrice } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { api, ApiReview } from "@/lib/api";
@@ -69,6 +69,13 @@ export default async function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }} />
+      {/* ---------- mobile: announcement ---------- */}
+      <Link href="/shop" className="mh-announce only-mobile">
+        <Sparkle size={13} color="#e9b2a6" />
+        <span>Free Delivery Across Pakistan</span>
+        <ChevronRight size={14} stroke="#f6eae2" width={1.6} />
+      </Link>
+
       {/* ---------- hero ---------- */}
       <section className="hero only-desktop">
         <Image className="bg" src="/images/hero.jpg" alt="" fill priority sizes="100vw" />
@@ -90,10 +97,50 @@ export default async function Home() {
           </div>
         </div>
       </section>
-      <MobileHero fragrances={fragrances} />
+      <MobileHero duoImage={duo.image} />
+
+      {/* ---------- mobile: collection ---------- */}
+      <section className="mh-collection only-mobile" aria-labelledby="mh-col-title">
+        <div className="mh-eyebrow"><span>Our Collection</span></div>
+        <h2 className="mh-title" id="mh-col-title">Timeless Fragrances</h2>
+        <p className="mh-lead">Discover our signature scents crafted<br />for every mood and moment.</p>
+        <div className="mh-cards">
+          {[noir, vanilla, duo].filter(Boolean).map((p, i) => (
+            <Link href={`/product/${p.slug}`} className="mh-card" key={p.id}>
+              <ProductMedia product={p} sizes="34vw" />
+              {i === 0 && <span className="mh-badge">Bestseller</span>}
+              <span className="mh-card-name">{p.name}</span>
+              <span className="mh-card-price">{formatPrice(p.price)}</span>
+            </Link>
+          ))}
+        </div>
+        <Link href="/shop" className="mh-pill dark">View All Fragrances <Arrow stroke="#F6EAE2" w={13} /></Link>
+      </section>
+
+      {/* ---------- mobile: trust strip ---------- */}
+      <section className="mh-trust only-mobile" aria-label="Why shop with MIJAB">
+        <div><Truck size={26} width={1.4} /><b>Free Delivery</b><span>Across Pakistan</span></div>
+        <div><ShieldCheck size={26} width={1.4} /><b>Secure Checkout</b><span>Shop with Confidence</span></div>
+        <div><Headset size={26} width={1.4} /><b>Friendly Support</b><span>We&apos;re Here to Help</span></div>
+      </section>
+
+      {/* ---------- mobile: about band ---------- */}
+      <section className="mh-about only-mobile" aria-labelledby="mh-about-title">
+        <div className="mh-about-img"><Image src="/images/m-home/about.jpg" alt="Hands holding a MIJAB bottle" fill sizes="60vw" /></div>
+        <div className="mh-about-copy">
+          <div className="mh-about-eyebrow">About MIJAB</div>
+          <h2 id="mh-about-title">Elegance in Every Spray</h2>
+          <p>Experience luxury like never before.</p>
+          <Link href="/about" className="mh-pill ghost">Learn More <Arrow stroke="#F6EAE2" w={13} /></Link>
+        </div>
+      </section>
+
+      {/* ---------- mobile: reviews + newsletter ---------- */}
+      <MobileTestimonials reviews={reviews} />
+      <Newsletter />
 
       {/* ---------- collection ---------- */}
-      <section className="collection" id="collection">
+      <section className="collection only-desktop" id="collection">
         <div className="wrap">
           <div className="intro">
             <div className="eyebrow">The MIJAB Collection</div>
@@ -131,7 +178,7 @@ export default async function Home() {
       </section>
 
       {/* ---------- duo ---------- */}
-      <section className="duo-band">
+      <section className="duo-band only-desktop">
         <div className="wrap">
           <div className="duo-img">
             <ProductMedia product={duo} sizes="400px" />
@@ -151,7 +198,7 @@ export default async function Home() {
       </section>
 
       {/* ---------- story ---------- */}
-      <section className="split story" id="story">
+      <section className="split story only-desktop" id="story">
         <Image src="/images/petal.jpg" alt="Soft pink petal with the MIJAB monogram" fill sizes="100vw" />
         <div className="wrap">
           <div className="copy">
@@ -166,22 +213,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ---------- easy to order ---------- */}
-      <section className="easy only-mobile">
-        <div className="wrap">
-          <h2>Easy to Order</h2>
-          <p>Premium fragrances, made simple.</p>
-          <div className="easy-grid">
-            <div className="easy-item"><Truck size={26} /><b>Free Delivery</b><span>Across Pakistan</span></div>
-            <div className="easy-item"><Lock size={26} /><b>Secure Payments</b><span>Safe &amp; trusted</span></div>
-            <div className="easy-item"><Gift size={26} /><b>Gift Ready</b><span>Beautiful packaging</span></div>
-            <div className="easy-item"><Check size={26} /><b>Premium Quality</b><span>Long lasting scents</span></div>
-          </div>
-        </div>
-      </section>
-
       {/* ---------- experience ---------- */}
-      <section className="split exp">
+      <section className="split exp only-desktop">
         <Image src="/images/couple.jpg" alt="A couple sharing a close, quiet moment" fill sizes="100vw" />
         <div className="wrap">
           <div className="copy">
@@ -194,7 +227,7 @@ export default async function Home() {
       </section>
 
       {/* ---------- notes ---------- */}
-      <section className="notes">
+      <section className="notes only-desktop">
         <div className="wrap">
           <div className="intro">
             <div className="eyebrow">The Scent Notes</div>
@@ -203,7 +236,7 @@ export default async function Home() {
             <p>A glimpse into how each fragrance opens, unfolds and lingers on the skin.</p>
           </div>
           {fragrances.map((p) => (
-            <div className="note-col only-desktop" key={p.id}>
+            <div className="note-col" key={p.id}>
               <div className="note-head">
                 <div className="disc"><Image src={p.image} alt={`MIJAB fragrance ${p.audience.toLowerCase()}`} fill sizes="120px" /></div>
                 <div><b>{p.audience}</b><i>{p.name}</i></div>
@@ -213,12 +246,11 @@ export default async function Home() {
               <div className="note-row"><span className="k">Base</span><span className="v">{p.notes!.base}</span></div>
             </div>
           ))}
-          <MobileNotes fragrances={fragrances} />
         </div>
       </section>
 
       {/* ---------- gift ---------- */}
-      <section className="gift">
+      <section className="gift only-desktop">
         <div className="wrap">
           <div className="eyebrow">The Gift Edition</div>
           <h2>Luxury in Every Detail</h2>
@@ -240,7 +272,7 @@ export default async function Home() {
       <Testimonials reviews={reviews} />
 
       {/* ---------- how to order ---------- */}
-      <section className="how">
+      <section className="how only-desktop">
         <div className="wrap">
           <div className="eyebrow">How to order</div>
           <div className="steps">
@@ -262,7 +294,7 @@ export default async function Home() {
       </section>
 
       {/* ---------- finale ---------- */}
-      <section className="finale">
+      <section className="finale only-desktop">
         <div className="wrap">
           <Link href={`/product/${noir.slug}`} className="finale-card">
             <ProductMedia product={noir} sizes="264px" />

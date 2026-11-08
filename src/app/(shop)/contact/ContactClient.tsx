@@ -82,7 +82,7 @@ export function ContactClient() {
         </section>
       </div>
 
-      <section className="faq">
+      <section className="faq" id="faq">
         <div className="wrap">
           <div className="eyebrow">FAQ</div>
           <h2>Good to know</h2>

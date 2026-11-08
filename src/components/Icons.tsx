@@ -64,6 +64,28 @@ export const Heart = (p: P) => (
   <svg {...base(p)}><path d="M12 20S4 14.5 4 9a4 4 0 017-2.6A4 4 0 0120 9c0 5.5-8 11-8 11z" /></svg>
 );
 
+export const MenuIcon = (p: P) => (
+  <svg {...base(p)}><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+);
+export const CloseIcon = (p: P) => (
+  <svg {...base(p)}><path d="M6 6l12 12M18 6L6 18" /></svg>
+);
+export const ChevronRight = (p: P) => (
+  <svg {...base(p)}><path d="M9 5l7 7-7 7" /></svg>
+);
+export const ShieldCheck = (p: P) => (
+  <svg {...base(p)}><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" /><path d="M8.8 12.2l2.2 2.2 4.4-4.6" /></svg>
+);
+export const Headset = (p: P) => (
+  <svg {...base(p)}><path d="M4 14v-2a8 8 0 0116 0v2" /><rect x="3" y="13" width="4" height="6" rx="1.5" /><rect x="17" y="13" width="4" height="6" rx="1.5" /><path d="M19 19c0 1.5-2 2.5-5 2.5h-1.5" /></svg>
+);
+/** Four-point sparkle, filled. */
+export const Sparkle = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden>
+    <path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" />
+  </svg>
+);
+
 export const Arrow = ({ stroke = "currentColor", w = 14 }: { stroke?: string; w?: number }) => (
   <svg className="arrow" width={w} height={(w * 8) / 14} viewBox="0 0 22 10" fill="none" stroke={stroke} strokeWidth="1.4" aria-hidden>
     <path d="M0 5h21M17 1l4 4-4 4" />

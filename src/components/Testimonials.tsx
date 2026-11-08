@@ -43,7 +43,7 @@ export function Testimonials({ reviews }: { reviews: ApiReview[] }) {
   if (!n) return null;
 
   return (
-    <section className="testi" id="reviews" aria-roledescription="carousel" aria-label="Customer reviews">
+    <section className="testi only-desktop" id="reviews" aria-roledescription="carousel" aria-label="Customer reviews">
       <img className="silk tl" src="/images/reviews/silk-tl.webp" alt="" aria-hidden />
       <img className="silk tr" src="/images/reviews/silk-tr.webp" alt="" aria-hidden />
       <img className="silk bl" src="/images/reviews/silk-bl.webp" alt="" aria-hidden />
@@ -121,6 +121,57 @@ export function Testimonials({ reviews }: { reviews: ApiReview[] }) {
             ))}
           </div>
         )}
+      </div>
+    </section>
+  );
+}
+
+/** Mobile reviews: two cards in view, swipe or use the side arrows. */
+export function MobileTestimonials({ reviews }: { reviews: ApiReview[] }) {
+  const track = useRef<HTMLDivElement>(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
+
+  const sync = useCallback(() => {
+    const el = track.current;
+    if (!el) return;
+    setEdge({ start: el.scrollLeft < 4, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 4 });
+  }, []);
+  useEffect(sync, [sync, reviews.length]);
+
+  const step = (d: number) => {
+    const el = track.current;
+    const card = el?.firstElementChild as HTMLElement | null;
+    if (!el || !card) return;
+    el.scrollBy({ left: d * (card.offsetWidth + 10), behavior: "smooth" });
+  };
+
+  if (!reviews.length) return null;
+
+  return (
+    <section className="mh-reviews only-mobile" aria-label="Customer reviews">
+      <div className="mh-eyebrow"><span>Loved by our customers</span></div>
+      <h2 className="mh-title">In Their Words</h2>
+      <div className="mh-reviews-stage">
+        <button type="button" className="mh-arrow" onClick={() => step(-1)} disabled={edge.start} aria-label="Previous reviews">
+          <Chevron dir="left" />
+        </button>
+        <div className="mh-reviews-track" ref={track} onScroll={sync}>
+          {reviews.map((r) => (
+            <figure className="mh-review" key={r.id}>
+              <div className="mh-review-top">
+                <span className="mh-review-avatar" aria-hidden>{initials(r.name, r.city)}</span>
+                <div className="testi-stars" role="img" aria-label={`${r.rating} out of 5 stars`}>
+                  {[1, 2, 3, 4, 5].map((s) => <Star key={s} on={s <= r.rating} />)}
+                </div>
+              </div>
+              <blockquote>&ldquo;{r.body}&rdquo;</blockquote>
+              <figcaption>— {r.name}{r.city && `, ${r.city}`}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <button type="button" className="mh-arrow" onClick={() => step(1)} disabled={edge.end} aria-label="Next reviews">
+          <Chevron dir="right" />
+        </button>
       </div>
     </section>
   );
