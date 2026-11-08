@@ -74,8 +74,16 @@ export function QuickAdd({ id, name }: { id: ProductId; name: string }) {
       aria-label={done ? `${name} added to bag` : `Add ${name} to bag`}
       onClick={() => { add(id, 1); setDone(true); }}
     >
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        {done ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <path d="M12 5v14M5 12h14" />}
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        {done ? (
+          <path d="M6 12.5l4 4L18 8.5" strokeWidth="1.8" />
+        ) : (
+          <>
+            <path d="M5 8h14l-1 12H6L5 8z" />
+            <path d="M9 8V6.5a3 3 0 016 0V8" />
+            <path d="M12 11.5v5M9.5 14h5" />
+          </>
+        )}
       </svg>
       <span className="sr-only" aria-live="polite">{done ? "Added to bag" : ""}</span>
     </button>

@@ -994,15 +994,18 @@ h1, h2, h3, p { margin: 0; }
   /* product cards: press feedback + quick add */
   .mh-card .media { transition: transform 0.25s; }
   .mh-card-link:active .media { transform: scale(0.97); }
+  .mh-card { container-type: inline-size; }
   .mh-quick {
-    position: absolute; top: 6px; right: 6px; z-index: 2; width: 30px; height: 30px; border-radius: 50%;
+    position: absolute; z-index: 2; right: 6px; top: calc(104cqw - 40px); width: 34px; height: 34px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(253, 246, 242, 0.92); color: #2a1d18; box-shadow: 0 6px 14px -6px rgba(20, 12, 8, 0.55);
-    transition: background 0.25s, color 0.25s, transform 0.2s;
+    background: rgba(28, 19, 13, 0.5); color: #f6eae2; border: 1px solid rgba(250, 216, 212, 0.45);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2);
+    box-shadow: 0 8px 16px -8px rgba(10, 6, 4, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.2s;
   }
-  .mh-quick::after { content: ""; position: absolute; inset: -7px; }
+  .mh-quick::after { content: ""; position: absolute; inset: -5px; }
   .mh-quick:active { transform: scale(0.9); }
-  .mh-quick.done { background: #2a1d18; color: #fad8d4; animation: mh-pop 0.4s; }
+  .mh-quick.done { background: #fad8d4; color: #2a1d18; border-color: #fad8d4; animation: mh-pop 0.4s; }
 
   /* promise ticker */
   .mh-ticker { margin-top: 2px; overflow: hidden; background: #271d17; color: #f6eae2; }
