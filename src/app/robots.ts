@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,9 +7,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/account", "/checkout", "/bag", "/confirmation", "/api"],
+        disallow: ["/admin", "/account", "/checkout", "/bag", "/confirmation", "/api", "/sign-in", "/payment-proof"],
       },
     ],
-    sitemap: "https://mijab.shop/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

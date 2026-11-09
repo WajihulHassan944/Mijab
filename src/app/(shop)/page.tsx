@@ -11,6 +11,7 @@ import { MobileTestimonials, Testimonials } from "@/components/Testimonials";
 import { formatPrice } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { api, ApiReview } from "@/lib/api";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
 
@@ -53,12 +54,12 @@ export default async function Home() {
       item: {
         "@type": "Product",
         name: `MIJAB ${p.name}`,
-        image: `https://mijab.shop${p.image}`,
+        image: `${SITE_URL}${p.image}`,
         description: p.blurb || p.tagline,
         brand: { "@type": "Brand", name: "MIJAB" },
         offers: {
           "@type": "Offer",
-          url: `https://mijab.shop/product/${p.slug}`,
+          url: p.slug === "duo" ? `${SITE_URL}/shop` : `${SITE_URL}/product/${p.slug}`,
           priceCurrency: "PKR",
           price: p.price,
           availability: "https://schema.org/InStock",

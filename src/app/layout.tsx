@@ -2,12 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const serif = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500"], style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
 const sans = Jost({ subsets: ["latin"], weight: ["300", "400", "500"], variable: "--font-sans", display: "swap" });
 
-const SITE_URL = "https://mijab.shop";
-const SITE_NAME = "MIJAB";
 const DEFAULT_DESCRIPTION =
   "MIJAB — premium eau de parfum from Pakistan. Café Noir for him, Vanilla Gourmand for her, and the signature Duo. Delivery across Pakistan, cash on delivery available.";
 
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
   authors: [{ name: "MIJAB" }],
   creator: "MIJAB",
   publisher: "MIJAB",
-  alternates: { canonical: "/" },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
   openGraph: {
     type: "website",

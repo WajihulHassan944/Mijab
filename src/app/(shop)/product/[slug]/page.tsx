@@ -5,6 +5,7 @@ import { ProductMedia } from "@/components/Media";
 import { Arrow } from "@/components/Icons";
 import { formatPrice, ProductId } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
+import { SITE_URL } from "@/lib/site";
 import { PurchasePanel } from "./PurchasePanel";
 
 export const revalidate = 0; // always the live catalog, never a stale build-time snapshot
@@ -12,8 +13,19 @@ export const revalidate = 0; // always the live catalog, never a stale build-tim
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const catalog = await fetchCatalog();
-  const p = catalog[slug];
-  return { title: p ? p.name : "Product" };
+  const p = slug !== "duo" ? catalog[slug] : undefined;
+  if (!p) return { title: "Product", robots: { index: false } };
+  const title = `${p.name} Eau de Parfum ${p.audience}`;
+  const description = `${p.name} by MIJAB: ${p.blurb} ${p.audience.toLowerCase()}, 50 ml eau de parfum for ${formatPrice(p.price)}. Delivery across Pakistan, cash on delivery available.`;
+  const url = `/product/${p.slug}`;
+  const images = [{ url: p.image, alt: `MIJAB ${p.name} eau de parfum` }];
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { type: "website", url, siteName: "MIJAB", title: `${title} · MIJAB`, description, images },
+    twitter: { card: "summary_large_image", title: `${title} · MIJAB`, description, images: [p.image] },
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -25,8 +37,41 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const duo = catalog.duo;
   const n = product.notes!;
 
+  const url = `${SITE_URL}/product/${product.slug}`;
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: `MIJAB ${product.name}`,
+      image: [`${SITE_URL}${product.image}`],
+      description: product.description,
+      sku: product.slug,
+      category: "Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne",
+      brand: { "@type": "Brand", name: "MIJAB" },
+      offers: {
+        "@type": "Offer",
+        url,
+        priceCurrency: "PKR",
+        price: product.price,
+        availability: "https://schema.org/InStock",
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@type": "Organization", name: "MIJAB" },
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
+        { "@type": "ListItem", position: 3, name: product.name, item: url },
+      ],
+    },
+  ];
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="wrap">
         <div className="pcrumbs"><Link href="/">Home</Link> &nbsp;/&nbsp; <Link href="/shop">Shop</Link> &nbsp;/&nbsp; <span>{product.name}</span></div>
         <PurchasePanel product={product} />

@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 import { fetchCatalog } from "@/lib/catalog";
-
-const SITE_URL = "https://mijab.shop";
+import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const catalog = await fetchCatalog();
-  const productRoutes: MetadataRoute.Sitemap = Object.values(catalog).map((p) => ({
+  const productRoutes: MetadataRoute.Sitemap = Object.values(catalog)
+    // The Duo has no page of its own (it is sold from /shop), so listing it would hand Google a 404.
+    .filter((p) => p.slug !== "duo")
+    .map((p) => ({
     url: `${SITE_URL}/product/${p.slug}`,
     changeFrequency: "weekly",
     priority: 0.8,

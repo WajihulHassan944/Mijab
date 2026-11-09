@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { fetchCatalog } from "@/lib/catalog";
 import { ShopGrid } from "./ShopGrid";
 
-export const metadata: Metadata = { title: "Shop" };
+export const metadata: Metadata = {
+  title: "Shop Perfumes",
+  description: "Shop MIJAB eau de parfum: Café Noir for him, Vanilla Gourmand for her, or the Duo gift set. Delivery across Pakistan, cash on delivery available.",
+  alternates: { canonical: "/shop" },
+};
 export const revalidate = 0;
 
 export default async function ShopPage() {

@@ -4,7 +4,11 @@ import Link from "next/link";
 import { Arrow, Diamond, Gift, Heart, Lotus } from "@/components/Icons";
 import { Logo } from "@/components/Logo";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata: Metadata = {
+  title: "About",
+  description: "The story behind MIJAB: two eau de parfums made in Pakistan, Café Noir for him and Vanilla Gourmand for her, each in its own signature gift bag.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
