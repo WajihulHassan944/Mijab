@@ -7,16 +7,18 @@ import { formatPrice, ProductId } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/site";
 import { PurchasePanel } from "./PurchasePanel";
+import { DuoView, duoMetadata } from "./DuoView";
 
 export const revalidate = 0; // always the live catalog, never a stale build-time snapshot
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const catalog = await fetchCatalog();
-  const p = slug !== "duo" ? catalog[slug] : undefined;
+  if (slug === "duo" && catalog.duo) return duoMetadata(catalog.duo);
+  const p = catalog[slug];
   if (!p) return { title: "Product", robots: { index: false } };
   const title = `${p.name} Eau de Parfum ${p.audience}`;
-  const description = `${p.name} by MIJAB: ${p.blurb} ${p.audience.toLowerCase()}, 50 ml eau de parfum for ${formatPrice(p.price)}. Delivery across Pakistan, cash on delivery available.`;
+  const description = `${p.name} by MIJAB, eau de parfum ${p.audience.toLowerCase()}. ${p.blurb} 50 ml for ${formatPrice(p.price)}. Delivery across Pakistan, cash on delivery available.`;
   const url = `/product/${p.slug}`;
   const images = [{ url: p.image, alt: `MIJAB ${p.name} eau de parfum` }];
   return {
@@ -31,7 +33,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const catalog = await fetchCatalog();
-  const product = slug !== "duo" ? catalog[slug] : undefined;
+  if (slug === "duo") {
+    if (!catalog.duo) notFound();
+    return <DuoView catalog={catalog} />;
+  }
+  const product = catalog[slug];
   if (!product) notFound();
   const other = catalog[(product.id === "cafe-noir" ? "vanilla-gourmand" : "cafe-noir") as ProductId];
   const duo = catalog.duo;
@@ -113,7 +119,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <div className="link-arrow">View <Arrow stroke="#9B6B66" w={12} /></div>
               </div>
             </Link>
-            <Link href="/shop" className="more-card">
+            <Link href="/product/duo" className="more-card">
               <ProductMedia product={duo} sizes="140px" />
               <div className="c">
                 <div className="eyebrow">{duo.audience}</div>

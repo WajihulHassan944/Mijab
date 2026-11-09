@@ -3,3 +3,6 @@
 // URL we hand to Google must use www, or the signals point at a redirect.
 export const SITE_URL = "https://www.mijab.shop";
 export const SITE_NAME = "MIJAB";
+export const INSTAGRAM_URL = "https://www.instagram.com/mjb_essence/";
+export const CONTACT_EMAIL = "mjb_essence@outlook.com";
+export const CONTACT_PHONE = "+92-335-5331607";

@@ -59,7 +59,7 @@ export default async function Home() {
         brand: { "@type": "Brand", name: "MIJAB" },
         offers: {
           "@type": "Offer",
-          url: p.slug === "duo" ? `${SITE_URL}/shop` : `${SITE_URL}/product/${p.slug}`,
+          url: `${SITE_URL}/product/${p.slug}`,
           priceCurrency: "PKR",
           price: p.price,
           availability: "https://schema.org/InStock",

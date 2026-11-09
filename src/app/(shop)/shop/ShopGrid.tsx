@@ -41,7 +41,7 @@ export function ShopGrid({ initialProducts }: { initialProducts: Product[] }) {
 
       <section className="grid-3" aria-live="polite">
         {items.map((p) => {
-          const href = p.id === "duo" ? null : `/product/${p.slug}`;
+          const href = `/product/${p.slug}`;
           const media = (
             <ProductMedia product={p} sizes="(max-width: 820px) 50vw, 300px">
               {p.id === "duo" && p.compareAt && p.compareAt > p.price && <span className="badge-save">Save {formatPrice(p.compareAt - p.price)}</span>}

@@ -31,7 +31,7 @@ export function MobileHero({ duoImage }: { duoImage: string }) {
       title: <>Two Fragrances.<br /><em>One Story.</em></>,
       sub: "Gift him, gift her, or keep both.",
       cta: "Shop the Duo",
-      href: "/shop",
+      href: "/product/duo",
     },
     {
       img: "/images/about-boxes.jpg",

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { CONTACT_EMAIL, CONTACT_PHONE, INSTAGRAM_URL, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const serif = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500"], style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
 const sans = Jost({ subsets: ["latin"], weight: ["300", "400", "500"], variable: "--font-sans", display: "swap" });
@@ -44,7 +44,9 @@ const organizationJsonLd = {
   name: "MIJAB",
   url: SITE_URL,
   logo: `${SITE_URL}/icon.png`,
-  sameAs: [],
+  email: CONTACT_EMAIL,
+  telephone: CONTACT_PHONE,
+  sameAs: [INSTAGRAM_URL],
 };
 
 const websiteJsonLd = {

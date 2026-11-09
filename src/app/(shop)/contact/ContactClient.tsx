@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Arrow, ChevronDown, Facebook, Instagram, Mail, TikTok } from "@/components/Icons";
+import { INSTAGRAM_URL } from "@/lib/site";
 import { api, ApiError } from "@/lib/api";
 
 const faqs = [
@@ -74,7 +75,7 @@ export function ContactClient() {
             </div>
             <div className="eyebrow" style={{ marginTop: 20 }}>Follow</div>
             <div className="socials" style={{ marginTop: 8, marginLeft: -12 }}>
-              <a href="#" aria-label="Instagram"><Instagram stroke="#2A1D18" /></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="MIJAB on Instagram"><Instagram stroke="#2A1D18" /></a>
               <a href="#" aria-label="TikTok"><TikTok stroke="#2A1D18" /></a>
               <a href="#" aria-label="Facebook"><Facebook stroke="#2A1D18" /></a>
             </div>

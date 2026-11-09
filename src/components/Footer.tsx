@@ -1,6 +1,7 @@
 import { Logo } from "./Logo";
 import Link from "next/link";
 import { Facebook, Instagram, TikTok } from "./Icons";
+import { INSTAGRAM_URL } from "@/lib/site";
 
 export function Footer() {
   return (
@@ -17,7 +18,7 @@ export function Footer() {
           <Link href="/account">My account</Link>
         </nav>
         <div className="socials">
-          <a href="#" aria-label="Instagram"><Instagram /></a>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="MIJAB on Instagram"><Instagram /></a>
           <a href="#" aria-label="TikTok"><TikTok /></a>
           <a href="#" aria-label="Facebook"><Facebook /></a>
         </div>
@@ -34,7 +35,7 @@ export function Footer() {
             <Link href="/" aria-label="MIJAB home"><Logo width={96} title="MIJAB" /></Link>
             <p>Scent / Elegance / You</p>
             <div className="m-footer-socials">
-              <a href="#" aria-label="Instagram"><Instagram size={20} /></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="MIJAB on Instagram"><Instagram size={20} /></a>
               <a href="#" aria-label="Facebook"><Facebook size={20} /></a>
               <a href="#" aria-label="TikTok"><TikTok size={20} /></a>
             </div>
