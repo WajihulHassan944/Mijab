@@ -50,7 +50,7 @@ const organizationJsonLd = {
   description: "Premium eau de parfum from Pakistan, delivered nationwide.",
   email: CONTACT_EMAIL,
   telephone: CONTACT_PHONE,
-  address: { "@type": "PostalAddress", addressLocality: "Rawalpindi", addressRegion: "Punjab", addressCountry: "PK" },
+  address: { "@type": "PostalAddress", addressLocality: "Rawalpindi", addressRegion: "Punjab", postalCode: "44000", addressCountry: "PK" },
   areaServed: { "@type": "Country", name: "Pakistan" },
   contactPoint: { "@type": "ContactPoint", contactType: "customer service", telephone: CONTACT_PHONE, email: CONTACT_EMAIL, areaServed: "PK" },
   sameAs: [INSTAGRAM_URL],
