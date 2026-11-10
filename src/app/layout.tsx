@@ -38,15 +38,27 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#141010" };
 
+// OnlineStore, not a LocalBusiness: MIJAB sells online and delivers, with no
+// shop to visit, so only the city is given (the street address stays private).
 const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": "OnlineStore",
   name: "MIJAB",
   url: SITE_URL,
-  logo: `${SITE_URL}/icon.png`,
+  logo: `${SITE_URL}/logo.png`,
+  image: `${SITE_URL}/og-image.jpg`,
+  description: "Premium eau de parfum from Pakistan, delivered nationwide.",
   email: CONTACT_EMAIL,
   telephone: CONTACT_PHONE,
+  address: { "@type": "PostalAddress", addressLocality: "Rawalpindi", addressRegion: "Punjab", addressCountry: "PK" },
+  areaServed: { "@type": "Country", name: "Pakistan" },
+  contactPoint: { "@type": "ContactPoint", contactType: "customer service", telephone: CONTACT_PHONE, email: CONTACT_EMAIL, areaServed: "PK" },
   sameAs: [INSTAGRAM_URL],
+  hasMerchantReturnPolicy: {
+    "@type": "MerchantReturnPolicy",
+    applicableCountry: "PK",
+    returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+  },
 };
 
 const websiteJsonLd = {
