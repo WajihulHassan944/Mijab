@@ -11,7 +11,7 @@ import { MobileTestimonials, Testimonials } from "@/components/Testimonials";
 import { formatPrice } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { api, ApiReview } from "@/lib/api";
-import { SITE_URL } from "@/lib/site";
+import { fetchOfferContext, productJsonLd } from "@/lib/seo";
 
 export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
 
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [catalog, reviews] = await Promise.all([fetchCatalog(), api.reviews.list(6).catch((): ApiReview[] => [])]);
+  const [catalog, reviews, offerCtx] = await Promise.all([fetchCatalog(), api.reviews.list(6).catch((): ApiReview[] => []), fetchOfferContext(api)]);
   const noir = catalog["cafe-noir"];
   const vanilla = catalog["vanilla-gourmand"];
   const duo = catalog.duo;
@@ -51,20 +51,8 @@ export default async function Home() {
     itemListElement: [noir, vanilla, duo].filter(Boolean).map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      item: {
-        "@type": "Product",
-        name: `MIJAB ${p.name}`,
-        image: `${SITE_URL}${p.image}`,
-        description: p.blurb || p.tagline,
-        brand: { "@type": "Brand", name: "MIJAB" },
-        offers: {
-          "@type": "Offer",
-          url: `${SITE_URL}/product/${p.slug}`,
-          priceCurrency: "PKR",
-          price: p.price,
-          availability: "https://schema.org/InStock",
-        },
-      },
+      // No ratings here: the homepage shows no per-product stars, and Google requires marked-up ratings to be visible.
+      item: productJsonLd(p, { ...offerCtx, ratings: {} }),
     })),
   };
 

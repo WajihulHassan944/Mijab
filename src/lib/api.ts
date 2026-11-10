@@ -227,7 +227,9 @@ export const api = {
     submit: (body: { name: string; email: string; subject: string; body: string }) => request<{ id: string }>("/contact", { method: "POST", body }),
   },
   reviews: {
-    list: (limit = 6) => request<{ reviews: ApiReview[] }>(`/reviews?limit=${limit}`).then((r) => r.reviews),
+    list: (limit = 6, product?: string) =>
+      request<{ reviews: ApiReview[] }>(`/reviews?limit=${limit}${product ? `&product=${encodeURIComponent(product)}` : ""}`).then((r) => r.reviews),
+    summary: () => request<{ summary: Record<string, { count: number; average: number }> }>("/reviews/summary").then((r) => r.summary),
     eligibility: (orderId: string, phone: string) =>
       request<{ eligible: boolean; reason: "reviewed" | "not_delivered" | null; name: string; products: string[] }>("/reviews/eligibility", { method: "POST", body: { orderId, phone } }),
     submit: (body: { orderId: string; phone: string; rating: number; body: string; name?: string }) =>

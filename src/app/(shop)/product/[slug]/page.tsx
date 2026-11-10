@@ -6,6 +6,9 @@ import { Arrow } from "@/components/Icons";
 import { formatPrice, ProductId } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/site";
+import { api, ApiReview } from "@/lib/api";
+import { fetchOfferContext, productJsonLd } from "@/lib/seo";
+import { ProductReviews } from "@/components/ProductReviews";
 import { PurchasePanel } from "./PurchasePanel";
 import { DuoView, duoMetadata } from "./DuoView";
 
@@ -35,35 +38,19 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const catalog = await fetchCatalog();
   if (slug === "duo") {
     if (!catalog.duo) notFound();
-    return <DuoView catalog={catalog} />;
+    const [ctx, reviews] = await Promise.all([fetchOfferContext(api), api.reviews.list(24, catalog.duo.name).catch((): ApiReview[] => [])]);
+    return <DuoView catalog={catalog} ctx={ctx} reviews={reviews} />;
   }
   const product = catalog[slug];
   if (!product) notFound();
   const other = catalog[(product.id === "cafe-noir" ? "vanilla-gourmand" : "cafe-noir") as ProductId];
   const duo = catalog.duo;
   const n = product.notes!;
+  const [ctx, reviews] = await Promise.all([fetchOfferContext(api), api.reviews.list(24, product.name).catch((): ApiReview[] => [])]);
 
   const url = `${SITE_URL}/product/${product.slug}`;
   const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: `MIJAB ${product.name}`,
-      image: [`${SITE_URL}${product.image}`],
-      description: product.description,
-      sku: product.slug,
-      category: "Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne",
-      brand: { "@type": "Brand", name: "MIJAB" },
-      offers: {
-        "@type": "Offer",
-        url,
-        priceCurrency: "PKR",
-        price: product.price,
-        availability: "https://schema.org/InStock",
-        itemCondition: "https://schema.org/NewCondition",
-        seller: { "@type": "Organization", name: "MIJAB" },
-      },
-    },
+    { "@context": "https://schema.org", ...productJsonLd(product, ctx, { reviews }) },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -100,9 +87,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <div className="eyebrow hd">Delivery</div>
             <div className="li">Delivery cost and options are shown at checkout.</div>
             <div className="li">Signature gift bag included.</div>
+            <div className="li">For hygiene reasons, perfume can&apos;t be returned.</div>
             <div className="li">Questions? Visit the <Link href="/contact" style={{ textDecoration: "underline" }}>contact page</Link>.</div>
           </div>
         </section>
+
+        <ProductReviews reviews={reviews} summary={ctx.ratings[product.name]} />
       </div>
 
       <section className="more">

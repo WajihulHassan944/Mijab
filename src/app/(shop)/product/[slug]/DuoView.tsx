@@ -5,6 +5,9 @@ import { Arrow } from "@/components/Icons";
 import { formatPrice, Product } from "@/lib/products";
 import type { Catalog } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/site";
+import type { ApiReview } from "@/lib/api";
+import { OfferContext, productJsonLd } from "@/lib/seo";
+import { ProductReviews } from "@/components/ProductReviews";
 import { PurchasePanel } from "./PurchasePanel";
 
 const TITLE = "The Duo: Perfume Gift Set for Him & Her";
@@ -34,7 +37,7 @@ function Notes({ p }: { p?: Product }) {
   );
 }
 
-export function DuoView({ catalog }: { catalog: Catalog }) {
+export function DuoView({ catalog, ctx, reviews }: { catalog: Catalog; ctx: OfferContext; reviews: ApiReview[] }) {
   const duo = catalog.duo;
   const noir = catalog["cafe-noir"];
   const vanilla = catalog["vanilla-gourmand"];
@@ -47,25 +50,7 @@ export function DuoView({ catalog }: { catalog: Catalog }) {
   ];
 
   const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: "MIJAB The Duo Gift Set",
-      image: [`${SITE_URL}${duo.image}`],
-      description: duo.description,
-      sku: "duo",
-      category: "Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne",
-      brand: { "@type": "Brand", name: "MIJAB" },
-      offers: {
-        "@type": "Offer",
-        url,
-        priceCurrency: "PKR",
-        price: duo.price,
-        availability: "https://schema.org/InStock",
-        itemCondition: "https://schema.org/NewCondition",
-        seller: { "@type": "Organization", name: "MIJAB" },
-      },
-    },
+    { "@context": "https://schema.org", ...productJsonLd(duo, ctx, { name: "MIJAB The Duo Gift Set", reviews }) },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -93,9 +78,12 @@ export function DuoView({ catalog }: { catalog: Catalog }) {
             <div className="li">{vanilla?.name ?? "Vanilla Gourmand"}, 50 ml eau de parfum</div>
             <div className="li">Signature MIJAB gift bag</div>
             <div className="li">Delivery cost and options are shown at checkout.</div>
+            <div className="li">For hygiene reasons, perfume can&apos;t be returned.</div>
             <div className="li">Questions? Visit the <Link href="/contact" style={{ textDecoration: "underline" }}>contact page</Link>.</div>
           </div>
         </section>
+
+        <ProductReviews reviews={reviews} summary={ctx.ratings[duo.name]} />
       </div>
 
       <section className="more">

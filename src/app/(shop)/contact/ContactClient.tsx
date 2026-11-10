@@ -10,7 +10,7 @@ const faqs = [
   ["How should I store my perfume?", "Keep it somewhere cool and dry, away from direct sunlight and heat, with the cap on."],
   ["Do you offer gift wrapping?", "Every order arrives in a signature MIJAB bag: pink for her, black for him."],
   ["How can I track my order?", "Open Track order and enter your order number with the phone number you used at checkout."],
-  ["Delivery and returns", "Delivery cost and options are shown at checkout. If something isn't right, send us a message and we'll help."],
+  ["Delivery and returns", "We deliver across Pakistan; delivery cost and options are shown at checkout. For hygiene reasons we can't accept returns on perfume. If your order arrives damaged or isn't what you ordered, send us a message and we'll put it right."],
 ];
 
 export function ContactClient() {
