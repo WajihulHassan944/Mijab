@@ -85,6 +85,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
           <div>
             <div className="eyebrow hd">Delivery</div>
+            <div className="li">Delivered in 2–4 working days across Pakistan.</div>
             <div className="li">Delivery cost and options are shown at checkout.</div>
             <div className="li">Signature gift bag included.</div>
             <div className="li">For hygiene reasons, perfume can&apos;t be returned.</div>

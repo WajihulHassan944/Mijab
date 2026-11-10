@@ -25,6 +25,12 @@ export function offerJsonLd(p: Product, ctx: OfferContext) {
         "@type": "OfferShippingDetails",
         shippingRate: { "@type": "MonetaryAmount", value: ctx.deliveryFee, currency: "PKR" },
         shippingDestination: { "@type": "DefinedRegion", addressCountry: "PK" },
+        // Delivered in 2–4 working days in total: up to a day to dispatch, then 2–3 days in transit.
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 3, unitCode: "DAY" },
+        },
       },
     }),
     // Perfume is a hygiene product: MIJAB does not accept returns (store policy, see the FAQ).

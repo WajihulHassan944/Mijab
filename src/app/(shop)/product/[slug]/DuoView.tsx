@@ -77,6 +77,7 @@ export function DuoView({ catalog, ctx, reviews }: { catalog: Catalog; ctx: Offe
             <div className="li">{noir?.name ?? "Café Noir"}, 50 ml eau de parfum</div>
             <div className="li">{vanilla?.name ?? "Vanilla Gourmand"}, 50 ml eau de parfum</div>
             <div className="li">Signature MIJAB gift bag</div>
+            <div className="li">Delivered in 2–4 working days across Pakistan.</div>
             <div className="li">Delivery cost and options are shown at checkout.</div>
             <div className="li">For hygiene reasons, perfume can&apos;t be returned.</div>
             <div className="li">Questions? Visit the <Link href="/contact" style={{ textDecoration: "underline" }}>contact page</Link>.</div>
