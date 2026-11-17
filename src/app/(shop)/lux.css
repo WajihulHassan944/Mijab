@@ -98,6 +98,18 @@
 .lx-benefits li + li { border-left: 1px solid var(--lx-line); }
 .lx-benefits span { font-size: 16.5px; line-height: 1.35; }
 .lx-wax-buy { margin-top: 40px; display: flex; align-items: center; gap: 40px; }
+.lx-wax-price { margin-top: 30px; display: flex; align-items: baseline; gap: 10px; font-family: var(--serif); font-size: 40px; font-weight: 500; color: var(--lx-ink); }
+.lx-wax-price small { font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lx-text); }
+.lx-scents { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 210px)); gap: 16px; }
+.lx-scent { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 12px 14px; border-radius: 10px; background: #fffaf6; border: 1px solid #efe1d7; box-shadow: 0 16px 34px -28px rgba(43, 26, 18, 0.5); }
+.lx-scent-img { position: relative; display: block; width: 100%; aspect-ratio: 1; border-radius: 6px; overflow: hidden; }
+.lx-scent-img img { object-fit: cover; transition: transform 0.8s; }
+.lx-scent:hover .lx-scent-img img { transform: scale(1.04); }
+.lx-scent-name { margin-top: 10px; font-family: var(--serif); font-size: 22px; line-height: 1.1; color: var(--lx-ink); }
+.lx-scent-sub { margin: 3px 0 10px; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lx-text); }
+.lx-scent .lx-btn { width: 100%; }
+.lx-scent.velvet .lx-btn { background: #f1e2d8; border-color: #c99a8c; color: var(--lx-ink); box-shadow: none; }
+.lx-scent.velvet .lx-btn:hover { background: #e9d2c5; }
 .lx-wax-pick { flex: 1; display: flex; gap: 12px; max-width: 460px; }
 .lx-wax-pick .lx-btn { flex: 1; padding: 0 16px; }
 .lx-btn.velvet { background: #f1e2d8; border-color: #c99a8c; color: var(--lx-ink); }
@@ -201,7 +213,7 @@
   /* phone: the home header sits on its own cream bar above the film, never over it */
   .page:has(.lx) .header.overlay { position: sticky; top: 0; height: 60px; padding: 0 6px; background: rgba(248, 228, 222, 0.97); border-bottom: 1px solid #ecd0c6; backdrop-filter: blur(10px); }
   .page:has(.lx) .header.overlay.menu-open { backdrop-filter: none; }
-  .page:has(.lx) .header.overlay .logo svg { width: 118px; }
+  .page:has(.lx) .header.overlay .logo svg { width: 100px; }
   .page:has(.lx) .header.overlay .logo .logo-mobile { color: var(--lx-ink); }
   .page:has(.lx) .header.overlay .menu-lines i { background: var(--lx-ink); }
   .page:has(.lx) .header.overlay .icons .icon-btn svg { stroke: var(--lx-ink); }
@@ -225,31 +237,27 @@
   .lx-eyebrow.lined.both::before, .lx-eyebrow.lined.both::after { width: 40px; }
   .lx-eyebrow.lined { gap: 14px; letter-spacing: 0.32em; }
 
-  /* phone wax launch: photo and copy side by side */
-  .lx-wax { padding: 26px 0 30px; background: var(--lx-cream); }
-  .lx-wax-grid { grid-template-columns: 45% 1fr; gap: 16px; align-items: stretch; }
-  .lx-wax-img { aspect-ratio: 4 / 5; max-width: none; align-self: start; border-radius: 4px; box-shadow: none; }
-  .lx-wax-img img { object-position: 50% 50%; }
-  .lx-wax-copy { text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
-  .lx-wax-copy .lx-eyebrow.lined { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 10.5px; letter-spacing: 0.24em; color: var(--lx-ink); font-weight: 400; }
-  .lx-eyebrow.lined::after { width: 56px; }
-  .lx-wax-copy .lx-eyebrow.lined::after { width: 34px; background: var(--lx-gold); }
-  .lx-wax-copy h2 { margin-top: 10px; font-size: 31px; line-height: 1.02; }
-  .lx-wax-copy h2 em { font-style: normal; display: block; }
-  .lx-wax-copy .lx-lead { margin-top: 8px; font-family: var(--serif); font-style: italic; font-size: 15.5px; line-height: 1.3; color: var(--lx-ink); }
-  .lx-benefits { margin-top: 12px; width: 100%; grid-template-columns: 1fr; gap: 7px; }
-  .lx-benefits li { flex-direction: row; align-items: center; gap: 10px; padding: 0; }
-  .lx-benefits li + li { border-left: 0; }
-  .lx-benefits svg { width: 19px; height: 19px; flex-shrink: 0; }
-  .lx-benefits span { font-family: var(--serif); font-size: 15px; line-height: 1.2; }
+  /* phone wax launch: photo, centred copy, then a card per scent */
+  .lx-wax { padding: 28px 0 34px; background: linear-gradient(180deg, #f6e6de 0%, var(--lx-cream) 60%); }
+  .lx-wax-grid { grid-template-columns: 1fr; gap: 22px; }
+  .lx-wax-img { aspect-ratio: 4 / 5; max-width: none; border-radius: 12px; box-shadow: 0 24px 44px -30px rgba(43, 26, 18, 0.55); }
+  .lx-wax-copy { text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .lx-wax-copy .lx-eyebrow.lined { justify-content: center; }
+  .lx-wax-copy .lx-eyebrow.lined::before { content: ""; width: 40px; height: 1px; background: var(--lx-gold-soft); }
+  .lx-eyebrow.lined::after { width: 40px; }
+  .lx-wax-copy h2 { margin-top: 10px; font-size: 38px; line-height: 1.05; }
+  .lx-wax-copy .lx-lead { margin-top: 10px; max-width: 320px; font-size: 15px; line-height: 1.55; }
+  .lx-benefits { margin-top: 18px; width: 100%; grid-template-columns: repeat(3, 1fr); padding: 12px 0; border-top: 1px solid var(--lx-line); border-bottom: 1px solid var(--lx-line); }
+  .lx-benefits li { align-items: center; gap: 6px; padding: 0 4px; text-align: center; }
+  .lx-benefits svg { width: 22px; height: 22px; }
+  .lx-benefits span { font-size: 12.5px; line-height: 1.25; }
   .lx-benefits small { display: none; }
-  .lx-wax-buy { margin-top: 12px; width: 100%; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .lx-wax-pick { width: 100%; flex-direction: column; gap: 8px; }
-  .lx-wax-buy .lx-btn { width: 100%; max-width: none; min-height: 44px; font-family: var(--serif); font-size: 19px; border-radius: 2px; }
-  .lx-wax-buy .lx-btn svg { display: none; }
-  .lx-price-lg { font-size: 26px; }
-  .lx-textlink { margin-top: 10px; align-self: center; padding-bottom: 2px; border-bottom: 1px solid var(--lx-ink); font-family: var(--serif); font-size: 15px; letter-spacing: 0.04em; text-transform: none; color: var(--lx-ink); }
-  .lx-textlink .arrow { display: none; }
+  .lx-wax-price { margin-top: 18px; justify-content: center; font-size: 32px; }
+  .lx-scents { width: 100%; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .lx-scent { padding: 10px 10px 12px; }
+  .lx-scent-name { font-size: 20px; }
+  .lx-scent .lx-btn.sm { min-height: 40px; font-size: 13.5px; padding: 0 8px; gap: 6px; }
+  .lx-textlink { margin-top: 16px; }
 
   .lx-collection { padding: 40px 0 36px; }
   .lx-head h2 { margin-top: 8px; font-size: 38px; }

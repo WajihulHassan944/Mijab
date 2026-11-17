@@ -133,14 +133,18 @@ export default async function Home() {
                 <li><Clock size={30} stroke="currentColor" width={1.1} /><span>Long-Lasting<small><br />Fragrance</small></span></li>
                 <li><BagIcon size={30} stroke="currentColor" width={1.1} /><span>Travel-Friendly<small><br />&amp; Mess-Free</small></span></li>
               </ul>
-              <div className="lx-wax-buy">
-                <span className="lx-price-lg">{formatPrice(wax.price)}<small> each</small></span>
-                <div className="lx-wax-pick">
-                  <AddToBag id={wax.id} className="lx-btn dark" label={`Add ${wax.name}`} go={null} />
-                  {velvet && <AddToBag id={velvet.id} className="lx-btn velvet" label={`Add ${velvet.name}`} go={null} />}
-                </div>
+              <div className="lx-wax-price">{formatPrice(wax.price)}<small>each tin</small></div>
+              <div className="lx-scents">
+                {[wax, velvet].filter(Boolean).map((v) => (
+                  <div className={`lx-scent${v.id === "perfume-wax" ? " noir" : " velvet"}`} key={v.id}>
+                    <Link href={`/product/${v.slug}`} className="lx-scent-img"><Image src={lookImage(v)} alt={`MIJAB ${v.name} perfume wax tin`} fill sizes="(max-width: 820px) 44vw, 180px" /></Link>
+                    <Link href={`/product/${v.slug}`} className="lx-scent-name">{v.name}</Link>
+                    <span className="lx-scent-sub">{v.id === "perfume-wax" ? "Black tin" : "Cream tin"}</span>
+                    <AddToBag id={v.id} className="lx-btn dark sm" label="Add to Bag" icon go={null} />
+                  </div>
+                ))}
               </div>
-              <Link href={`/product/${wax.slug}`} className="lx-textlink"><span className="lx-hide-m">How to wear it</span><span className="lx-only-m">Learn more</span> <Arrow /></Link>
+              <Link href={`/product/${wax.slug}`} className="lx-textlink">How to wear it <Arrow /></Link>
             </div>
           </div>
         </section>
