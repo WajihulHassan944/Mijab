@@ -1,81 +1,91 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { AddToBag } from "@/components/Buttons";
-import { Arrow, ChevronDown } from "@/components/Icons";
-import { ProductMedia } from "@/components/Media";
-import { formatPrice, Product } from "@/lib/products";
+import { ChevronDown } from "@/components/Icons";
+import { formatPrice, lookImage, Product } from "@/lib/products";
 
-const filters = ["All", "For Him", "For Her", "The Duo"] as const;
+const filters = ["All", "For Him", "For Her", "The Duo", "Perfume Wax"] as const;
 type Filter = (typeof filters)[number];
 const sorts = ["Featured", "Price: low to high", "Price: high to low", "Name"] as const;
+const ORDER = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax"];
+
+const matches = (p: Product, f: Filter) =>
+  f === "All" ||
+  (f === "For Him" && p.id === "cafe-noir") ||
+  (f === "For Her" && p.id === "vanilla-gourmand") ||
+  (f === "The Duo" && p.id === "duo") ||
+  (f === "Perfume Wax" && p.id === "perfume-wax");
 
 export function ShopGrid({ initialProducts }: { initialProducts: Product[] }) {
   const [filter, setFilter] = useState<Filter>("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
 
-  let items = initialProducts.filter((p) => filter === "All" || (filter === "For Him" && p.id === "cafe-noir") || (filter === "For Her" && p.id === "vanilla-gourmand") || (filter === "The Duo" && p.id === "duo"));
-  if (sort === "Price: low to high") items = [...items].sort((a, b) => a.price - b.price);
-  if (sort === "Price: high to low") items = [...items].sort((a, b) => b.price - a.price);
-  if (sort === "Name") items = [...items].sort((a, b) => a.name.localeCompare(b.name));
+  let items = initialProducts.filter((p) => matches(p, filter));
+  const rank = (p: Product) => (ORDER.indexOf(p.id) + 1 || 99);
+  items = [...items].sort((a, b) => rank(a) - rank(b));
+  if (sort === "Price: low to high") items.sort((a, b) => a.price - b.price);
+  if (sort === "Price: high to low") items.sort((a, b) => b.price - a.price);
+  if (sort === "Name") items.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
-      <div className="filterbar">
-        <div className="chips" role="tablist" aria-label="Filter products">
+      <div className="ls-bar">
+        <div className="ls-chips" role="tablist" aria-label="Filter products">
           {filters.map((f) => (
-            <button key={f} role="tab" aria-selected={filter === f} className={`chip${filter === f ? " on" : ""}`} onClick={() => setFilter(f)}>
+            <button key={f} role="tab" aria-selected={filter === f} className={`ls-chip${filter === f ? " on" : ""}`} onClick={() => setFilter(f)}>
               {f}
             </button>
           ))}
         </div>
-        <label className="sort">
-          Sort:
+        <label className="ls-sort">
+          <span>Sort by</span>
           <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} aria-label="Sort products">
             {sorts.map((s) => <option key={s}>{s}</option>)}
           </select>
-          <ChevronDown size={16} stroke="#4a3a30" />
+          <ChevronDown size={15} stroke="#2a1d18" />
         </label>
       </div>
 
-      <section className="grid-3" aria-live="polite">
+      <div className="lx-cards ls-cards" aria-live="polite">
         {items.map((p) => {
-          const href = `/product/${p.slug}`;
-          const media = (
-            <ProductMedia product={p} sizes="(max-width: 820px) 50vw, 300px">
-              {p.id === "duo" && p.compareAt && p.compareAt > p.price && <span className="badge-save">Save {formatPrice(p.compareAt - p.price)}</span>}
-            </ProductMedia>
-          );
+          const save = p.compareAt && p.compareAt > p.price ? p.compareAt - p.price : 0;
           return (
-            <div className="shop-card" key={p.id}>
-              {href ? <Link href={href} style={{ display: "block" }}>{media}</Link> : media}
-              <div className="eyebrow lbl">{p.audience}</div>
-              {href ? <Link href={href} className="nm">{p.name}</Link> : <span className="nm">{p.name}</span>}
-              <div className="bl">{p.blurb}</div>
-              <div className="pr">
-                <span>{formatPrice(p.price)}</span>
-                {p.compareAt && <span className="strike">{formatPrice(p.compareAt)}</span>}
+            <article className="lx-card" key={p.id}>
+              <Link href={`/product/${p.slug}`} className="lx-card-img">
+                <Image src={lookImage(p)} alt={`MIJAB ${p.name}`} fill sizes="(max-width: 820px) 46vw, 270px" />
+              </Link>
+              <div className="lx-card-body">
+                <div className="lx-card-name">
+                  <Link href={`/product/${p.slug}`}>{p.name}</Link>
+                  {p.id === "perfume-wax" && <span className="lx-new">New</span>}
+                </div>
+                <div className="lx-card-meta">
+                  {p.id === "duo" ? (
+                    <span className="lx-card-sub">Café Noir + Vanilla Gourmand</span>
+                  ) : p.id === "perfume-wax" ? (
+                    <span className="lx-card-sub">Alcohol-free solid perfume</span>
+                  ) : (
+                    <>
+                      <span className="lx-tag">{p.audience}</span>
+                      <span className="lx-card-sub">Eau de Parfum · 50 ml</span>
+                    </>
+                  )}
+                </div>
+                <div className="lx-card-price">
+                  <span>{formatPrice(p.price)}</span>
+                  {save > 0 && <s>{formatPrice(p.compareAt!)}</s>}
+                  {save > 0 && <span className="lx-save">Save {formatPrice(save)}</span>}
+                </div>
+                <AddToBag id={p.id} className="lx-btn dark sm" label="Add to Bag" icon go={null} />
               </div>
-              <AddToBag id={p.id} />
-            </div>
+            </article>
           );
         })}
-      </section>
-
-      <section className="bag-banner">
-        <div className="imgs">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/bag-pink.png" alt="Pink MIJAB bag" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/bag-black.png" alt="Black MIJAB bag" />
-        </div>
-        <div className="t">
-          Every order arrives in a signature MIJAB bag
-          <small>Pink for her. Black for him.</small>
-        </div>
-        <AddToBag id="duo" className="btn-outline" label="Shop the Duo" arrow />
-      </section>
+        {items.length === 0 && <p className="ls-empty">Nothing here just yet. Try another filter.</p>}
+      </div>
     </>
   );
 }

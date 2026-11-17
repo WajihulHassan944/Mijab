@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ProductId } from "@/lib/products";
 import { useStore } from "@/lib/store";
-import { Arrow } from "./Icons";
+import { Arrow, BagIcon } from "./Icons";
 
 /** Adds a product to the bag, then (by default) opens the bag. */
 export function AddToBag({
@@ -14,6 +14,7 @@ export function AddToBag({
   className = "btn",
   go = "/bag",
   arrow,
+  icon,
 }: {
   id: ProductId;
   qty?: number;
@@ -21,6 +22,8 @@ export function AddToBag({
   className?: string;
   go?: string | null;
   arrow?: boolean;
+  /** Show a small bag icon before the label. */
+  icon?: boolean;
 }) {
   const { add } = useStore();
   const router = useRouter();
@@ -38,6 +41,7 @@ export function AddToBag({
         }
       }}
     >
+      {icon && <BagIcon size={17} stroke="currentColor" width={1.4} />}
       {done ? "Added to bag" : label}
       {arrow && !done && <Arrow />}
     </button>

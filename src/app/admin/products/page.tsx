@@ -6,6 +6,7 @@ import { Card, PageHeader, Toggle } from "@/components/admin/UI";
 import { live } from "@/lib/admin-calc";
 import { money } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
+import { formatLine } from "@/lib/products";
 
 export default function ProductsPage() {
   const { products, orders, updateProduct, settings } = useAdmin();
@@ -26,7 +27,7 @@ export default function ProductsPage() {
                 const low = p.stock <= settings.lowStockAt;
                 return (
                   <tr key={p.id}>
-                    <td><div className="cell-prod"><span className="thumb-s" style={{ background: p.swatch }}><Image src={p.image} alt={p.name} fill sizes="38px" /></span><div><Link href={`/admin/products/${p.id}`} style={{ fontWeight: 500 }}>{p.name}</Link><span className="sub">{p.audience} · Eau de Parfum 50 ml</span></div></div></td>
+                    <td><div className="cell-prod"><span className="thumb-s" style={{ background: p.swatch }}><Image src={p.image} alt={p.name} fill sizes="38px" /></span><div><Link href={`/admin/products/${p.id}`} style={{ fontWeight: 500 }}>{p.name}</Link><span className="sub">{p.audience} · {formatLine(p)}</span></div></div></td>
                     <td>{p.sku}</td>
                     <td className="num">{money(p.price)}{p.compareAt ? <span className="sub" style={{ textDecoration: "line-through" }}>{money(p.compareAt)}</span> : null}</td>
                     <td className="num">{p.stock === 0 ? <span className="pill s-cancelled">Out of stock</span> : <span className={low ? "low" : ""}>{p.stock}{low ? " · low" : ""}</span>}</td>

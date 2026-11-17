@@ -1,0 +1,49 @@
+/* Shop page (2026 redesign). */
+.ls-hero { position: relative; height: 300px; overflow: hidden; display: flex; align-items: center; background: #f1dfd1; }
+.ls-hero-img { object-fit: cover; object-position: 70% 50%; }
+.ls-hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(248, 236, 226, 0.97) 0%, rgba(248, 236, 226, 0.85) 34%, rgba(248, 236, 226, 0) 64%); }
+.ls-hero-copy { position: relative; z-index: 2; width: 100%; }
+.ls-hero-copy h1 { margin-top: 14px; font-size: clamp(44px, 4.6vw, 64px); line-height: 1.04; }
+.ls-hero-copy p { margin-top: 12px; max-width: 440px; font-size: 16.5px; line-height: 1.6; color: var(--lx-text); font-weight: 300; }
+
+.ls-body { padding-top: 30px; padding-bottom: 64px; }
+.ls-bar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 22px; border-bottom: 1px solid var(--lx-line); }
+.ls-chips { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+.ls-chips::-webkit-scrollbar { display: none; }
+.ls-chip { flex-shrink: 0; height: 40px; padding: 0 20px; border-radius: 20px; border: 1px solid var(--lx-line); background: #fffaf6; color: var(--lx-ink); font-size: 14px; cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.ls-chip:hover { border-color: var(--lx-espresso); }
+.ls-chip.on { background: var(--lx-espresso); border-color: var(--lx-espresso); color: #fbf1ea; }
+.ls-sort { position: relative; display: flex; align-items: center; gap: 10px; flex-shrink: 0; font-size: 13px; color: var(--lx-text); }
+.ls-sort select { appearance: none; height: 40px; padding: 0 38px 0 16px; border: 1px solid var(--lx-line); border-radius: 3px; background: #fffaf6; color: var(--lx-ink); font: inherit; font-size: 14px; cursor: pointer; }
+.ls-sort svg { position: absolute; right: 12px; pointer-events: none; }
+.ls-cards { margin-top: 28px; }
+.ls-empty { grid-column: 1 / -1; padding: 40px 0; text-align: center; color: var(--lx-text); }
+
+.ls-gift { position: relative; margin-top: 44px; min-height: 190px; display: flex; align-items: center; border-radius: 12px; overflow: hidden; background: #f3e2d6; }
+.ls-gift-img { object-fit: cover; object-position: 70% 50%; }
+.ls-gift::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(248, 236, 226, 0.92) 0%, rgba(248, 236, 226, 0.6) 40%, rgba(248, 236, 226, 0) 62%); }
+.ls-gift-copy { position: relative; z-index: 2; padding: 26px 56px; }
+.ls-gift-copy h2 { font-size: 40px; line-height: 1.1; }
+.ls-gift-copy p { margin: 6px 0 18px; font-size: 16px; color: var(--lx-text); font-weight: 300; }
+
+@media (max-width: 820px) {
+  .ls-hero { height: 200px; }
+  .ls-hero-img { object-position: 78% 55%; }
+  .ls-hero-shade { background: linear-gradient(90deg, rgba(248, 236, 226, 0.96) 0%, rgba(248, 236, 226, 0.8) 52%, rgba(248, 236, 226, 0.1) 100%); }
+  .ls-hero-copy h1 { margin-top: 8px; font-size: 36px; }
+  .ls-hero-copy p { font-size: 13.5px; max-width: 230px; }
+  .ls-body { padding-top: 16px; padding-bottom: 32px; }
+  .ls-bar { flex-direction: column; align-items: stretch; gap: 12px; padding-bottom: 14px; }
+  .ls-chips { margin: 0 -16px; padding: 0 16px; }
+  .ls-chip { height: 36px; padding: 0 16px; font-size: 13px; }
+  .ls-sort { justify-content: flex-end; }
+  .ls-sort select { height: 36px; font-size: 13px; }
+  .ls-cards { margin-top: 16px; }
+  .ls-gift { margin-top: 28px; min-height: 170px; }
+  .ls-gift-img { object-position: 82% 50%; }
+  .ls-gift::before { background: linear-gradient(90deg, rgba(248, 236, 226, 0.95) 0%, rgba(248, 236, 226, 0.75) 50%, rgba(248, 236, 226, 0) 80%); }
+  .ls-gift-copy { padding: 18px; max-width: 64%; }
+  .ls-gift-copy h2 { font-size: 24px; }
+  .ls-gift-copy p { font-size: 12.5px; margin-bottom: 12px; }
+  .ls-gift-copy .lx-btn { min-height: 36px; font-size: 12.5px; padding: 0 14px; }
+}

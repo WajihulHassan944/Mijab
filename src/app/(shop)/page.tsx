@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { ProductMedia } from "@/components/Media";
-import { Arrow } from "@/components/Icons";
+import { Arrow, Cash, Clock, Gift, Leaf, ShieldCheck, Star, Truck, BagIcon } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
-import { MobileHero, Newsletter } from "@/components/HomeMobile";
-import { AnnounceBar, PromiseTicker, QuickAdd, RevealOnScroll, ScentNotes, ScentQuiz, TrustStrip } from "@/components/HomeMobileExtras";
-import { MobileTestimonials, Testimonials } from "@/components/Testimonials";
-import { formatPrice } from "@/lib/products";
+import { HeroFilm } from "@/components/lux/HeroFilm";
+import { formatPrice, lookImage, Product } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { api, ApiReview } from "@/lib/api";
 import { fetchOfferContext, productJsonLd } from "@/lib/seo";
@@ -16,39 +12,65 @@ import { fetchOfferContext, productJsonLd } from "@/lib/seo";
 export const revalidate = 0; // always fetch the live catalog — never a stale build-time snapshot
 
 const HOME_DESCRIPTION =
-  "Discover MIJAB — Café Noir for him and Vanilla Gourmand for her. Premium eau de parfum, delivered across Pakistan, cash on delivery available.";
+  "Discover MIJAB: Café Noir for him, Vanilla Gourmand for her, The Duo gift set and the new alcohol-free Perfume Wax. Delivered across Pakistan in 2–4 working days, cash on delivery available.";
 
 export const metadata: Metadata = {
-  title: { absolute: "MIJAB — Scent / Elegance / You" },
+  title: { absolute: "MIJAB — Fragrances that Stay with You" },
   description: HOME_DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: "/",
     siteName: "MIJAB",
-    title: "MIJAB — Scent / Elegance / You",
+    title: "MIJAB — Fragrances that Stay with You",
     description: HOME_DESCRIPTION,
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "MIJAB — Café Noir and Vanilla Gourmand" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MIJAB — Scent / Elegance / You",
+    title: "MIJAB — Fragrances that Stay with You",
     description: HOME_DESCRIPTION,
     images: ["/og-image.jpg"],
   },
 };
 
+/** Small line under each card name: who it's for, or what's inside. */
+function cardMeta(p: Product) {
+  if (p.id === "duo") return <span className="lx-card-sub">Café Noir + Vanilla Gourmand</span>;
+  if (p.id === "perfume-wax") return <span className="lx-card-sub">Alcohol-free solid perfume</span>;
+  return (
+    <>
+      <span className="lx-tag">{p.audience}</span>
+      <span className="lx-card-sub">Eau de Parfum · 50 ml</span>
+    </>
+  );
+}
+
+function Stars({ n }: { n: number }) {
+  return (
+    <span className="lx-stars" aria-label={`${n} out of 5 stars`}>
+      {Array.from({ length: 5 }, (_, i) => <Star key={i} color={i < n ? "#B8894D" : "#e3d3c4"} />)}
+    </span>
+  );
+}
+
 export default async function Home() {
-  const [catalog, reviews, offerCtx] = await Promise.all([fetchCatalog(), api.reviews.list(6).catch((): ApiReview[] => []), fetchOfferContext(api)]);
-  const noir = catalog["cafe-noir"];
-  const vanilla = catalog["vanilla-gourmand"];
-  const duo = catalog.duo;
-  const fragrances = [noir, vanilla].filter(Boolean);
+  const [catalog, reviews, offerCtx, settings] = await Promise.all([
+    fetchCatalog(),
+    api.reviews.list(6).catch((): ApiReview[] => []),
+    fetchOfferContext(api),
+    api.settings.get().catch(() => null),
+  ]);
+  const order = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax"];
+  const items = order.map((id) => catalog[id]).filter(Boolean);
+  const wax = catalog["perfume-wax"];
+  const cod = settings?.cod ?? true;
+  const shownReviews = reviews.filter((r) => r.body.trim()).slice(0, 3);
 
   const productsJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: [noir, vanilla, duo].filter(Boolean).map((p, i) => ({
+    itemListElement: items.map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
       // No ratings here: the homepage shows no per-product stars, and Google requires marked-up ratings to be visible.
@@ -57,293 +79,134 @@ export default async function Home() {
   };
 
   return (
-    <>
+    <div className="lx">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }} />
-      {/* ---------- mobile: announcement ---------- */}
-      <AnnounceBar />
-      <RevealOnScroll />
 
-      {/* ---------- hero ---------- */}
-      <section className="hero only-desktop">
-        <Image className="bg" src="/images/hero.jpg" alt="" fill priority sizes="100vw" />
-        <div className="hero-inner">
-          <div className="hero-copy">
-            <div className="eyebrow">Exclusive Fragrances</div>
-            <h1>More Than Just a Scent</h1>
-            <div className="it">It&apos;s a feeling. It&apos;s you.</div>
-            <p>
-              Discover MIJAB — two unique fragrances,
-              <br />one timeless essence. Crafted for the moments
-              <br />that matter.
-            </p>
-            <a className="btn-blush" href="#collection">Explore the Collection <Arrow stroke="#2A1D18" /></a>
-          </div>
-          <div className="hero-bags">
-            <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} priority />
-            <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} priority />
+      {/* ---------- announcement ---------- */}
+      <div className="lx-announce">
+        <span><Truck size={16} stroke="currentColor" width={1.4} /> <span className="lx-hide-m">Delivered in 2–4 working days across Pakistan</span><span className="lx-only-m">2–4 day delivery across Pakistan</span></span>
+        {cod && <span className="lx-hide-m">Cash on delivery available</span>}
+        <span className="lx-hide-m">Secure checkout</span>
+      </div>
+
+      {/* ---------- hero film ---------- */}
+      <section className="lx-hero" aria-labelledby="lx-hero-title">
+        <HeroFilm />
+        <div className="lx-hero-shade" />
+        <div className="lx-hero-copy">
+          <div className="lx-eyebrow">MIJAB Eau de Parfum</div>
+          <h1 id="lx-hero-title">Fragrances <br className="lx-hide-m" />that <em>Stay with You</em></h1>
+          <p>Refined, long-lasting scents for the moments that matter, delivered to your door across Pakistan.</p>
+          <div className="lx-hero-cta">
+            <Link href="/shop" className="lx-btn dark">Shop Fragrances <Arrow /></Link>
+            <a href="#collection" className="lx-btn ghost">Explore the Collection</a>
           </div>
         </div>
       </section>
-      <MobileHero duoImage={duo.image} />
 
-      {/* ---------- mobile: collection ---------- */}
-      <section className="mh-collection only-mobile" aria-labelledby="mh-col-title">
-        <div className="mh-eyebrow"><span>Our Collection</span></div>
-        <h2 className="mh-title" id="mh-col-title">Timeless Fragrances</h2>
-        <p className="mh-lead">Discover our signature scents crafted<br />for every mood and moment.</p>
-        <div className="mh-cards">
-          {[noir, vanilla, duo].filter(Boolean).map((p, i) => (
-            <div className="mh-card" key={p.id}>
-              <Link href={`/product/${p.slug}`} className="mh-card-link">
-                <ProductMedia product={p} sizes="34vw" />
-                <span className="mh-card-name">{p.name}</span>
-                <span className="mh-card-price">{formatPrice(p.price)}</span>
-              </Link>
-              {i === 0 && <span className="mh-badge">Bestseller</span>}
-              <QuickAdd id={p.id} name={p.name} />
+      {/* ---------- new: perfume wax ---------- */}
+      {wax && (
+        <section className="lx-wax" aria-labelledby="lx-wax-title">
+          <div className="lx-wrap lx-wax-grid">
+            <Link href={`/product/${wax.slug}`} className="lx-wax-img">
+              <Image src={lookImage(wax)} alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="(max-width: 820px) 100vw, 520px" />
+            </Link>
+            <div className="lx-wax-copy">
+              <div className="lx-eyebrow gold lined">New Launch</div>
+              <h2 id="lx-wax-title">Mijab <em>Perfume Wax</em></h2>
+              <p className="lx-lead">An alcohol-free solid perfume for a soft, close-to-skin scent, anytime, anywhere.</p>
+              <ul className="lx-benefits">
+                <li><Leaf size={30} stroke="currentColor" width={1.1} /><span>Alcohol-Free<br />&amp; Skin Friendly</span></li>
+                <li><Clock size={30} stroke="currentColor" width={1.1} /><span>Long-Lasting<br />Fragrance</span></li>
+                <li><BagIcon size={30} stroke="currentColor" width={1.1} /><span>Travel-Friendly<br />&amp; Mess-Free</span></li>
+              </ul>
+              <div className="lx-wax-buy">
+                <span className="lx-price-lg">{formatPrice(wax.price)}</span>
+                <AddToBag id={wax.id} className="lx-btn dark wide" label="Add to Bag" icon go={null} />
+              </div>
+              <Link href={`/product/${wax.slug}`} className="lx-textlink">How to wear it <Arrow /></Link>
             </div>
-          ))}
-        </div>
-        <Link href="/shop" className="mh-pill dark">View All Fragrances <Arrow stroke="#F6EAE2" w={13} /></Link>
-      </section>
-
-      {/* ---------- mobile: promises ---------- */}
-      <PromiseTicker />
-      <TrustStrip />
-
-      {/* ---------- mobile: the duo offer ---------- */}
-      {duo && (
-        <section className="mh-duo only-mobile mh-reveal" aria-labelledby="mh-duo-title">
-          <Link href={`/product/${duo.slug}`} className="mh-duo-img">
-            <ProductMedia product={duo} sizes="45vw" />
-            {duo.compareAt && duo.compareAt > duo.price && <span className="mh-duo-save">Save<br />{formatPrice(duo.compareAt - duo.price)}</span>}
-          </Link>
-          <div className="mh-duo-copy">
-            <div className="mh-about-eyebrow">The Duo</div>
-            <h2 id="mh-duo-title">Two Fragrances.<br /><em>One Story.</em></h2>
-            <p>Café Noir and Vanilla Gourmand, together in one signature bag.</p>
-            <div className="mh-duo-price">
-              <b>{formatPrice(duo.price)}</b>
-              {duo.compareAt && duo.compareAt > duo.price && <s>{formatPrice(duo.compareAt)}</s>}
-            </div>
-            <AddToBag id="duo" go={null} className="mh-pill blush" label="Add the pair" />
           </div>
         </section>
       )}
 
-      {/* ---------- mobile: scent finder + notes ---------- */}
-      <ScentQuiz catalog={catalog} />
-      <ScentNotes fragrances={fragrances} />
-
-      {/* ---------- mobile: gift edition ---------- */}
-      <section className="mh-gift only-mobile" aria-labelledby="mh-gift-title">
-        <div className="mh-reveal">
-          <div className="mh-eyebrow"><span>The Gift Edition</span></div>
-          <h2 className="mh-title" id="mh-gift-title">Wrapped to Be Remembered</h2>
-          <p className="mh-lead">Every MIJAB arrives gift-ready in its own<br />signature bag: pink for her, black for him.</p>
-        </div>
-        <div className="mh-gift-stage mh-reveal">
-          <figure>
-            <Image src="/images/bag-pink.png" alt="MIJAB gift bag with pink bow" width={270} height={425} sizes="40vw" />
-            <figcaption><b>Pink</b> For Her</figcaption>
-          </figure>
-          <figure>
-            <Image src="/images/bag-black.png" alt="MIJAB gift bag with black bow" width={280} height={430} sizes="40vw" />
-            <figcaption><b>Black</b> For Him</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      {/* ---------- mobile: about band ---------- */}
-      <section className="mh-about only-mobile mh-reveal" aria-labelledby="mh-about-title">
-        <Image className="mh-about-bg" src="/images/m-home/elegance.jpg" alt="A man spraying MIJAB eau de parfum" fill sizes="100vw" />
-        <div className="mh-about-copy">
-          <div className="mh-about-eyebrow">About MIJAB</div>
-          <h2 id="mh-about-title">Elegance in Every Spray</h2>
-          <p>Experience luxury like never before.</p>
-          <Link href="/about" className="mh-pill ghost">Learn More <Arrow stroke="#F6EAE2" w={13} /></Link>
-        </div>
-      </section>
-
-      {/* ---------- mobile: reviews + newsletter ---------- */}
-      <MobileTestimonials reviews={reviews} />
-      <Newsletter />
-
-      {/* ---------- collection ---------- */}
-      <section className="collection only-desktop" id="collection">
-        <div className="wrap">
-          <div className="intro">
-            <div className="eyebrow">The MIJAB Collection</div>
-            <h2>Two Fragrances. One Identity.</h2>
-            <div className="rule" />
-            <p>Two distinct expressions, designed for him and her. Each fragrance tells a story — of confidence, elegance and individuality.</p>
-            <Link href="/shop" className="link-arrow">Meet the Collection <Arrow stroke="#9B6B66" w={12} /></Link>
-          </div>
-          <div className="col-cards">
-            {fragrances.map((p) => (
-              <div className="col-card" key={p.id}>
-                <Link href={`/product/${p.slug}`}>
-                  <ProductMedia product={p} sizes="(max-width: 820px) 80vw, 300px" />
-                </Link>
-                <div className="cap">
-                  <b>{p.audience}</b>
-                  <span>{p.tagline.replace(/ \/ /g, "  /  ")}</span>
-                </div>
-                <div className="name-row">
-                  <Link href={`/product/${p.slug}`} className="n">{p.name}</Link>
-                  <span className="p">{formatPrice(p.price)}</span>
-                </div>
-                <div className="sub">Eau de Parfum · 50 ml</div>
-                {p.notes && (
-                  <div className="scent-line">
-                    <span className="k">Scent Notes</span>
-                    <span className="v">{[p.notes.top, p.notes.heart, p.notes.base].join(" · ")}</span>
+      {/* ---------- the collection ---------- */}
+      <section className="lx-collection" id="collection" aria-labelledby="lx-col-title">
+        <div className="lx-wrap">
+          <header className="lx-head">
+            <div className="lx-eyebrow gold lined both">The Collection</div>
+            <h2 id="lx-col-title">Our Fragrances</h2>
+            <p>Fine fragrances for him, for her, or together, made by MIJAB.</p>
+          </header>
+          <div className="lx-cards">
+            {items.map((p) => {
+              const save = p.compareAt && p.compareAt > p.price ? p.compareAt - p.price : 0;
+              return (
+                <article className="lx-card" key={p.id}>
+                  <Link href={`/product/${p.slug}`} className="lx-card-img">
+                    <Image src={lookImage(p)} alt={`MIJAB ${p.name}`} fill sizes="(max-width: 820px) 46vw, 270px" />
+                  </Link>
+                  <div className="lx-card-body">
+                    <div className="lx-card-name">
+                      <Link href={`/product/${p.slug}`}>{p.name}</Link>
+                      {p.id === "perfume-wax" && <span className="lx-new">New</span>}
+                    </div>
+                    <div className="lx-card-meta">{cardMeta(p)}</div>
+                    <div className="lx-card-price">
+                      <span>{formatPrice(p.price)}</span>
+                      {save > 0 && <s>{formatPrice(p.compareAt!)}</s>}
+                      {save > 0 && <span className="lx-save">Save {formatPrice(save)}</span>}
+                    </div>
+                    <AddToBag id={p.id} className="lx-btn dark sm" label="Add to Bag" icon go={null} />
                   </div>
-                )}
-                <AddToBag id={p.id} className={`btn ${p.id === "cafe-noir" ? "dark-btn" : "lilac-btn"}`} arrow go={null} label="Add to bag" />
-              </div>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ---------- duo ---------- */}
-      <section className="duo-band only-desktop">
-        <div className="wrap">
-          <div className="duo-img">
-            <ProductMedia product={duo} sizes="400px" />
-            {duo.compareAt && <span className="save-badge">Save<br />{formatPrice(duo.compareAt - duo.price)}</span>}
-          </div>
-          <div className="duo-copy">
-            <div className="eyebrow">The Duo</div>
-            <h2>Two Fragrances. One Story.</h2>
-            <p>Gift him, gift her, or keep both. The pair arrives together in a signature MIJAB bag.</p>
-            <div className="duo-buy">
-              <span className="price">{formatPrice(duo.price)}</span>
-              <span className="strike">{formatPrice(duo.compareAt!)}</span>
-              <AddToBag id="duo" className="btn-outline fit" label="Add the pair" arrow go={null} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- story ---------- */}
-      <section className="split story only-desktop" id="story">
-        <Image src="/images/petal.jpg" alt="Soft pink petal with the MIJAB monogram" fill sizes="100vw" />
-        <div className="wrap">
-          <div className="copy">
-            <div className="eyebrow">Our Story</div>
-            <h2>The Essence of MIJAB</h2>
-            <div className="rule" />
-            <p>
-              MIJAB is a celebration of individuality, elegance and the little moments that make life beautiful. We believe a fragrance isn&apos;t just worn — it&apos;s felt. It becomes a part of your story.
-            </p>
-            <Link href="/about" className="link-arrow">Learn More <Arrow stroke="#9B6B66" w={12} /></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- experience ---------- */}
-      <section className="split exp only-desktop">
-        <Image src="/images/couple.jpg" alt="A couple sharing a close, quiet moment" fill sizes="100vw" />
-        <div className="wrap">
-          <div className="copy">
-            <div className="eyebrow">The MIJAB Experience</div>
-            <h2>Elegance in Every Moment</h2>
-            <p>Because the right fragrance doesn&apos;t just complement your presence — it leaves a mark.</p>
-            <Link href="/shop" className="btn-outline btn-ghost fit">Discover MIJAB <Arrow stroke="#F6EAE2" w={12} /></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- notes ---------- */}
-      <section className="notes only-desktop">
-        <div className="wrap">
-          <div className="intro">
-            <div className="eyebrow">The Scent Notes</div>
-            <h2>Two stories, told in notes.</h2>
-            <div className="rule" />
-            <p>A glimpse into how each fragrance opens, unfolds and lingers on the skin.</p>
-          </div>
-          {fragrances.map((p) => (
-            <div className="note-col" key={p.id}>
-              <div className="note-head">
-                <div className="disc"><Image src={p.image} alt={`MIJAB fragrance ${p.audience.toLowerCase()}`} fill sizes="120px" /></div>
-                <div><b>{p.audience}</b><i>{p.name}</i></div>
-              </div>
-              <div className="note-row"><span className="k">Top</span><span className="v">{p.notes!.top}</span></div>
-              <div className="note-row"><span className="k">Heart</span><span className="v">{p.notes!.heart}</span></div>
-              <div className="note-row"><span className="k">Base</span><span className="v">{p.notes!.base}</span></div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- gift ---------- */}
-      <section className="gift only-desktop">
-        <div className="wrap">
-          <div className="eyebrow">The Gift Edition</div>
-          <h2>Luxury in Every Detail</h2>
-          <p>Every MIJAB arrives in its own signature bag: pink for her, black for him.</p>
-        </div>
-        <div className="gift-stage">
-          <div className="gift-half pink">
-            <Image src="/images/bag-pink.png" alt="MIJAB bag with pink bow" width={270} height={425} />
-            <span>Pink · For her</span>
-          </div>
-          <div className="gift-half black">
-            <Image src="/images/bag-black.png" alt="MIJAB bag with black bow" width={280} height={430} />
-            <span>Black · For him</span>
-          </div>
+      {/* ---------- our story ---------- */}
+      <section className="lx-story" aria-labelledby="lx-story-title">
+        <Image className="lx-story-img" src="/images/home/story.jpg" alt="Close-up of a MIJAB bottle with its gold monogram" fill sizes="100vw" />
+        <div className="lx-story-copy">
+          <div className="lx-eyebrow">Our Story</div>
+          <h2 id="lx-story-title"><em>The Essence of</em> MIJAB</h2>
+          <p>A Pakistani fragrance house creating refined, long-lasting scents that blend modern elegance with timeless character.</p>
+          <Link href="/about" className="lx-btn ghost sm">Discover Our Story <Arrow /></Link>
         </div>
       </section>
 
       {/* ---------- reviews (admin-approved only) ---------- */}
-      <Testimonials reviews={reviews} />
-
-      {/* ---------- how to order ---------- */}
-      <section className="how only-desktop">
-        <div className="wrap">
-          <div className="eyebrow">How to order</div>
-          <div className="steps">
-            {[
-              ["01", "Choose", "Pick your fragrance, for him or for her."],
-              ["02", "Order", "Add it to your bag and check out in a few taps."],
-              ["03", "Unwrap", "Your MIJAB arrives ready to gift, or to keep."],
-            ].map(([n, t, d]) => (
-              <div className="step" key={n}>
-                <div className="no">{n}</div>
-                <div className="txt">
-                  <h3>{t}</h3>
-                  <p>{d}</p>
-                </div>
-              </div>
-            ))}
+      {shownReviews.length > 0 && (
+        <section className="lx-reviews" id="reviews" aria-labelledby="lx-rev-title">
+          <div className="lx-wrap lx-reviews-grid">
+            <div className="lx-reviews-head">
+              <div className="lx-eyebrow">Customer Reviews</div>
+              <h2 id="lx-rev-title"><em>Loved by</em> Fragrance <em>Enthusiasts</em></h2>
+            </div>
+            <div className="lx-quotes">
+              {shownReviews.map((r) => (
+                <figure className="lx-quote" key={r.id}>
+                  <Stars n={Math.round(r.rating)} />
+                  <blockquote>&ldquo;{r.body.length > 140 ? `${r.body.slice(0, 137).trimEnd()}…` : r.body}&rdquo;</blockquote>
+                  <figcaption>— {r.name}{r.city ? `, ${r.city}` : ""}</figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
+        </section>
+      )}
+
+      {/* ---------- trust row ---------- */}
+      <section className="lx-trust" aria-label="Why shop with MIJAB">
+        <div className="lx-wrap lx-trust-row">
+          {cod && <div><Cash size={30} stroke="currentColor" width={1.1} /><span>Cash on<br className="lx-only-m" /> Delivery</span></div>}
+          <div><Truck size={30} stroke="currentColor" width={1.1} /><span>Delivered in 2–4 Working Days<span className="lx-hide-m"><br />Across Pakistan</span></span></div>
+          <div><Gift size={30} stroke="currentColor" width={1.1} /><span>Gift-Ready<br /> Packaging</span></div>
+          <div><ShieldCheck size={30} stroke="currentColor" width={1.1} /><span>Secure<br /> Checkout</span></div>
         </div>
       </section>
-
-      {/* ---------- finale ---------- */}
-      <section className="finale only-desktop">
-        <div className="wrap">
-          <Link href={`/product/${noir.slug}`} className="finale-card">
-            <ProductMedia product={noir} sizes="264px" />
-            <div className="cap"><b>For Him</b><i>{noir.name} · {formatPrice(noir.price)}</i></div>
-          </Link>
-          <div className="finale-mid">
-            <Logo width={100} title="MIJAB" />
-            <div className="eyebrow">Discover MIJAB</div>
-            <h2>Find the one that <i>finds you.</i></h2>
-            <div className="rule" />
-            <p>Two fragrances. One signature. Choose yours.</p>
-            <Link href="/shop" className="btn">Explore the Collection <Arrow stroke="#F6EAE2" /></Link>
-          </div>
-          <Link href={`/product/${vanilla.slug}`} className="finale-card">
-            <ProductMedia product={vanilla} sizes="264px" />
-            <div className="cap"><b>For Her</b><i>{vanilla.name} · {formatPrice(vanilla.price)}</i></div>
-          </Link>
-        </div>
-      </section>
-    </>
+    </div>
   );
 }

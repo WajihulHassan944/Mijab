@@ -1,21 +1,35 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useState } from "react";
-import { Arrow, ChevronDown, Facebook, Instagram, Mail, TikTok } from "@/components/Icons";
-import { INSTAGRAM_URL } from "@/lib/site";
+import { Arrow, Instagram, Mail } from "@/components/Icons";
+import { CONTACT_EMAIL, CONTACT_PHONE, INSTAGRAM_URL } from "@/lib/site";
 import { api, ApiError } from "@/lib/api";
 
+const WHATSAPP = `https://wa.me/${CONTACT_PHONE.replace(/\D/g, "")}`;
+
 const faqs = [
-  ["How do I choose a fragrance?", "Café Noir is deep and warm, made for him. Vanilla Gourmand is soft and sweet, made for her. Many people take the Duo."],
+  ["How do I choose a fragrance?", "Café Noir is deep and warm, made for him. Vanilla Gourmand is soft and sweet, made for her. Many people take The Duo, and the alcohol-free Perfume Wax is a lovely everyday or travel companion."],
+  ["Do you offer Cash on Delivery?", "Yes. Cash on delivery is available across Pakistan; you'll see all payment options at checkout."],
+  ["How long does delivery take?", "We deliver across Pakistan in 2–4 working days. Delivery cost and options are shown at checkout."],
+  ["Can I send it as a gift?", "Every order arrives gift-ready in a signature MIJAB bag: pink for her, black for him, and the Perfume Wax in its own windowed gift bag."],
+  ["How do I use the Perfume Wax?", "Touch the wax lightly with a fingertip and press it onto your wrists, neck and behind the ears. It is alcohol-free and mess-free, so you can top up through the day."],
   ["How should I store my perfume?", "Keep it somewhere cool and dry, away from direct sunlight and heat, with the cap on."],
-  ["Do you offer gift wrapping?", "Every order arrives in a signature MIJAB bag: pink for her, black for him."],
-  ["How can I track my order?", "Open Track order and enter your order number with the phone number you used at checkout."],
-  ["Delivery and returns", "We deliver across Pakistan in 2–4 working days; delivery cost and options are shown at checkout. For hygiene reasons we can't accept returns on perfume. If your order arrives damaged or isn't what you ordered, send us a message and we'll put it right."],
+  ["How can I track my order?", "Open Track Order and enter your order number with the phone number you used at checkout."],
+  ["Returns", "For hygiene reasons we can't accept returns on opened perfume. If your order arrives damaged or isn't what you ordered, send us a message and we'll put it right."],
 ];
+
+function WhatsAppIcon() {
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden>
+      <path d="M4 20l1.2-3.6A8 8 0 1112 20a8 8 0 01-3.9-1L4 20z" />
+      <path d="M9 8.5c0 3 2.5 6 6 6.5l1-1.4-1.8-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-1.8L9 8.5z" />
+    </svg>
+  );
+}
 
 export function ContactClient() {
   const [sent, setSent] = useState(false);
-  const [open, setOpen] = useState<number | null>(0);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -40,64 +54,69 @@ export function ContactClient() {
   }
 
   return (
-    <>
-      <div className="wrap">
-        <section style={{ padding: "56px 0 36px" }}>
-          <div className="eyebrow">Contact</div>
-          <h1 className="h1" style={{ marginTop: 14, fontSize: 60 }}>We would love to hear from you.</h1>
-        </section>
-        <section className="contact-grid">
+    <div className="lx">
+      <section className="lx-phero">
+        <Image src="/images/contact/banner.jpg" alt="" fill priority sizes="100vw" className="lx-phero-img" />
+        <div className="lx-phero-shade" />
+        <div className="lx-wrap lx-phero-copy">
+          <div className="lx-eyebrow gold lined">Get in Touch</div>
+          <h1>We&apos;d love to hear <em>from you</em></h1>
+          <p>Have a question, feedback or need help with your order? We&apos;re here for you.</p>
+        </div>
+      </section>
+
+      <div className="lx-wrap lc-grid">
+        <section className="lx-panel lc-form">
+          <h2>Send us a Message</h2>
           {sent ? (
-            <div style={{ flex: 1 }} className="sent" role="status">
-              Thank you — your message is on its way to the MIJAB team. We&apos;ll reply by email.
-              <div><button className="link-arrow" onClick={() => setSent(false)}>Send another</button></div>
+            <div className="lc-sent" role="status">
+              Thank you, your message is on its way to the MIJAB team. We&apos;ll reply by email.
+              <button type="button" className="lx-textlink" onClick={() => setSent(false)}>Send another <Arrow /></button>
             </div>
           ) : (
             <form onSubmit={submit}>
-              <div className="row">
-                <div className="field"><label htmlFor="c-name">Name</label><input id="c-name" name="name" className="input" required /></div>
-                <div className="field"><label htmlFor="c-email">Email</label><input id="c-email" name="email" className="input" type="email" placeholder="you@example.com" required /></div>
+              <div className="lc-row">
+                <label className="lx-field"><span>Name <i>*</i></span><input name="name" required autoComplete="name" /></label>
+                <label className="lx-field"><span>Email <i>*</i></span><input name="email" type="email" required autoComplete="email" placeholder="you@example.com" /></label>
               </div>
-              <div className="field">
-                <label htmlFor="c-sub">Subject</label>
-                <select id="c-sub" name="subject" className="select"><option>Question about an order</option><option>Product advice</option><option>Wholesale or gifting</option><option>Something else</option></select>
-              </div>
-              <div className="field"><label htmlFor="c-msg">Message</label><textarea id="c-msg" name="message" className="textarea" rows={6} required /></div>
-              {error && <div className="err-text" role="alert">{error}</div>}
-              <button className="btn" style={{ width: 220 }} disabled={busy}>{busy ? "Sending…" : "Send message"} <Arrow stroke="#F6EAE2" /></button>
+              <label className="lx-field">
+                <span>Subject <i>*</i></span>
+                <select name="subject" defaultValue="Question about an order">
+                  <option>Question about an order</option>
+                  <option>Product advice</option>
+                  <option>Wholesale or gifting</option>
+                  <option>Something else</option>
+                </select>
+              </label>
+              <label className="lx-field"><span>Message <i>*</i></span><textarea name="message" rows={5} required placeholder="Type your message here…" /></label>
+              {error && <div className="lx-err" role="alert">{error}</div>}
+              <button className="lx-btn dark lc-send" disabled={busy}>{busy ? "Sending…" : "Send Message"} <Arrow /></button>
             </form>
           )}
-          <aside>
-            <h2>Get in touch</h2>
-            <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <Mail size={20} />
-              <div><div className="eyebrow">Email</div><div style={{ marginTop: 4, fontSize: 14, fontWeight: 300 }}>mjb_essence@outlook.com</div></div>
-            </div>
-            <div className="eyebrow" style={{ marginTop: 20 }}>Follow</div>
-            <div className="socials" style={{ marginTop: 8, marginLeft: -12 }}>
-              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="MIJAB on Instagram"><Instagram stroke="#2A1D18" /></a>
-              <a href="#" aria-label="TikTok"><TikTok stroke="#2A1D18" /></a>
-              <a href="#" aria-label="Facebook"><Facebook stroke="#2A1D18" /></a>
-            </div>
-          </aside>
         </section>
+
+        <aside className="lx-panel lc-side">
+          <a href={`mailto:${CONTACT_EMAIL}`} className="lc-way"><Mail size={30} stroke="currentColor" width={1.1} /><span><b>Email Us</b>{CONTACT_EMAIL}</span></a>
+          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lc-way"><WhatsAppIcon /><span><b>Chat on WhatsApp</b>{CONTACT_PHONE}</span></a>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="lc-way"><Instagram size={30} stroke="currentColor" width={1.1} /><span><b>Follow Us on Instagram</b>See new launches first</span></a>
+          <div className="lc-side-img"><Image src="/images/home/story.jpg" alt="" fill sizes="340px" /></div>
+        </aside>
       </div>
 
-      <section className="faq" id="faq">
-        <div className="wrap">
-          <div className="eyebrow">FAQ</div>
-          <h2>Good to know</h2>
+      <section className="lx-wrap lc-faq" id="faq">
+        <div className="lc-faq-head">
+          <div className="lx-eyebrow gold lined">FAQ</div>
+          <h2>Frequently Asked <em>Questions</em></h2>
+        </div>
+        <div className="lc-faq-list">
           {faqs.map(([q, a], i) => (
-            <div className={`faq-item${open === i ? " open" : ""}`} key={q}>
-              <button aria-expanded={open === i} aria-controls={`faq-${i}`} onClick={() => setOpen(open === i ? null : i)}>
-                {q}
-                <ChevronDown size={22} stroke="#2A1D18" />
-              </button>
-              {open === i && <div className="a" id={`faq-${i}`}>{a}</div>}
-            </div>
+            <details key={q} open={i === 0}>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
           ))}
         </div>
       </section>
-    </>
+    </div>
   );
 }

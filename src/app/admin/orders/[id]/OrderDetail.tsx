@@ -7,6 +7,7 @@ import { ICheck, IPrint } from "@/components/admin/AIcons";
 import { Card, PageHeader, StatusBadge } from "@/components/admin/UI";
 import { STATUS_FLOW, STATUS_LABEL, Status, longDate, money } from "@/lib/admin-data";
 import { useAdmin } from "@/lib/admin-store";
+import { formatLine } from "@/lib/products";
 
 const NEXT: Partial<Record<Status, { to: Status; label: string }>> = {
   placed: { to: "packed", label: "Mark as packed" },
@@ -65,7 +66,7 @@ export function OrderDetail({ id }: { id: string }) {
                         <td>
                           <div className="cell-prod">
                             {p && <span className="thumb-s" style={{ background: p.swatch }}><Image src={p.image} alt={l.name} fill sizes="38px" /></span>}
-                            <div>{l.name}{p && <span className="sub">{p.audience} · 50 ml</span>}</div>
+                            <div>{l.name}{p && <span className="sub">{p.audience} · {formatLine(p)}</span>}</div>
                           </div>
                         </td>
                         <td className="num">{money(l.price)}</td><td className="num">{l.qty}</td><td className="num">{money(l.price * l.qty)}</td>

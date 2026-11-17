@@ -88,3 +88,15 @@ export const Arrow = ({ stroke = "currentColor", w = 14 }: { stroke?: string; w?
     <path d="M0 5h21M17 1l4 4-4 4" />
   </svg>
 );
+export const Leaf = (p: P) => (
+  <svg {...base(p)}><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15" /><path d="M5 19c3-4 6-7 10-9" /></svg>
+);
+export const Clock = (p: P) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+);
+export const Cash = (p: P) => (
+  <svg {...base(p)}><rect x="3" y="6.5" width="18" height="11" rx="1.5" /><circle cx="12" cy="12" r="2.4" /><path d="M6.5 9.5v5M17.5 9.5v5" /></svg>
+);
+export const Star = ({ size = 14, color = "#B8894D" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden><path d="M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" /></svg>
+);

@@ -346,7 +346,7 @@ h1, h2, h3, p { margin: 0; }
 .pdp-gallery .main { aspect-ratio: 440 / 550; }
 .pdp-gallery .main img.contain { object-fit: contain; padding: 32px; background: var(--sand); }
 .thumbs { margin-top: 16px; display: flex; gap: 16px; }
-.thumb { position: relative; width: 136px; height: 136px; flex-shrink: 0; overflow: hidden; background: var(--sand); display: flex; align-items: center; justify-content: center; }
+.thumb { position: relative; flex: 1 1 0; max-width: 136px; aspect-ratio: 1; min-width: 0; overflow: hidden; background: var(--sand); display: flex; align-items: center; justify-content: center; }
 .thumb.on { outline: 1px solid var(--brown); outline-offset: 2px; }
 .thumb .media { position: absolute; inset: 0; }
 .thumb img.bagimg { height: 106px; width: auto; }

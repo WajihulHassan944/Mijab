@@ -11,7 +11,9 @@ import { useStore } from "@/lib/store";
 const nav = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  { href: "/about", label: "About" },
+  { href: "/product/duo", label: "The Duo" },
+  { href: "/product/perfume-wax", label: "Perfume Wax", isNew: true },
+  { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -19,7 +21,11 @@ export function Header() {
   const pathname = usePathname();
   const { count, user, settings } = useStore();
   const overlay = pathname === "/";
-  const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href) || (href === "/shop" && pathname.startsWith("/product")));
+  const active = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/shop") return pathname.startsWith("/shop") || (pathname.startsWith("/product") && !nav.some((n) => n.href === pathname));
+    return pathname.startsWith(href);
+  };
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => setMenuOpen(false), [pathname]);
@@ -50,7 +56,8 @@ export function Header() {
       <nav className="nav" aria-label="Primary">
         {nav.map((n) => (
           <Link key={n.href} href={n.href} className={active(n.href) ? "active" : ""} aria-current={active(n.href) ? "page" : undefined}>
-            {n.href === "/shop" && overlay ? "Our Collection" : n.label}
+            {n.label}
+            {n.isNew && <span className="nav-new">New</span>}
           </Link>
         ))}
       </nav>
