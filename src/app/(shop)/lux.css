@@ -192,7 +192,9 @@
 
   /* header: menu · centred logo · bag, dark over the light film */
   .page:has(.lx) { background: var(--lx-cream); }
-  .page:has(.lx) .header.overlay { top: 36px; height: 60px; padding: 0 6px; }
+  /* phone: the home header sits on its own cream bar above the film, never over it */
+  .page:has(.lx) .header.overlay { position: sticky; top: 0; height: 60px; padding: 0 6px; background: rgba(248, 242, 238, 0.97); border-bottom: 1px solid #e3d3c8; backdrop-filter: blur(10px); }
+  .page:has(.lx) .header.overlay.menu-open { backdrop-filter: none; }
   .page:has(.lx) .header.overlay .logo svg { width: 118px; }
   .page:has(.lx) .header.overlay .logo .logo-mobile { color: var(--lx-ink); }
   .page:has(.lx) .header.overlay .menu-lines i { background: var(--lx-ink); }
@@ -219,7 +221,7 @@
   /* phone wax launch: photo and copy side by side */
   .lx-wax { padding: 26px 0 30px; background: var(--lx-cream); }
   .lx-wax-grid { grid-template-columns: 45% 1fr; gap: 16px; align-items: stretch; }
-  .lx-wax-img { aspect-ratio: 9 / 16; max-width: none; align-self: start; border-radius: 4px; box-shadow: none; }
+  .lx-wax-img { aspect-ratio: 4 / 5; max-width: none; align-self: start; border-radius: 4px; box-shadow: none; }
   .lx-wax-img img { object-position: 50% 50%; }
   .lx-wax-copy { text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
   .lx-wax-copy .lx-eyebrow.lined { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 10.5px; letter-spacing: 0.24em; color: var(--lx-ink); font-weight: 400; }

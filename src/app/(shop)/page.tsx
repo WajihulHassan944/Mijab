@@ -122,8 +122,7 @@ export default async function Home() {
         <section className="lx-wax" aria-labelledby="lx-wax-title">
           <div className="lx-wrap lx-wax-grid">
             <Link href={`/product/${wax.slug}`} className="lx-wax-img">
-              <Image className="lx-hide-m" src={lookImage(wax)} alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="470px" />
-              <Image className="lx-only-m" src="/images/wax/perfume-wax-tall.jpg" alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="45vw" />
+              <Image src={lookImage(wax)} alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="(max-width: 820px) 45vw, 470px" />
             </Link>
             <div className="lx-wax-copy">
               <div className="lx-eyebrow gold lined">New Launch</div>
