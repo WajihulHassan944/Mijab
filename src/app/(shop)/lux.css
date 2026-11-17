@@ -187,13 +187,14 @@
   .lx-only-m { display: initial; }
   .lx-btn { min-height: 50px; font-size: 15.5px; }
 
-  .lx-announce { height: 36px; font-size: 10.5px; letter-spacing: 0.2em; }
+  .lx-announce { height: 36px; font-size: 10.5px; letter-spacing: 0.2em; background: linear-gradient(90deg, #f1d3c9, #f6e1da, #f1d3c9); color: var(--lx-ink); }
+  .lx-announce svg { color: #a46b5c; }
   .lx-announce > span { padding: 0 12px; }
 
   /* header: menu · centred logo · bag, dark over the light film */
   .page:has(.lx) { background: var(--lx-cream); }
   /* phone: the home header sits on its own cream bar above the film, never over it */
-  .page:has(.lx) .header.overlay { position: sticky; top: 0; height: 60px; padding: 0 6px; background: rgba(248, 242, 238, 0.97); border-bottom: 1px solid #e3d3c8; backdrop-filter: blur(10px); }
+  .page:has(.lx) .header.overlay { position: sticky; top: 0; height: 60px; padding: 0 6px; background: rgba(248, 228, 222, 0.97); border-bottom: 1px solid #ecd0c6; backdrop-filter: blur(10px); }
   .page:has(.lx) .header.overlay.menu-open { backdrop-filter: none; }
   .page:has(.lx) .header.overlay .logo svg { width: 118px; }
   .page:has(.lx) .header.overlay .logo .logo-mobile { color: var(--lx-ink); }
@@ -204,14 +205,15 @@
   .lx-hero { display: none; }
   .lx-mhero { display: block; position: relative; overflow: hidden; background: #2b1a12; }
   .lx-mhero img { display: block; width: 100%; height: auto; aspect-ratio: 941 / 1672; animation: lx-breathe 18s ease-in-out infinite alternate; transform-origin: 50% 30%; }
-  .lx-mhero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(43, 26, 18, 0) 50%, rgba(43, 26, 18, 0.7) 60%, #2b1a12 70%); pointer-events: none; }
-  .lx-mhero-copy { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 0 26px 26px; display: flex; flex-direction: column; align-items: center; text-align: center; color: #f6eae2; }
-  .lx-mhero-copy .lx-eyebrow { color: #e8d4c3; font-size: 11px; letter-spacing: 0.34em; }
-  .lx-mhero-copy h2 { margin-top: 8px; font-size: clamp(38px, 10.6vw, 46px); line-height: 1.04; color: #fbf1ea; }
-  .lx-mhero-copy p { margin-top: 8px; max-width: 300px; font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.4; color: #eaddd2; }
-  .lx-mhero-btn { margin-top: 18px; width: 100%; max-width: 300px; min-height: 50px; display: flex; align-items: center; justify-content: center; background: #f6eae2; color: var(--lx-ink); font-family: var(--serif); font-style: italic; font-size: 22px; border-radius: 2px; }
-  .lx-mhero-btn:active { background: #fff; }
-  .lx-mhero-link { margin-top: 12px; padding-bottom: 3px; border-bottom: 1px solid rgba(246, 234, 226, 0.6); font-family: var(--serif); font-size: 18px; color: #f6eae2; }
+  .lx-mhero { background: #f3dcd4; }
+  .lx-mhero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(243, 220, 212, 0) 44%, rgba(243, 220, 212, 0.85) 52%, #f3dcd4 58%, #efd3c9 100%); pointer-events: none; }
+  .lx-mhero-copy { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 0 26px 26px; display: flex; flex-direction: column; align-items: center; text-align: center; color: var(--lx-ink); }
+  .lx-mhero-copy .lx-eyebrow { color: #9b6b5c; font-size: 11px; letter-spacing: 0.34em; }
+  .lx-mhero-copy h2 { margin-top: 8px; font-size: clamp(38px, 10.6vw, 46px); line-height: 1.04; color: var(--lx-ink); }
+  .lx-mhero-copy p { margin-top: 8px; max-width: 300px; font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.4; color: #5a4036; }
+  .lx-mhero-btn { margin-top: 18px; width: 100%; max-width: 300px; min-height: 50px; display: flex; align-items: center; justify-content: center; background: var(--lx-espresso); color: #fbf1ea; font-family: var(--serif); font-style: italic; font-size: 22px; border-radius: 2px; box-shadow: 0 12px 26px -14px rgba(43, 26, 18, 0.6); }
+  .lx-mhero-btn:active { background: #452b1f; }
+  .lx-mhero-link { margin-top: 12px; padding-bottom: 3px; border-bottom: 1px solid rgba(43, 26, 18, 0.5); font-family: var(--serif); font-size: 18px; color: var(--lx-ink); }
   .lx-mhero-film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   @keyframes lx-breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
   @media (prefers-reduced-motion: reduce) { .lx-mhero img { animation: none; } }
