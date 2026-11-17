@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Arrow, Cash, Clock, Gift, Leaf, ShieldCheck, Star, Truck, BagIcon } from "@/components/Icons";
 import { AddToBag } from "@/components/Buttons";
 import { HeroFilm } from "@/components/lux/HeroFilm";
+import { PhoneFilm } from "@/components/lux/PhoneFilm";
 import { formatPrice, lookImage, Product } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { api, ApiReview } from "@/lib/api";
@@ -106,8 +107,7 @@ export default async function Home() {
 
       {/* ---------- phone hero: portrait campaign photo made for phones ---------- */}
       <section className="lx-mhero" aria-labelledby="lx-mhero-title">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/home/hero-m.jpg" alt="The MIJAB collection: Café Noir, Vanilla Gourmand, their gift bags and the Perfume Wax" fetchPriority="high" />
+        <PhoneFilm alt="The MIJAB collection: Café Noir, Vanilla Gourmand, their gift bags and the Perfume Wax" />
         <div className="lx-mhero-copy">
           <div className="lx-eyebrow">MIJAB Eau de Parfum</div>
           <h2 id="lx-mhero-title"><em>Fragrances that<br />Stay with You</em></h2>
