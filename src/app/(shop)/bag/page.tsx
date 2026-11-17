@@ -8,18 +8,15 @@ import { SummaryRows } from "@/components/Summary";
 import { DeliveryMethod } from "@/components/DeliveryMethod";
 import { formatLine, formatPrice, lookImage } from "@/lib/products";
 import { useStore } from "@/lib/store";
+import { Banner } from "@/components/lux/Banner";
 
 function Hero({ title, sub }: { title: string; sub: string }) {
   return (
-    <section className="lx-phero">
-      <Image src="/images/shop/banner.jpg" alt="" fill priority sizes="100vw" className="lx-phero-img" />
-      <div className="lx-phero-shade" />
-      <div className="lx-wrap lx-phero-copy">
-        <div className="lx-eyebrow gold lined">Your Bag</div>
-        <h1>{title}</h1>
-        <p>{sub}</p>
-      </div>
-    </section>
+    <Banner desktop="/images/shop/banner.jpg" mobile="/images/shop/banner-m.jpg">
+      <div className="lx-eyebrow gold lined">Your Bag</div>
+      <h1>{title}</h1>
+      <p>{sub}</p>
+    </Banner>
   );
 }
 

@@ -8,7 +8,7 @@ import type { ProductId } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
 /** One gallery picture. `contain` is for cut-outs (the gift bags); `pos` is an object-position for wide scenes. */
-export type Shot = { id: string; src: string; alt: string; contain?: boolean; pos?: string };
+export type Shot = { id: string; src: string; alt: string; contain?: boolean; whole?: boolean; pos?: string };
 
 function Chevron({ dir }: { dir: "l" | "r" }) {
   return (
@@ -19,7 +19,7 @@ function Chevron({ dir }: { dir: "l" | "r" }) {
 }
 
 /** Thumbnails + main image on desktop; a swipeable strip with arrows on phones. */
-export function LxGallery({ shots }: { shots: Shot[] }) {
+export function LxGallery({ shots, ratio = "1 / 1" }: { shots: Shot[]; ratio?: string }) {
   const [i, setI] = useState(0);
   const strip = useRef<HTMLDivElement>(null);
   const n = shots.length;
@@ -40,7 +40,7 @@ export function LxGallery({ shots }: { shots: Shot[] }) {
   }, []);
 
   return (
-    <div className="lp-gallery">
+    <div className="lp-gallery" style={{ ["--lp-ratio" as string]: ratio }}>
       <div className="lp-thumbs" role="tablist" aria-label="Product photos">
         {shots.map((s, k) => (
           <button key={s.id} type="button" role="tab" aria-selected={i === k} aria-label={`Show ${s.alt}`} className={`lp-thumb${i === k ? " on" : ""}${s.contain ? " contain" : ""}`} onClick={() => goTo(k)}>
@@ -51,7 +51,7 @@ export function LxGallery({ shots }: { shots: Shot[] }) {
       <div className="lp-main">
         <div className="lp-strip" ref={strip}>
           {shots.map((s, k) => (
-            <div className={`lp-slide${s.contain ? " contain" : ""}`} key={s.id} aria-hidden={i !== k}>
+            <div className={`lp-slide${s.contain ? " contain" : ""}${s.whole ? " whole" : ""}`} key={s.id} aria-hidden={i !== k}>
               <Image src={s.src} alt={s.alt} fill priority={k === 0} sizes="(max-width: 820px) 100vw, 480px" style={s.pos ? { objectPosition: s.pos } : undefined} />
             </div>
           ))}

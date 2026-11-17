@@ -19,10 +19,10 @@
 .ls-cards { margin-top: 28px; }
 .ls-empty { grid-column: 1 / -1; padding: 40px 0; text-align: center; color: var(--lx-text); }
 
-.ls-gift { position: relative; margin-top: 44px; min-height: 190px; display: flex; align-items: center; border-radius: 12px; overflow: hidden; background: #f3e2d6; }
-.ls-gift-img { object-fit: cover; object-position: 70% 50%; }
-.ls-gift::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(248, 236, 226, 0.92) 0%, rgba(248, 236, 226, 0.6) 40%, rgba(248, 236, 226, 0) 62%); }
-.ls-gift-copy { position: relative; z-index: 2; padding: 26px 56px; }
+.ls-gift { margin-top: 44px; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: center; border-radius: 12px; overflow: hidden; background: linear-gradient(90deg, #f6e8de, #f1dccd); border: 1px solid #ecd9cc; }
+.ls-gift-img { position: relative; order: 2; aspect-ratio: 3 / 1; }
+.ls-gift-img img { object-fit: cover; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%); mask-image: linear-gradient(90deg, transparent 0%, #000 30%); }
+.ls-gift-copy { position: relative; z-index: 2; padding: 26px 0 26px 48px; }
 .ls-gift-copy h2 { font-size: 40px; line-height: 1.1; }
 .ls-gift-copy p { margin: 6px 0 18px; font-size: 16px; color: var(--lx-text); font-weight: 300; }
 
@@ -39,10 +39,10 @@
   .ls-sort { justify-content: flex-end; }
   .ls-sort select { height: 36px; font-size: 13px; }
   .ls-cards { margin-top: 16px; }
-  .ls-gift { margin-top: 28px; min-height: 170px; }
-  .ls-gift-img { object-position: 82% 50%; }
-  .ls-gift::before { background: linear-gradient(90deg, rgba(248, 236, 226, 0.95) 0%, rgba(248, 236, 226, 0.75) 50%, rgba(248, 236, 226, 0) 80%); }
-  .ls-gift-copy { padding: 18px; max-width: 64%; }
+  .ls-gift { margin-top: 28px; grid-template-columns: 1fr; }
+  .ls-gift-img { order: 0; }
+  .ls-gift-img img { -webkit-mask-image: none; mask-image: none; }
+  .ls-gift-copy { padding: 16px 18px 18px; text-align: center; }
   .ls-gift-copy h2 { font-size: 24px; }
   .ls-gift-copy p { font-size: 12.5px; margin-bottom: 12px; }
   .ls-gift-copy .lx-btn { min-height: 36px; font-size: 12.5px; padding: 0 14px; }

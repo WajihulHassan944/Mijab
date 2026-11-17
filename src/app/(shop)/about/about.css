@@ -7,7 +7,7 @@
 .la-hero-copy p { margin-top: 14px; max-width: 470px; font-size: 18px; line-height: 1.55; color: var(--lx-text); font-weight: 300; }
 
 .la-story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; padding-top: 48px; padding-bottom: 40px; }
-.la-story-img { position: relative; aspect-ratio: 5 / 2.1; border-radius: 10px; overflow: hidden; box-shadow: 0 26px 50px -34px rgba(43, 26, 18, 0.55); }
+.la-story-img { position: relative; aspect-ratio: 1983 / 793; border-radius: 10px; overflow: hidden; box-shadow: 0 26px 50px -34px rgba(43, 26, 18, 0.55); }
 .la-story-img img { object-fit: cover; }
 .la-story-copy { padding-left: 40px; border-left: 1px solid var(--lx-gold-soft); }
 .la-story-copy h2 { font-size: clamp(28px, 2.6vw, 36px); line-height: 1.2; }
@@ -23,7 +23,7 @@
 .la-col h2.lx-eyebrow { font-family: var(--sans); font-size: 13px; }
 .la-col-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
 .la-mini { display: grid; grid-template-columns: 46% 1fr; gap: 14px; align-items: center; }
-.la-mini-img { position: relative; aspect-ratio: 1 / 1.05; border-radius: 8px; overflow: hidden; }
+.la-mini-img { position: relative; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; }
 .la-mini-img img { object-fit: cover; transition: transform 0.8s; }
 .la-mini:hover .la-mini-img img { transform: scale(1.04); }
 .la-mini-body { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
@@ -52,7 +52,6 @@
   .la-hero-copy h1 { font-size: 38px; }
   .la-hero-copy p { font-size: 14px; max-width: 250px; }
   .la-story { grid-template-columns: 1fr; gap: 18px; padding-top: 22px; padding-bottom: 22px; text-align: center; }
-  .la-story-img { aspect-ratio: 16 / 9; }
   .la-story-copy { padding: 0; border: 0; }
   .la-story-copy h2 { font-size: 24px; }
   .la-story-copy p { margin-top: 10px; font-size: 14px; }
@@ -64,7 +63,7 @@
   .la-col { padding-bottom: 32px; }
   .la-col-grid { gap: 12px; margin-top: 16px; }
   .la-mini { grid-template-columns: 1fr; gap: 8px; align-items: start; background: #fffaf6; border: 1px solid #efe1d7; border-radius: 8px; overflow: hidden; }
-  .la-mini-img { aspect-ratio: 1 / 0.82; border-radius: 0; }
+  .la-mini-img { border-radius: 0; }
   .la-mini-body { padding: 0 10px 12px; gap: 5px; }
   .la-mini-name { font-size: 18px; }
   .la-mini .lx-btn.sm { width: 100%; }

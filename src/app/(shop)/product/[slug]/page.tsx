@@ -40,14 +40,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 /** Gallery for each product: the campaign photograph first, then scenes and the catalog photo. */
 function shotsFor(p: Product): Shot[] {
   const look = { id: "look", src: lookImage(p), alt: `MIJAB ${p.name}` };
-  const own = p.image && p.image !== look.src ? [{ id: "own", src: p.image, alt: `MIJAB ${p.name} product photo` }] : [];
+  const own = p.image && p.image !== look.src ? [{ id: "own", src: p.image, alt: `MIJAB ${p.name} product photo`, whole: true }] : [];
   switch (p.id) {
     case "cafe-noir":
-      return [look, { id: "scene", src: "/images/home/frame2.jpg", alt: "Café Noir beside its gift bag", pos: "74% 50%" }, ...own, { id: "bag", src: "/images/bag-black.png", alt: "Black-bow MIJAB gift bag", contain: true }];
+      return [look, ...own, { id: "bag", src: "/images/bag-black.png", alt: "Black-bow MIJAB gift bag", contain: true }];
     case "vanilla-gourmand":
-      return [look, { id: "scene", src: "/images/home/frame3.jpg", alt: "Vanilla Gourmand beside its gift bag", pos: "76% 50%" }, ...own, { id: "bag", src: "/images/bag-pink.png", alt: "Pink-bow MIJAB gift bag", contain: true }];
+      return [look, ...own, { id: "bag", src: "/images/bag-pink.png", alt: "Pink-bow MIJAB gift bag", contain: true }];
     case "duo":
-      return [look, { id: "scene", src: "/images/home/frame1.jpg", alt: "The full MIJAB collection", pos: "64% 50%" }, ...own];
+      return [look, ...own];
     case "perfume-wax":
       return [
         look,
@@ -135,7 +135,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </nav>
 
         <section className={`lp-top${hasNotes || wax ? "" : " no-notes"}`}>
-          <LxGallery shots={shotsFor(product)} />
+          <LxGallery shots={shotsFor(product)} ratio={wax ? "4 / 5" : "1 / 1"} />
 
           <div className="lp-info">
             <h1>{product.name}</h1>

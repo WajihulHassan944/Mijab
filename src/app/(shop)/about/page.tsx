@@ -5,6 +5,7 @@ import { AddToBag } from "@/components/Buttons";
 import { Arrow, Diamond, Gift, Heart, Lotus } from "@/components/Icons";
 import { fetchCatalog } from "@/lib/catalog";
 import { formatPrice, lookImage } from "@/lib/products";
+import { Banner } from "@/components/lux/Banner";
 import "./about.css";
 
 export const metadata: Metadata = {
@@ -28,15 +29,11 @@ export default async function AboutPage() {
 
   return (
     <div className="lx la">
-      <section className="la-hero">
-        <Image src="/images/shop/banner.jpg" alt="" fill priority sizes="100vw" className="la-hero-img" />
-        <div className="la-hero-shade" />
-        <div className="lx-wrap la-hero-copy">
-          <div className="lx-eyebrow gold lined">Our Story</div>
-          <h1>The <em>Essence of</em> MIJAB</h1>
-          <p>Some things are more than a fragrance. They are a feeling, a memory, a little touch of confidence.</p>
-        </div>
-      </section>
+      <Banner desktop="/images/shop/banner.jpg" mobile="/images/shop/banner-m.jpg">
+        <div className="lx-eyebrow gold lined">Our Story</div>
+        <h1>The <em>Essence of</em> MIJAB</h1>
+        <p>Some things are more than a fragrance. They are a feeling, a memory, a little touch of confidence.</p>
+      </Banner>
 
       <section className="lx-wrap la-story">
         <div className="la-story-img">

@@ -2,6 +2,27 @@
    Shared page pieces (2026 redesign): banner hero, panels, form fields,
    qty stepper, plus the contact (lc-) and bag (lb-) pages.
    ===================================================================== */
+/* banner card: the photo keeps its own 3:1 shape, so nothing is ever cut off */
+.lx-banner { padding: 26px 48px 0; }
+.lx-banner-in { position: relative; max-width: 1240px; margin: 0 auto; aspect-ratio: 3 / 1; border-radius: 14px; overflow: hidden; background: #f1dfd1; box-shadow: 0 26px 50px -38px rgba(43, 26, 18, 0.5); }
+.lx-banner-in picture, .lx-banner-in img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lx-banner-in img { object-fit: cover; }
+.lx-banner-in::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(248, 236, 226, 0.9) 0%, rgba(248, 236, 226, 0.55) 34%, rgba(248, 236, 226, 0) 52%); }
+.lx-banner-copy { position: absolute; z-index: 2; inset: 0 50% 0 0; display: flex; flex-direction: column; justify-content: center; padding: 0 0 0 clamp(28px, 5vw, 64px); }
+.lx-banner-copy h1 { margin-top: 14px; font-size: clamp(36px, 4.2vw, 58px); line-height: 1.06; }
+.lx-banner-copy p { margin-top: 10px; max-width: 440px; font-size: clamp(14px, 1.2vw, 17px); line-height: 1.55; color: var(--lx-text); font-weight: 300; }
+@media (max-width: 820px) {
+  .lx-banner { padding: 12px 12px 0; }
+  .lx-banner-in { aspect-ratio: 1 / 1; border-radius: 12px; }
+  .lx-banner-in::after { background: linear-gradient(180deg, rgba(248, 236, 226, 0.92) 0%, rgba(248, 236, 226, 0.6) 30%, rgba(248, 236, 226, 0) 48%); }
+  .lx-banner-copy { inset: 0 0 auto 0; justify-content: flex-start; align-items: center; text-align: center; padding: 20px 20px 0; }
+  .lx-banner-copy .lx-eyebrow.lined { justify-content: center; }
+  .lx-banner-copy .lx-eyebrow.lined::before { content: ""; width: 40px; height: 1px; background: var(--lx-gold-soft); }
+  .lx-banner-copy .lx-eyebrow.lined::after { width: 40px; }
+  .lx-banner-copy h1 { margin-top: 6px; font-size: 30px; }
+  .lx-banner-copy p { margin-top: 6px; font-size: 12.5px; line-height: 1.45; max-width: 290px; }
+}
+
 .lx-phero { position: relative; height: 270px; display: flex; align-items: center; overflow: hidden; background: #f1dfd1; }
 .lx-phero-img { object-fit: cover; object-position: 75% 50%; }
 .lx-phero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(248, 236, 226, 0.96) 0%, rgba(248, 236, 226, 0.78) 38%, rgba(248, 236, 226, 0) 64%); }

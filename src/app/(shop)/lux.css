@@ -19,6 +19,7 @@
 .lx { background: var(--lx-cream); color: var(--lx-ink); }
 .lx-wrap { max-width: 1240px; margin: 0 auto; padding: 0 48px; }
 .lx-only-m { display: none; }
+.lx-mhero { display: none; }
 
 /* ---------- type + buttons ---------- */
 .lx-eyebrow { font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 0.42em; text-transform: uppercase; color: var(--lx-ink); }
@@ -86,7 +87,7 @@
 /* ---------- new launch: perfume wax ---------- */
 .lx-wax { background: linear-gradient(180deg, var(--lx-blush) 0%, var(--lx-cream) 100%); padding: 36px 0 48px; }
 .lx-wax-grid { display: grid; grid-template-columns: minmax(0, 520px) 1fr; gap: 64px; align-items: center; }
-.lx-wax-img { position: relative; display: block; aspect-ratio: 1.1 / 1; border-radius: 10px; overflow: hidden; box-shadow: 0 30px 60px -36px rgba(43, 26, 18, 0.5); }
+.lx-wax-img { position: relative; display: block; aspect-ratio: 4 / 5; max-width: 470px; width: 100%; justify-self: center; border-radius: 10px; overflow: hidden; box-shadow: 0 30px 60px -36px rgba(43, 26, 18, 0.5); }
 .lx-wax-img img { object-fit: cover; object-position: 50% 42%; transition: transform 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .lx-wax-img:hover img { transform: scale(1.03); }
 .lx-wax-copy h2 { margin-top: 18px; font-size: clamp(48px, 4.8vw, 72px); line-height: 1.05; }
@@ -107,7 +108,7 @@
 .lx-cards { margin-top: 44px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .lx-card { display: flex; flex-direction: column; background: #fffaf6; border: 1px solid #efe1d7; border-radius: 10px; overflow: hidden; box-shadow: 0 18px 40px -32px rgba(43, 26, 18, 0.45); transition: transform 0.35s, box-shadow 0.35s; }
 .lx-card:hover { transform: translateY(-4px); box-shadow: 0 26px 50px -30px rgba(43, 26, 18, 0.5); }
-.lx-card-img { position: relative; display: block; aspect-ratio: 1 / 0.88; overflow: hidden; background: #ecdccf; }
+.lx-card-img { position: relative; display: block; aspect-ratio: 1 / 1; overflow: hidden; background: #ecdccf; }
 .lx-card-img img { object-fit: cover; transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .lx-card:hover .lx-card-img img { transform: scale(1.04); }
 .lx-card-body { flex: 1; display: flex; flex-direction: column; padding: 18px 18px 20px; }
@@ -197,42 +198,47 @@
   .page:has(.lx) .header.overlay .menu-lines i { background: var(--lx-ink); }
   .page:has(.lx) .header.overlay .icons .icon-btn svg { stroke: var(--lx-ink); }
 
-  /* phone hero: headline on cream, then the portrait film, then the buttons */
-  .lx-hero { height: auto; min-height: 0; display: flex; flex-direction: column; text-align: center; background: linear-gradient(180deg, #f7e9df 0%, #f1dccd 100%); }
-  .lx-hero-shade { display: none; }
-  .lx-hero-copy { display: contents; }
-  .lx-hero-copy .lx-eyebrow { order: 1; padding-top: 112px; font-size: 11px; letter-spacing: 0.36em; }
-  .lx-hero-copy h1 { order: 1; margin: 10px auto 0; padding: 0 18px; font-size: clamp(42px, 12vw, 54px); line-height: 1.02; }
-  .lx-hero-copy p { order: 1; margin: 10px auto 0; padding: 0 22px; font-size: 15px; max-width: 360px; }
-  .lx-hero > .lx-film {
-    order: 2; position: relative; inset: auto; left: auto; right: auto; width: 100%; height: auto; aspect-ratio: 1 / 1.06; margin-top: -6px;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
-  }
-  .lx-film img, .lx-film video { object-position: 50% 60%; }
-  .lx-hero-cta { order: 3; margin: -18px 0 0; padding: 0 22px 26px; width: 100%; flex-direction: column; gap: 12px; position: relative; z-index: 2; }
-  .lx-hero-cta .lx-btn { width: 100%; }
-  .lx-hero-cta .lx-btn.ghost { background: rgba(251, 244, 238, 0.7); }
+  /* phone hero: a portrait campaign photo made for phones, copy on its espresso fade */
+  .lx-hero { display: none; }
+  .lx-mhero { display: block; position: relative; overflow: hidden; background: #2b1a12; }
+  .lx-mhero img { display: block; width: 100%; height: auto; aspect-ratio: 941 / 1672; animation: lx-breathe 18s ease-in-out infinite alternate; transform-origin: 50% 30%; }
+  .lx-mhero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(43, 26, 18, 0) 50%, rgba(43, 26, 18, 0.7) 60%, #2b1a12 70%); pointer-events: none; }
+  .lx-mhero-copy { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 0 26px 26px; display: flex; flex-direction: column; align-items: center; text-align: center; color: #f6eae2; }
+  .lx-mhero-copy .lx-eyebrow { color: #e8d4c3; font-size: 11px; letter-spacing: 0.34em; }
+  .lx-mhero-copy h2 { margin-top: 8px; font-size: clamp(38px, 10.6vw, 46px); line-height: 1.04; color: #fbf1ea; }
+  .lx-mhero-copy p { margin-top: 8px; max-width: 300px; font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.4; color: #eaddd2; }
+  .lx-mhero-btn { margin-top: 18px; width: 100%; max-width: 300px; min-height: 50px; display: flex; align-items: center; justify-content: center; background: #f6eae2; color: var(--lx-ink); font-family: var(--serif); font-style: italic; font-size: 22px; border-radius: 2px; }
+  .lx-mhero-btn:active { background: #fff; }
+  .lx-mhero-link { margin-top: 12px; padding-bottom: 3px; border-bottom: 1px solid rgba(246, 234, 226, 0.6); font-family: var(--serif); font-size: 18px; color: #f6eae2; }
+  @keyframes lx-breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
+  @media (prefers-reduced-motion: reduce) { .lx-mhero img { animation: none; } }
   .lx-eyebrow.lined.both::before, .lx-eyebrow.lined.both::after { width: 40px; }
   .lx-eyebrow.lined { gap: 14px; letter-spacing: 0.32em; }
 
-  .lx-wax { padding: 24px 0 40px; }
-  .lx-wax-grid { grid-template-columns: 1fr; gap: 22px; }
-  .lx-wax-img { aspect-ratio: 16 / 10.5; max-height: none; border-radius: 8px; }
-  .lx-wax-img img { object-position: 50% 45%; }
-  .lx-wax-copy { text-align: center; display: flex; flex-direction: column; align-items: center; }
-  .lx-wax-copy .lx-eyebrow.lined { justify-content: center; }
-  .lx-wax-copy .lx-eyebrow.lined::before { content: ""; width: 56px; height: 1px; background: var(--lx-gold-soft); }
+  /* phone wax launch: photo and copy side by side */
+  .lx-wax { padding: 26px 0 30px; background: var(--lx-cream); }
+  .lx-wax-grid { grid-template-columns: 45% 1fr; gap: 16px; align-items: stretch; }
+  .lx-wax-img { aspect-ratio: 9 / 16; max-width: none; align-self: start; border-radius: 4px; box-shadow: none; }
+  .lx-wax-img img { object-position: 50% 50%; }
+  .lx-wax-copy { text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
+  .lx-wax-copy .lx-eyebrow.lined { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 10.5px; letter-spacing: 0.24em; color: var(--lx-ink); font-weight: 400; }
   .lx-eyebrow.lined::after { width: 56px; }
-  .lx-wax-copy h2 { margin-top: 10px; font-size: 42px; }
-  .lx-wax-copy .lx-lead { margin-top: 10px; font-size: 15.5px; }
-  .lx-benefits { margin-top: 22px; width: 100%; }
-  .lx-benefits li { align-items: center; gap: 8px; padding: 0 6px; }
-  .lx-benefits span { font-size: 13.5px; }
-  .lx-wax-buy { margin-top: 24px; width: 100%; flex-direction: column; gap: 14px; }
-  .lx-wax-buy .lx-btn { width: 100%; max-width: none; }
-  .lx-price-lg { font-size: 38px; }
-  .lx-textlink { margin-top: 12px; }
+  .lx-wax-copy .lx-eyebrow.lined::after { width: 34px; background: var(--lx-gold); }
+  .lx-wax-copy h2 { margin-top: 10px; font-size: 31px; line-height: 1.02; }
+  .lx-wax-copy h2 em { font-style: normal; display: block; }
+  .lx-wax-copy .lx-lead { margin-top: 8px; font-family: var(--serif); font-style: italic; font-size: 15.5px; line-height: 1.3; color: var(--lx-ink); }
+  .lx-benefits { margin-top: 12px; width: 100%; grid-template-columns: 1fr; gap: 7px; }
+  .lx-benefits li { flex-direction: row; align-items: center; gap: 10px; padding: 0; }
+  .lx-benefits li + li { border-left: 0; }
+  .lx-benefits svg { width: 19px; height: 19px; flex-shrink: 0; }
+  .lx-benefits span { font-family: var(--serif); font-size: 15px; line-height: 1.2; }
+  .lx-benefits small { display: none; }
+  .lx-wax-buy { margin-top: 12px; width: 100%; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .lx-wax-buy .lx-btn { width: 100%; max-width: none; min-height: 44px; font-family: var(--serif); font-size: 19px; border-radius: 2px; }
+  .lx-wax-buy .lx-btn svg { display: none; }
+  .lx-price-lg { font-size: 26px; }
+  .lx-textlink { margin-top: 10px; align-self: center; padding-bottom: 2px; border-bottom: 1px solid var(--lx-ink); font-family: var(--serif); font-size: 15px; letter-spacing: 0.04em; text-transform: none; color: var(--lx-ink); }
+  .lx-textlink .arrow { display: none; }
 
   .lx-collection { padding: 40px 0 36px; }
   .lx-head h2 { margin-top: 8px; font-size: 38px; }
@@ -282,4 +288,16 @@
   .lx-footer-col:nth-of-type(3) { grid-column: 1 / -1; }
   .lx-footer-news { grid-column: 1 / -1; }
   .lx-footer-bottom { flex-direction: column; padding: 16px 20px 24px; font-size: 10px; }
+
+  /* the same phone header everywhere: menu · centred logo · search + bag */
+  .header { padding: 0 6px; }
+  .header .menu-btn { display: flex; justify-content: flex-start; padding-left: 12px; }
+  .header .logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .header .logo svg { width: 104px; height: auto; }
+  .header .menu-lines i { background: var(--lx-ink); box-shadow: none; }
+  .header .menu-btn:active .menu-lines i:last-child, .header .menu-btn[aria-expanded="true"] .menu-lines i:last-child { width: 22px; }
+  .header .m-menu .icon-btn svg { stroke: #f6eae2; }
+  .header .m-menu-top svg { color: #f6eae2; }
+  /* a blurred sticky header would trap the fixed drawer inside it */
+  .header.menu-open { z-index: 60; backdrop-filter: none; }
 }

@@ -44,11 +44,9 @@ export function Header() {
 
   return (
     <header className={`header${overlay ? " overlay" : ""}${menuOpen ? " menu-open" : ""}`}>
-      {overlay && (
-        <button type="button" className="menu-btn icon-btn" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="m-menu" onClick={() => setMenuOpen(true)}>
-          <span className="menu-lines" aria-hidden><i /><i /></span>
-        </button>
-      )}
+      <button type="button" className="menu-btn icon-btn" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="m-menu" onClick={() => setMenuOpen(true)}>
+        <span className="menu-lines" aria-hidden><i /><i /></span>
+      </button>
       <Link href="/" className="logo" aria-label="MIJAB home">
         {overlay && <Logo className="logo-hero" width={84} title="MIJAB" />}
         <Logo className={overlay ? "logo-mobile" : "logo-solid"} width={84} title={overlay ? undefined : "MIJAB"} />
@@ -74,7 +72,7 @@ export function Header() {
         </Link>
       </div>
 
-      {overlay && (
+      {(
         <div className={`m-menu${menuOpen ? " open" : ""}`} id="m-menu" inert={!menuOpen}>
           <button type="button" className="m-menu-scrim" aria-label="Close menu" tabIndex={-1} onClick={() => setMenuOpen(false)} />
           <div className="m-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">

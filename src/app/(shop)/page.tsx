@@ -104,27 +104,41 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ---------- phone hero: portrait campaign photo made for phones ---------- */}
+      <section className="lx-mhero" aria-labelledby="lx-mhero-title">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/home/hero-m.jpg" alt="The MIJAB collection: Café Noir, Vanilla Gourmand, their gift bags and the Perfume Wax" fetchPriority="high" />
+        <div className="lx-mhero-copy">
+          <div className="lx-eyebrow">MIJAB Eau de Parfum</div>
+          <h2 id="lx-mhero-title"><em>Fragrances that<br />Stay with You</em></h2>
+          <p>Refined, long-lasting scents for the moments that matter.</p>
+          <Link href="/shop" className="lx-mhero-btn">Shop the Collection</Link>
+          {wax && <Link href={`/product/${wax.slug}`} className="lx-mhero-link">Discover Perfume Wax</Link>}
+        </div>
+      </section>
+
       {/* ---------- new: perfume wax ---------- */}
       {wax && (
         <section className="lx-wax" aria-labelledby="lx-wax-title">
           <div className="lx-wrap lx-wax-grid">
             <Link href={`/product/${wax.slug}`} className="lx-wax-img">
-              <Image src={lookImage(wax)} alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="(max-width: 820px) 100vw, 520px" />
+              <Image className="lx-hide-m" src={lookImage(wax)} alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="470px" />
+              <Image className="lx-only-m" src="/images/wax/perfume-wax-tall.jpg" alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="45vw" />
             </Link>
             <div className="lx-wax-copy">
               <div className="lx-eyebrow gold lined">New Launch</div>
               <h2 id="lx-wax-title">Mijab <em>Perfume Wax</em></h2>
               <p className="lx-lead">An alcohol-free solid perfume for a soft, close-to-skin scent, anytime, anywhere.</p>
               <ul className="lx-benefits">
-                <li><Leaf size={30} stroke="currentColor" width={1.1} /><span>Alcohol-Free<br />&amp; Skin Friendly</span></li>
-                <li><Clock size={30} stroke="currentColor" width={1.1} /><span>Long-Lasting<br />Fragrance</span></li>
-                <li><BagIcon size={30} stroke="currentColor" width={1.1} /><span>Travel-Friendly<br />&amp; Mess-Free</span></li>
+                <li><Leaf size={30} stroke="currentColor" width={1.1} /><span>Alcohol-Free<small><br />&amp; Skin Friendly</small></span></li>
+                <li><Clock size={30} stroke="currentColor" width={1.1} /><span>Long-Lasting<small><br />Fragrance</small></span></li>
+                <li><BagIcon size={30} stroke="currentColor" width={1.1} /><span>Travel-Friendly<small><br />&amp; Mess-Free</small></span></li>
               </ul>
               <div className="lx-wax-buy">
                 <span className="lx-price-lg">{formatPrice(wax.price)}</span>
                 <AddToBag id={wax.id} className="lx-btn dark wide" label="Add to Bag" icon go={null} />
               </div>
-              <Link href={`/product/${wax.slug}`} className="lx-textlink">How to wear it <Arrow /></Link>
+              <Link href={`/product/${wax.slug}`} className="lx-textlink"><span className="lx-hide-m">How to wear it</span><span className="lx-only-m">Learn more</span> <Arrow /></Link>
             </div>
           </div>
         </section>

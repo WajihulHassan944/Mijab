@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { Arrow, Instagram, Mail } from "@/components/Icons";
 import { CONTACT_EMAIL, CONTACT_PHONE, INSTAGRAM_URL } from "@/lib/site";
 import { api, ApiError } from "@/lib/api";
+import { Banner } from "@/components/lux/Banner";
 
 const WHATSAPP = `https://wa.me/${CONTACT_PHONE.replace(/\D/g, "")}`;
 
@@ -55,15 +56,11 @@ export function ContactClient() {
 
   return (
     <div className="lx">
-      <section className="lx-phero">
-        <Image src="/images/contact/banner.jpg" alt="" fill priority sizes="100vw" className="lx-phero-img" />
-        <div className="lx-phero-shade" />
-        <div className="lx-wrap lx-phero-copy">
-          <div className="lx-eyebrow gold lined">Get in Touch</div>
-          <h1>We&apos;d love to hear <em>from you</em></h1>
-          <p>Have a question, feedback or need help with your order? We&apos;re here for you.</p>
-        </div>
-      </section>
+      <Banner desktop="/images/contact/banner.jpg" mobile="/images/contact/banner-m.jpg">
+        <div className="lx-eyebrow gold lined">Get in Touch</div>
+        <h1>We&apos;d love to hear <em>from you</em></h1>
+        <p>Have a question, feedback or need help with your order? We&apos;re here for you.</p>
+      </Banner>
 
       <div className="lx-wrap lc-grid">
         <section className="lx-panel lc-form">

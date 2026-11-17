@@ -16,12 +16,14 @@
 .lp-thumb:hover, .lp-thumb.on { opacity: 1; }
 .lp-thumb.on { box-shadow: 0 0 0 1.5px var(--lx-espresso); }
 .lp-main { position: relative; border-radius: 10px; overflow: hidden; background: #efe1d6; box-shadow: 0 26px 50px -34px rgba(43, 26, 18, 0.55); }
-.lp-strip { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; aspect-ratio: 1 / 1.08; }
+.lp-strip { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; aspect-ratio: var(--lp-ratio, 1 / 1); }
 .lp-strip::-webkit-scrollbar { display: none; }
 .lp-slide { position: relative; flex: 0 0 100%; scroll-snap-align: start; }
 .lp-slide img { object-fit: cover; }
 .lp-slide.contain { background: linear-gradient(180deg, #f6ebe3, #ecdccf); }
 .lp-slide.contain img { object-fit: contain; padding: 40px; }
+.lp-slide.whole { background: #1d1512; }
+.lp-slide.whole img { object-fit: contain; }
 .lp-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgba(251, 244, 238, 0.85); color: var(--lx-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.25s; box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.4); }
 .lp-arrow.l { left: 12px; }
 .lp-arrow.r { right: 12px; }
@@ -96,7 +98,7 @@
 .lp-more h2.lx-eyebrow { font-family: var(--sans); font-size: 13px; }
 .lp-more-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 .lp-mcard { display: grid; grid-template-columns: 46% 1fr; gap: 18px; align-items: center; }
-.lp-mcard-img { position: relative; display: block; aspect-ratio: 1 / 0.9; border-radius: 8px; overflow: hidden; }
+.lp-mcard-img { position: relative; display: block; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; }
 .lp-mcard-img img { object-fit: cover; transition: transform 0.8s; }
 .lp-mcard:hover .lp-mcard-img img { transform: scale(1.04); }
 .lp-mcard-body { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -122,7 +124,6 @@
   .lp-gallery { display: flex; flex-direction: column-reverse; gap: 12px; }
   .lp-thumbs { flex-direction: row; justify-content: center; gap: 10px; }
   .lp-thumb { width: 54px; }
-  .lp-strip { aspect-ratio: 1 / 0.82; }
   .lp-arrow { opacity: 1; width: 34px; height: 34px; }
   .lp-info h1 { font-size: 42px; }
   .lp-kind { margin-top: 10px; font-size: 11px; gap: 8px; }

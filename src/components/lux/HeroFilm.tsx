@@ -2,22 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** Full-bleed looping hero film. Phones get a portrait cut, larger screens the
- * widescreen one; people who prefer reduced motion just see the poster. */
+/** Full-bleed looping hero film for tablets and desktops; people who prefer
+ * reduced motion just see the poster. */
 export function HeroFilm() {
   const ref = useRef<HTMLVideoElement>(null);
   const [src, setSrc] = useState<{ video: string; poster: string } | null>(null);
   const [still, setStill] = useState(false);
 
   useEffect(() => {
-    const mobile = window.matchMedia("(max-width: 820px)").matches;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setStill(reduce);
-    setSrc(
-      mobile
-        ? { video: "/images/home/hero-film-m.mp4", poster: "/images/home/hero-film-m-poster.jpg" }
-        : { video: "/images/home/hero-film.mp4", poster: "/images/home/hero-film-poster.jpg" },
-    );
+    // phones show their own portrait hero instead, so they skip the film entirely
+    if (window.matchMedia("(max-width: 820px)").matches) return;
+    setStill(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    setSrc({ video: "/images/home/hero-film.mp4", poster: "/images/home/hero-film-poster.jpg" });
   }, []);
 
   useEffect(() => {
@@ -27,11 +23,9 @@ export function HeroFilm() {
 
   return (
     <div className="lx-film" aria-hidden>
-      {/* first paint: the poster, chosen per breakpoint in CSS */}
-      <picture>
-        <source media="(max-width: 820px)" srcSet="/images/home/hero-film-m-poster.jpg" />
-        <img src="/images/home/hero-film-poster.jpg" alt="" fetchPriority="high" />
-      </picture>
+      {/* lazy, so phones (where this section is hidden) never download it */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/images/home/hero-film-poster.jpg" alt="" loading="lazy" />
       {src && !still && (
         <video ref={ref} key={src.video} src={src.video} poster={src.poster} autoPlay muted loop playsInline preload="auto" />
       )}
