@@ -98,6 +98,11 @@
 .lx-benefits li + li { border-left: 1px solid var(--lx-line); }
 .lx-benefits span { font-size: 16.5px; line-height: 1.35; }
 .lx-wax-buy { margin-top: 40px; display: flex; align-items: center; gap: 40px; }
+.lx-wax-pick { flex: 1; display: flex; gap: 12px; max-width: 460px; }
+.lx-wax-pick .lx-btn { flex: 1; padding: 0 16px; }
+.lx-btn.velvet { background: #f1e2d8; border-color: #c99a8c; color: var(--lx-ink); }
+.lx-btn.velvet:hover { background: #e9d2c5; }
+.lx-price-lg small { font-size: 0.45em; font-weight: 400; color: var(--lx-text); margin-left: 6px; }
 .lx-price-lg { font-family: var(--serif); font-size: 44px; font-weight: 500; color: var(--lx-ink); white-space: nowrap; }
 
 /* ---------- collection ---------- */
@@ -239,6 +244,7 @@
   .lx-benefits span { font-family: var(--serif); font-size: 15px; line-height: 1.2; }
   .lx-benefits small { display: none; }
   .lx-wax-buy { margin-top: 12px; width: 100%; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .lx-wax-pick { width: 100%; flex-direction: column; gap: 8px; }
   .lx-wax-buy .lx-btn { width: 100%; max-width: none; min-height: 44px; font-family: var(--serif); font-size: 19px; border-radius: 2px; }
   .lx-wax-buy .lx-btn svg { display: none; }
   .lx-price-lg { font-size: 26px; }

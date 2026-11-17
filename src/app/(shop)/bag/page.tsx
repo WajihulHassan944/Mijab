@@ -50,7 +50,7 @@ export default function BagPage() {
                 <Link href={`/product/${p.slug}`} className="lb-thumb"><Image src={lookImage(p)} alt={`MIJAB ${p.name}`} fill sizes="120px" /></Link>
                 <div className="lb-info">
                   <Link href={`/product/${p.slug}`} className="lb-name">{p.name}</Link>
-                  {l.id !== "duo" && l.id !== "perfume-wax" && <span className="lx-tag">{p.audience}</span>}
+                  {l.id !== "duo" && !l.id.startsWith("perfume-wax") && <span className="lx-tag">{p.audience}</span>}
                   <span className="lb-meta">{l.id === "duo" ? "Both fragrances · 2 × 50 ml" : formatLine(p)}</span>
                   <div className="lp-qty lb-qty">
                     <button type="button" aria-label={`Decrease ${p.name} quantity`} onClick={() => setQty(l.id, Math.max(1, l.qty - 1))}>−</button>

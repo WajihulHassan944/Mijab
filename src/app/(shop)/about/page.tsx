@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AddToBag } from "@/components/Buttons";
 import { Arrow, Diamond, Gift, Heart, Lotus } from "@/components/Icons";
 import { fetchCatalog } from "@/lib/catalog";
-import { formatPrice, lookImage } from "@/lib/products";
+import { formatPrice, isWax, lookImage, PRODUCT_ORDER } from "@/lib/products";
 import { Banner } from "@/components/lux/Banner";
 import "./about.css";
 
@@ -25,7 +25,7 @@ const values = [
 
 export default async function AboutPage() {
   const catalog = await fetchCatalog();
-  const items = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax"].map((id) => catalog[id]).filter(Boolean);
+  const items = PRODUCT_ORDER.map((id) => catalog[id]).filter(Boolean);
 
   return (
     <div className="lx la">
@@ -66,7 +66,7 @@ export default async function AboutPage() {
               <Link href={`/product/${p.slug}`} className="la-mini-img"><Image src={lookImage(p)} alt={`MIJAB ${p.name}`} fill sizes="(max-width: 820px) 46vw, 140px" /></Link>
               <div className="la-mini-body">
                 <Link href={`/product/${p.slug}`} className="la-mini-name">{p.name}</Link>
-                {p.id === "duo" ? <span className="la-mini-sub">Café Noir + Vanilla Gourmand</span> : p.id === "perfume-wax" ? <span className="lx-new">New</span> : <span className="lx-tag">{p.audience}</span>}
+                {p.id === "duo" ? <span className="la-mini-sub">Café Noir + Vanilla Gourmand</span> : isWax(p) ? <span className="lx-new">Perfume Wax</span> : <span className="lx-tag">{p.audience}</span>}
                 <div className="la-mini-price">{formatPrice(p.price)}{p.compareAt && p.compareAt > p.price && <s>{formatPrice(p.compareAt)}</s>}</div>
                 <AddToBag id={p.id} className="lx-btn dark sm" label="Add to Bag" icon go={null} />
               </div>

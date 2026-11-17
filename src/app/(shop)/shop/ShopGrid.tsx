@@ -5,26 +5,25 @@ import Link from "next/link";
 import { useState } from "react";
 import { AddToBag } from "@/components/Buttons";
 import { ChevronDown } from "@/components/Icons";
-import { formatPrice, lookImage, Product } from "@/lib/products";
+import { formatPrice, isWax, lookImage, Product, PRODUCT_ORDER } from "@/lib/products";
 
 const filters = ["All", "For Him", "For Her", "The Duo", "Perfume Wax"] as const;
 type Filter = (typeof filters)[number];
 const sorts = ["Featured", "Price: low to high", "Price: high to low", "Name"] as const;
-const ORDER = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax"];
 
 const matches = (p: Product, f: Filter) =>
   f === "All" ||
   (f === "For Him" && p.id === "cafe-noir") ||
   (f === "For Her" && p.id === "vanilla-gourmand") ||
   (f === "The Duo" && p.id === "duo") ||
-  (f === "Perfume Wax" && p.id === "perfume-wax");
+  (f === "Perfume Wax" && isWax(p));
 
 export function ShopGrid({ initialProducts }: { initialProducts: Product[] }) {
   const [filter, setFilter] = useState<Filter>("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
 
   let items = initialProducts.filter((p) => matches(p, filter));
-  const rank = (p: Product) => (ORDER.indexOf(p.id) + 1 || 99);
+  const rank = (p: Product) => (PRODUCT_ORDER.indexOf(p.id) + 1 || 99);
   items = [...items].sort((a, b) => rank(a) - rank(b));
   if (sort === "Price: low to high") items.sort((a, b) => a.price - b.price);
   if (sort === "Price: high to low") items.sort((a, b) => b.price - a.price);
@@ -60,12 +59,12 @@ export function ShopGrid({ initialProducts }: { initialProducts: Product[] }) {
               <div className="lx-card-body">
                 <div className="lx-card-name">
                   <Link href={`/product/${p.slug}`}>{p.name}</Link>
-                  {p.id === "perfume-wax" && <span className="lx-new">New</span>}
+                  {isWax(p) && <span className="lx-new">New</span>}
                 </div>
                 <div className="lx-card-meta">
                   {p.id === "duo" ? (
                     <span className="lx-card-sub">Café Noir + Vanilla Gourmand</span>
-                  ) : p.id === "perfume-wax" ? (
+                  ) : isWax(p) ? (
                     <span className="lx-card-sub">Alcohol-free solid perfume</span>
                   ) : (
                     <>

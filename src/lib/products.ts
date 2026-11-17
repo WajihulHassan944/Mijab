@@ -1,4 +1,4 @@
-export type ProductId = "cafe-noir" | "vanilla-gourmand" | "duo" | "perfume-wax";
+export type ProductId = "cafe-noir" | "vanilla-gourmand" | "duo" | "perfume-wax" | "perfume-wax-velvet";
 
 export type Product = {
   id: ProductId;
@@ -70,21 +70,38 @@ export const products: Record<ProductId, Product> = {
   "perfume-wax": {
     id: "perfume-wax",
     slug: "perfume-wax",
-    name: "Perfume Wax",
-    audience: "For Him & Her",
+    name: "Noir Bloom",
+    audience: "Perfume Wax",
     tagline: "Pure / Gentle / Alcohol-Free",
-    blurb: "A solid perfume balm, gift-boxed with a blessing.",
+    blurb: "Solid perfume wax in a black tin, gift-boxed with a blessing.",
     description:
-      "MIJAB Perfume Wax is a solid perfume: a smooth, alcohol-free balm you warm on your fingertip and press onto your wrists, neck and behind the ears. Gentle on skin, easy to carry, and presented in a black windowed gift bag that carries the words “Apply perfume, for it pleases Allah.” (Sunan Abu Dawood).",
+      "Noir Bloom is MIJAB solid perfume wax: a smooth, alcohol-free balm in a slim black tin. Warm a little on your fingertip and press it onto your wrists, neck and behind the ears. It arrives in a black windowed gift bag with a card that carries the words “Apply perfume, for it pleases Allah.” (Sunan Abu Dawood).",
     price: 999,
-    image: "/images/wax/perfume-wax.jpg",
-    swatch: "#EADBD3",
+    image: "/images/wax/noir.jpg",
+    swatch: "#1d1a17",
+    bagLabel: "Black windowed MIJAB gift bag",
+  },
+  "perfume-wax-velvet": {
+    id: "perfume-wax-velvet",
+    slug: "perfume-wax-velvet",
+    name: "Velvet Bloom",
+    audience: "Perfume Wax",
+    tagline: "Soft / Gentle / Alcohol-Free",
+    blurb: "Solid perfume wax in a cream tin, gift-boxed with a blessing.",
+    description:
+      "Velvet Bloom is MIJAB solid perfume wax: a smooth, alcohol-free balm in a slim cream tin. Warm a little on your fingertip and press it onto your wrists, neck and behind the ears. It arrives in a black windowed gift bag with a card that carries the words “Apply perfume, for it pleases Allah.” (Sunan Abu Dawood).",
+    price: 999,
+    image: "/images/wax/velvet.jpg",
+    swatch: "#efe2d8",
     bagLabel: "Black windowed MIJAB gift bag",
   },
 };
 
 /** True for the solid Perfume Wax, which has no bottle, size in ml or scent notes. */
-export const isWax = (p: { id: string }) => p.id === "perfume-wax";
+export const isWax = (p: { id: string }) => p.id.startsWith("perfume-wax");
+
+/** Display order everywhere products are listed. */
+export const PRODUCT_ORDER = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax", "perfume-wax-velvet"];
 
 /** Short format line shown under a product name, e.g. "Eau de Parfum · 50 ml". */
 export function formatLine(p: { id: string }): string {
@@ -103,7 +120,7 @@ export function realNotes(p: { notes?: { top: string; heart: string; base: strin
 }
 
 export const fragrances = [products["cafe-noir"], products["vanilla-gourmand"]];
-export const shopItems = [products["cafe-noir"], products["vanilla-gourmand"], products.duo, products["perfume-wax"]];
+export const shopItems = [products["cafe-noir"], products["vanilla-gourmand"], products.duo, products["perfume-wax"], products["perfume-wax-velvet"]];
 
 export const DELIVERY_FEE = 350;
 export const PROMO_CODES: Record<string, number> = { WELCOME10: 0.1, MIJAB10: 0.1 };
@@ -116,6 +133,7 @@ const LOOKS: Record<string, string> = {
   "cafe-noir": "/images/home/card-noir.jpg",
   "vanilla-gourmand": "/images/home/card-vanilla.jpg",
   duo: "/images/home/card-duo.jpg",
-  "perfume-wax": "/images/wax/perfume-wax.jpg",
+  "perfume-wax": "/images/wax/noir.jpg",
+  "perfume-wax-velvet": "/images/wax/velvet.jpg",
 };
 export const lookImage = (p: { id: string; image: string }) => LOOKS[p.id] ?? p.image;

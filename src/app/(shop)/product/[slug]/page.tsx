@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToBag } from "@/components/Buttons";
 import { BagIcon, Cash, Clock, Gift, Leaf, Star, Truck } from "@/components/Icons";
-import { formatPrice, isWax, lookImage, Product, realNotes } from "@/lib/products";
+import { formatPrice, isWax, lookImage, Product, PRODUCT_ORDER, realNotes } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { SITE_URL } from "@/lib/site";
 import { api, ApiReview } from "@/lib/api";
@@ -49,8 +49,11 @@ function shotsFor(p: Product): Shot[] {
     case "duo":
       return [look, ...own];
     case "perfume-wax":
+    case "perfume-wax-velvet":
       return [
-        look,
+        { id: "look", src: p.id === "perfume-wax" ? "/images/wax/noir-tall.jpg" : "/images/wax/velvet-tall.jpg", alt: `MIJAB ${p.name} perfume wax tin` },
+        { id: "tin", src: "/images/wax/wax-tin-real.jpg", alt: "MIJAB perfume wax tin with its card and gift bag" },
+        { id: "bag", src: "/images/wax/perfume-wax.jpg", alt: "MIJAB Perfume Wax gift bag" },
         { id: "pink", src: "/images/wax/wax-pink.jpg", alt: "MIJAB Perfume Wax on a cushion" },
         { id: "real", src: "/images/wax/wax-real.jpg", alt: "MIJAB Perfume Wax beside a plant" },
         { id: "gifts", src: "/images/wax/wax-gifts.jpg", alt: "MIJAB Perfume Wax gift bags with petals" },
@@ -106,7 +109,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const summary = ctx.ratings[product.name];
   const noir = catalog["cafe-noir"];
   const vanilla = catalog["vanilla-gourmand"];
-  const others = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax"].filter((id) => id !== product.id).map((id) => catalog[id]).filter(Boolean);
+  const others = PRODUCT_ORDER.filter((id) => id !== product.id).map((id) => catalog[id]).filter(Boolean);
   const save = product.compareAt && product.compareAt > product.price ? product.compareAt - product.price : 0;
   const size = wax ? "Solid wax" : duo ? "2 × 50 ml" : "50 ml";
   const kind = wax ? "Solid Perfume" : duo ? "Gift Set · Eau de Parfum" : "Eau de Parfum";
@@ -264,7 +267,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   <Link href={`/product/${o.slug}`} className="lp-mcard-img"><Image src={lookImage(o)} alt={`MIJAB ${o.name}`} fill sizes="(max-width: 820px) 40vw, 190px" /></Link>
                   <div className="lp-mcard-body">
                     <Link href={`/product/${o.slug}`} className="lp-mcard-name">{o.name}</Link>
-                    {o.id === "duo" ? <span className="lx-card-sub">Café Noir + Vanilla Gourmand</span> : o.id === "perfume-wax" ? <span className="lx-new">New</span> : <span className="lx-tag">{o.audience}</span>}
+                    {o.id === "duo" ? <span className="lx-card-sub">Café Noir + Vanilla Gourmand</span> : isWax(o) ? <span className="lx-new">Perfume Wax</span> : <span className="lx-tag">{o.audience}</span>}
                     <div className="lp-mcard-price">{formatPrice(o.price)}{oSave && <s>{formatPrice(o.compareAt!)}</s>}</div>
                     <AddToBag id={o.id} className="lx-btn dark sm" label="Add to Bag" icon go={null} />
                   </div>

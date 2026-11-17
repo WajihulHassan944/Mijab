@@ -5,7 +5,7 @@ import { Arrow, Cash, Clock, Gift, Leaf, ShieldCheck, Star, Truck, BagIcon } fro
 import { AddToBag } from "@/components/Buttons";
 import { HeroFilm } from "@/components/lux/HeroFilm";
 import { PhoneFilm } from "@/components/lux/PhoneFilm";
-import { formatPrice, lookImage, Product } from "@/lib/products";
+import { formatPrice, isWax, lookImage, Product, PRODUCT_ORDER } from "@/lib/products";
 import { fetchCatalog } from "@/lib/catalog";
 import { api, ApiReview } from "@/lib/api";
 import { fetchOfferContext, productJsonLd } from "@/lib/seo";
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 /** Small line under each card name: who it's for, or what's inside. */
 function cardMeta(p: Product) {
   if (p.id === "duo") return <span className="lx-card-sub">Café Noir + Vanilla Gourmand</span>;
-  if (p.id === "perfume-wax") return <span className="lx-card-sub">Alcohol-free solid perfume</span>;
+  if (isWax(p)) return <span className="lx-card-sub">Solid perfume wax · tin</span>;
   return (
     <>
       <span className="lx-tag">{p.audience}</span>
@@ -62,9 +62,9 @@ export default async function Home() {
     fetchOfferContext(api),
     api.settings.get().catch(() => null),
   ]);
-  const order = ["cafe-noir", "vanilla-gourmand", "duo", "perfume-wax"];
-  const items = order.map((id) => catalog[id]).filter(Boolean);
+  const items = PRODUCT_ORDER.map((id) => catalog[id]).filter(Boolean);
   const wax = catalog["perfume-wax"];
+  const velvet = catalog["perfume-wax-velvet"];
   const cod = settings?.cod ?? true;
   const shownReviews = reviews.filter((r) => r.body.trim()).slice(0, 3);
 
@@ -122,20 +122,23 @@ export default async function Home() {
         <section className="lx-wax" aria-labelledby="lx-wax-title">
           <div className="lx-wrap lx-wax-grid">
             <Link href={`/product/${wax.slug}`} className="lx-wax-img">
-              <Image src={lookImage(wax)} alt="MIJAB Perfume Wax in its black windowed gift bag" fill sizes="(max-width: 820px) 45vw, 470px" />
+              <Image src="/images/wax/wax-duo.jpg" alt="MIJAB Perfume Wax tins, Noir Bloom and Velvet Bloom, with their gift bag" fill sizes="(max-width: 820px) 45vw, 470px" />
             </Link>
             <div className="lx-wax-copy">
               <div className="lx-eyebrow gold lined">New Launch</div>
               <h2 id="lx-wax-title">Mijab <em>Perfume Wax</em></h2>
-              <p className="lx-lead">An alcohol-free solid perfume for a soft, close-to-skin scent, anytime, anywhere.</p>
+              <p className="lx-lead">Alcohol-free solid perfume in a slim tin, in two scents: Noir Bloom and Velvet Bloom.</p>
               <ul className="lx-benefits">
                 <li><Leaf size={30} stroke="currentColor" width={1.1} /><span>Alcohol-Free<small><br />&amp; Skin Friendly</small></span></li>
                 <li><Clock size={30} stroke="currentColor" width={1.1} /><span>Long-Lasting<small><br />Fragrance</small></span></li>
                 <li><BagIcon size={30} stroke="currentColor" width={1.1} /><span>Travel-Friendly<small><br />&amp; Mess-Free</small></span></li>
               </ul>
               <div className="lx-wax-buy">
-                <span className="lx-price-lg">{formatPrice(wax.price)}</span>
-                <AddToBag id={wax.id} className="lx-btn dark wide" label="Add to Bag" icon go={null} />
+                <span className="lx-price-lg">{formatPrice(wax.price)}<small> each</small></span>
+                <div className="lx-wax-pick">
+                  <AddToBag id={wax.id} className="lx-btn dark" label={`Add ${wax.name}`} go={null} />
+                  {velvet && <AddToBag id={velvet.id} className="lx-btn velvet" label={`Add ${velvet.name}`} go={null} />}
+                </div>
               </div>
               <Link href={`/product/${wax.slug}`} className="lx-textlink"><span className="lx-hide-m">How to wear it</span><span className="lx-only-m">Learn more</span> <Arrow /></Link>
             </div>
@@ -162,7 +165,7 @@ export default async function Home() {
                   <div className="lx-card-body">
                     <div className="lx-card-name">
                       <Link href={`/product/${p.slug}`}>{p.name}</Link>
-                      {p.id === "perfume-wax" && <span className="lx-new">New</span>}
+                      {isWax(p) && <span className="lx-new">New</span>}
                     </div>
                     <div className="lx-card-meta">{cardMeta(p)}</div>
                     <div className="lx-card-price">
