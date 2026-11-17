@@ -29,7 +29,7 @@ export const products: Record<ProductId, Product> = {
     blurb: "Roasted coffee, leather and dark amber.",
     description:
       "A deep, dark fragrance built around freshly roasted coffee, warmed by leather and softened with tonka bean. Made for evenings that run long.",
-    price: 3000,
+    price: 2999,
     image: "/images/cafe-noir.jpg",
     swatch: "#141010",
     bag: "/images/bag-black.png",
@@ -46,7 +46,7 @@ export const products: Record<ProductId, Product> = {
     blurb: "Vanilla orchid, praline and sandalwood.",
     description:
       "A warm, indulgent fragrance of vanilla orchid and praline, lifted by pear and a touch of pink pepper. Soft, lingering and unforgettable.",
-    price: 3000,
+    price: 2999,
     image: "/images/vanilla-gourmand.jpg",
     swatch: "#DCCBE6",
     bag: "/images/bag-pink.png",
@@ -76,7 +76,7 @@ export const products: Record<ProductId, Product> = {
     blurb: "A solid perfume balm, gift-boxed with a blessing.",
     description:
       "MIJAB Perfume Wax is a solid perfume: a smooth, alcohol-free balm you warm on your fingertip and press onto your wrists, neck and behind the ears. Gentle on skin, easy to carry, and presented in a black windowed gift bag that carries the words “Apply perfume, for it pleases Allah.” (Sunan Abu Dawood).",
-    price: 1200,
+    price: 999,
     image: "/images/wax/perfume-wax.jpg",
     swatch: "#EADBD3",
     bagLabel: "Black windowed MIJAB gift bag",
